@@ -83,7 +83,9 @@ func _refresh() -> void:
 	_summary.text = "Dân số: %d (trẻ %d / trưởng thành %d / cao tuổi %d)\nNhà: %d | Sức chứa: %d | Chưa phân nhà: %d\nĐang chọn: %s\nDân làng: %s\nGỗ: %d | Đá: %d\nNghề: Săn %d / Hái %d / Nông %d / Chế tác %d / Lính %d\nKho: Thịt %d, Quả %d, Lương thực %d, Dụng cụ %d" % [
 		int(pop.total), int(pop.children), int(pop.adults), int(pop.elders),
 		int(housing.houses), int(housing.capacity), int(housing.homeless),
-		house_text, resident_text, TribeHousingSystem.wood, TribeHousingSystem.stone
+		house_text, resident_text, TribeHousingSystem.wood, TribeHousingSystem.stone,
+		int(job_counts.hunter), int(job_counts.gatherer), int(job_counts.farmer), int(job_counts.crafter), int(job_counts.warrior),
+		int(stock.meat), int(stock.berries), int(stock.food), int(stock.tools)
 	]
 
 func _select_next_resident() -> void:
