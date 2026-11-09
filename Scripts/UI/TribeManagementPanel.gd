@@ -43,7 +43,7 @@ func _ready() -> void:
 	job_button.text = "ĐỔI NGHỀ CHO DÂN ĐANG CHỌN"
 	job_button.pressed.connect(_assign_selected_job)
 	column.add_child(job_button)
-	var train_button := Button.new()
+	var army_button := Button.new()\n\tarmy_button.text = "TUYỂN DÂN ĐANG CHỌN VÀO QUÂN ĐỘI"\n\tarmy_button.pressed.connect(_enlist_selected)\n\tcolumn.add_child(army_button)\n\tvar dismiss_button := Button.new()\n\tdismiss_button.text = "GIẢI NGŨ DÂN ĐANG CHỌN"\n\tdismiss_button.pressed.connect(_dismiss_selected)\n\tcolumn.add_child(dismiss_button)\n\tvar train_button := Button.new()
 	train_button.text = "HUẤN LUYỆN DÂN LÀNG"
 	train_button.pressed.connect(_train_resident)
 	column.add_child(train_button)
@@ -70,7 +70,7 @@ func _refresh() -> void:
 	var pop: Dictionary = TribePopulation.get_population_summary()
 	var job_summary: Dictionary = TribeJobSystem.get_job_summary()
 	var job_counts: Dictionary = job_summary.counts
-	var stock: Dictionary = job_summary.stockpile
+	var stock: Dictionary = job_summary.stockpile\n\tvar army: Dictionary = TribeArmySystem.get_army_summary()
 	var housing: Dictionary = TribeHousingSystem.get_housing_summary()
 	var house_text := "Chưa có nhà"
 	var house := _find_house(_selected_house_id)
@@ -80,12 +80,12 @@ func _refresh() -> void:
 	if not _resident_ids.is_empty():
 		var person := _find_resident(_resident_ids[_selected_resident_index])
 		resident_text = "%s (#%d, %d tuổi)" % [str(person.name), int(person.id), int(person.age)]
-	_summary.text = "Dân số: %d (trẻ %d / trưởng thành %d / cao tuổi %d)\nNhà: %d | Sức chứa: %d | Chưa phân nhà: %d\nĐang chọn: %s\nDân làng: %s\nGỗ: %d | Đá: %d\nNghề: Săn %d / Hái %d / Nông %d / Chế tác %d / Lính %d\nKho: Thịt %d, Quả %d, Lương thực %d, Dụng cụ %d" % [
+	_summary.text = "Dân số: %d (trẻ %d / trưởng thành %d / cao tuổi %d)\nNhà: %d | Sức chứa: %d | Chưa phân nhà: %d\nĐang chọn: %s\nDân làng: %s\nGỗ: %d | Đá: %d\nNghề: Săn %d / Hái %d / Nông %d / Chế tác %d / Lính %d\nKho: Thịt %d, Quả %d, Lương thực %d, Dụng cụ %d, Chiến lực %d\\nQuân đội: %d (Giáo %d / Cung %d / Vệ binh %d)" % [
 		int(pop.total), int(pop.children), int(pop.adults), int(pop.elders),
 		int(housing.houses), int(housing.capacity), int(housing.homeless),
 		house_text, resident_text, TribeHousingSystem.wood, TribeHousingSystem.stone,
 		int(job_counts.hunter), int(job_counts.gatherer), int(job_counts.farmer), int(job_counts.crafter), int(job_counts.warrior),
-		int(stock.meat), int(stock.berries), int(stock.food), int(stock.tools)
+		int(stock.meat), int(stock.berries), int(stock.food), int(stock.tools), int(stock.warrior_power),\n\t\tint(army.total), int(army.spear), int(army.archer), int(army.guard)
 	]
 
 func _select_next_resident() -> void:
@@ -148,7 +148,7 @@ func _assign_selected_job() -> void:
 	_selected_job_index = (_selected_job_index + 1) % _job_ids.size()
 	_refresh()
 
-func _train_resident() -> void:
+func _enlist_selected() -> void:\n\tif _resident_ids.is_empty():\n\t\t_set_status("Không có dân làng để tuyển.")\n\t\treturn\n\tvar resident_id := _resident_ids[_selected_resident_index]\n\tif TribeArmySystem.enlist(resident_id):\n\t\t_set_status("Đã tuyển vào quân đội. Loại binh lính được phân tự động.")\n\telse:\n\t\t_set_status("Cần cư dân trưởng thành đã được phân nghề Chiến binh.")\n\t_refresh()\n\nfunc _dismiss_selected() -> void:\n\tif _resident_ids.is_empty():\n\t\treturn\n\tif TribeArmySystem.dismiss(_resident_ids[_selected_resident_index]):\n\t\t_set_status("Dân làng đã giải ngũ.")\n\telse:\n\t\t_set_status("Dân làng này chưa ở trong quân đội.")\n\t_refresh()\n\nfunc _train_resident() -> void:
 	if _resident_ids.is_empty():
 		_set_status("Không có dân làng để huấn luyện.")
 		return
