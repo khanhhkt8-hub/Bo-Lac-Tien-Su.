@@ -9,6 +9,7 @@
 [ext_resource type="Script" path="res://Scripts/World/DayNightCycle.gd" id="7_cycle"]
 [ext_resource type="Script" path="res://Scripts/Enemies/BarbarianRaidDirector.gd" id="8_raid"]
 [ext_resource type="Script" path="res://Scripts/World/BiomeEncounterDirector.gd" id="9_biome"]
+[ext_resource type="Script" path="res://Scripts/Enemies/BarbarianCampDirector.gd" id="10_camps"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_player"]
 radius = 14.0
@@ -24,6 +25,9 @@ script = ExtResource("8_raid")
 
 [node name="BiomeEncounterDirector" type="Node2D" parent="."]
 script = ExtResource("9_biome")
+
+[node name="BarbarianCampDirector" type="Node2D" parent="."]
+script = ExtResource("10_camps")
 
 [node name="Player" type="CharacterBody2D" parent="."]
 position = Vector2(0, 0)
