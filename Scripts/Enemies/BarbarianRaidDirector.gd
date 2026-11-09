@@ -47,11 +47,11 @@ func _attempt_resource_raid() -> void:
 	var candidates: Array[String] = []
 	var stock: Dictionary = TribeJobSystem.stockpile
 	for resource_id in ["meat", "berries", "food", "tools"]:
-	\tif int(stock.get(resource_id, 0)) > 0:
-	\t\tcandidates.append(resource_id)
+		if int(stock.get(resource_id, 0)) > 0:
+			candidates.append(resource_id)
 	if candidates.is_empty():
-	\treturn
+		return
 	var target: String = candidates[randi_range(0, candidates.size() - 1)]
 	var stolen := TribeJobSystem.raid_stockpile(target, randi_range(1, 3))
 	if stolen > 0:
-	\tprint("Man rợ đột kích và cướp ", stolen, " ", target, " khỏi kho bộ lạc!")\n
+		print("Man rợ đột kích và cướp ", stolen, " ", target, " khỏi kho bộ lạc!")
