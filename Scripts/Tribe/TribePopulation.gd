@@ -104,6 +104,9 @@ func _advance_one_year() -> void:
 	_emit_population()
 	save_population()
 
+func get_resident(resident_id: int) -> Dictionary:
+	return _find_resident(resident_id)
+
 func _find_resident(resident_id: int) -> Dictionary:
 	for person in residents:
 		if int(person.id) == resident_id and person.alive:
