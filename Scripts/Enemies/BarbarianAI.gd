@@ -3,10 +3,17 @@ class_name BarbarianAI
 
 @export var alert_radius: float = 300.0
 @export var barbarian_speed_bonus: float = 1.15
+@export var is_chief: bool = false
 
 func _ready() -> void:
 	enemy_name = "Barbarian"
 	move_speed *= barbarian_speed_bonus
+	if is_chief:
+		enemy_name = "Tribal Chief"
+		max_health = 220.0
+		attack_damage = 18.0
+		move_speed *= 0.9
+		alert_radius = 480.0
 	super._ready()
 	add_to_group("barbarians")
 
@@ -22,3 +29,9 @@ func receive_alert(new_target: Node2D) -> void:
 	if is_instance_valid(new_target):
 		target = new_target
 		state = AIState.CHASE
+
+func _draw() -> void:
+	super._draw()
+	if is_chief:
+		draw_arc(Vector2.ZERO, 19.0, 0.0, TAU, 24, Color("#e5bd48"), 3.0)
+		draw_circle(Vector2(0.0, -18.0), 4.0, Color("#e5bd48"))
