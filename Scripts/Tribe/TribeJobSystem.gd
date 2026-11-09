@@ -60,13 +60,14 @@ func get_job_summary() -> Dictionary:
 
 func raid_stockpile(resource_id: String, requested_amount: int) -> int:
 	if not stockpile.has(resource_id) or requested_amount <= 0:
-	\treturn 0
+		return 0
 	var stolen := mini(int(stockpile[resource_id]), requested_amount)
 	stockpile[resource_id] = int(stockpile[resource_id]) - stolen
 	if stolen > 0:
-	\tproduction_changed.emit(resource_id, int(stockpile[resource_id]))
-	\t_save_state()
-	return stolen\n
+		production_changed.emit(resource_id, int(stockpile[resource_id]))
+		_save_state()
+	return stolen
+
 func _produce_resources() -> void:
 	var produced: Dictionary = {}
 	for key in assignments:
