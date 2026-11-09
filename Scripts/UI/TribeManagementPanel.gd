@@ -95,7 +95,7 @@ func _refresh() -> void:
 		house_text, resident_text, TribeHousingSystem.wood, TribeHousingSystem.stone,
 		int(job_counts.hunter), int(job_counts.gatherer), int(job_counts.farmer), int(job_counts.crafter), int(job_counts.warrior),
 		int(stock.meat), int(stock.berries), int(stock.food), int(stock.tools), int(stock.warrior_power),
-	\tint(army.total), int(army.spear), int(army.archer), int(army.guard)
+		int(army.total), int(army.spear), int(army.archer), int(army.guard)
 	]
 
 func _select_next_resident() -> void:
@@ -160,21 +160,21 @@ func _assign_selected_job() -> void:
 
 func _enlist_selected() -> void:
 	if _resident_ids.is_empty():
-	\t_set_status("Không có dân làng để tuyển.")
-	\treturn
+		_set_status("Không có dân làng để tuyển.")
+		return
 	var resident_id := _resident_ids[_selected_resident_index]
 	if TribeArmySystem.enlist(resident_id):
-	\t_set_status("Đã tuyển vào quân đội. Loại binh lính được phân tự động.")
+		_set_status("Đã tuyển vào quân đội. Loại binh lính được phân tự động.")
 	else:
-	\t_set_status("Cần cư dân trưởng thành đã được phân nghề Chiến binh.")
+		_set_status("Cần cư dân trưởng thành đã được phân nghề Chiến binh.")
 	_refresh()\n
 func _dismiss_selected() -> void:
 	if _resident_ids.is_empty():
-	\treturn
+		return
 	if TribeArmySystem.dismiss(_resident_ids[_selected_resident_index]):
-	\t_set_status("Dân làng đã giải ngũ.")
+		_set_status("Dân làng đã giải ngũ.")
 	else:
-	\t_set_status("Dân làng này chưa ở trong quân đội.")
+		_set_status("Dân làng này chưa ở trong quân đội.")
 	_refresh()\n
 func _train_resident() -> void:
 	if _resident_ids.is_empty():
