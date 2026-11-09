@@ -9,6 +9,7 @@ var _player: Node
 var _stats: SurvivalStats
 var _inventory: InventorySystem
 var _crafting: CraftingSystem
+var _tribe_panel: PanelContainer
 
 func _ready() -> void:
 	_player = get_node_or_null(player_path)
@@ -52,6 +53,7 @@ func _ready() -> void:
 	_add_craft_button(buttons, "Giáo đá", "stone_spear")
 	_add_craft_button(buttons, "Đống lửa", "campfire")
 	_create_mobile_movement_pad()
+	_create_tribe_management_button()
 
 	if _player != null:
 		_stats = _player.get("survival_stats") as SurvivalStats
@@ -132,3 +134,31 @@ func _on_inventory_changed(items: Dictionary) -> void:
 	for item_id in items:
 		parts.append("%s: %d" % [str(item_id), int(items[item_id])])
 	_inventory_label.text = "Túi đồ: " + " | ".join(parts)
+
+func _create_tribe_management_button() -> void:
+	var button := Button.new()
+	button.text = "BỘ LẠC"
+	button.position = Vector2(-176, 16)
+	button.anchor_left = 1.0
+	button.anchor_right = 1.0
+	button.offset_left = -176.0
+	button.offset_top = 16.0
+	button.offset_right = -16.0
+	button.offset_bottom = 64.0
+	button.pressed.connect(_toggle_tribe_panel)
+	add_child(button)
+	_tribe_panel = PanelContainer.new()
+	_tribe_panel.set_script(load("res://Scripts/UI/TribeManagementPanel.gd"))
+	_tribe_panel.position = Vector2(-326, 76)
+	_tribe_panel.anchor_left = 1.0
+	_tribe_panel.anchor_right = 1.0
+	_tribe_panel.offset_left = -326.0
+	_tribe_panel.offset_top = 76.0
+	_tribe_panel.offset_right = -16.0
+	_tribe_panel.offset_bottom = 420.0
+	_tribe_panel.visible = false
+	add_child(_tribe_panel)
+
+func _toggle_tribe_panel() -> void:
+	if _tribe_panel != null:
+		_tribe_panel.visible = not _tribe_panel.visible
