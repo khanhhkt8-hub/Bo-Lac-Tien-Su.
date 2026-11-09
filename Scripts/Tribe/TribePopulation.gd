@@ -37,7 +37,7 @@ func add_resident(resident_name: String, age: int, sex: String, role: String = "
 	residents.append({
 		"id": resident_id, "name": resident_name, "age": age,
 		"sex": sex, "role": role, "partner_id": -1,
-		"health": 100.0, "alive": true, "in_daycare": false
+		"health": 100.0, "food": 20, "strength": 10, "stamina": 10, "alive": true, "in_daycare": false
 	})
 	_emit_population()
 	return resident_id
