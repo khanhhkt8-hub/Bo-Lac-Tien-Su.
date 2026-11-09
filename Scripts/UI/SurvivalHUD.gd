@@ -46,6 +46,10 @@ func _ready() -> void:
 	upgrade_button.text = "NÂNG CẤP THÚ"
 	upgrade_button.pressed.connect(_on_upgrade_companion_pressed)
 	mount_row.add_child(upgrade_button)
+	var breed_button := Button.new()
+	breed_button.text = "LAI TẠO THÚ"
+	breed_button.pressed.connect(_on_breed_companions_pressed)
+	column.add_child(breed_button)
 	var tame_button := Button.new()
 	tame_button.text = "THUẦN HÓA THÚ"
 	tame_button.pressed.connect(_on_tame_pressed)
@@ -225,3 +229,8 @@ func _on_mount_pressed() -> void:
 func _on_upgrade_companion_pressed() -> void:
 	if _player != null and _player.has_method("upgrade_nearby_companion"):
 		_craft_status.text = _player.upgrade_nearby_companion()
+
+
+func _on_breed_companions_pressed() -> void:
+	if _player != null and _player.has_method("breed_nearby_companions"):
+		_craft_status.text = _player.breed_nearby_companions()
