@@ -12,6 +12,7 @@ var attack_cooldown_left: float = 0.0
 var current_region_id := ""
 var hazard_damage_timer := 0.0
 var antidote_seconds := 0.0
+var mounted_animal: PrehistoricAnimal
 @export var attack_cooldown: float = 0.55
 @export var attack_range: float = 72.0
 
@@ -36,8 +37,16 @@ func _physics_process(delta: float) -> void:
 	attack_cooldown_left = maxf(0.0, attack_cooldown_left - delta)
 	_update_environment_hazards(delta)
 	var direction := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
-	velocity = direction * move_speed
+	var speed_multiplier := 1.0
+	if is_instance_valid(mounted_animal):
+		if mounted_animal.is_mounted:
+			speed_multiplier = mounted_animal.get_mount_speed_multiplier()
+		else:
+			mounted_animal = null
+	velocity = direction * move_speed * speed_multiplier
 	move_and_slide()
+	if is_instance_valid(mounted_animal):
+		mounted_animal.global_position = global_position + Vector2(0.0, 18.0)
 
 
 func _on_region_changed(region_id: String, _data: Dictionary) -> void:
@@ -181,3 +190,55 @@ func _draw() -> void:
 	draw_circle(Vector2(-4.0, -3.0), 2.0, Color("#292018"))
 	draw_circle(Vector2(4.0, -3.0), 2.0, Color("#292018"))
 	draw_arc(Vector2(0.0, 1.0), 6.0, 0.25, PI - 0.25, 12, Color("#292018"), 1.5)
+
+
+func toggle_mount_nearby_animal() -> String:
+	if is_instance_valid(mounted_animal):
+		mounted_animal.is_mounted = false
+		mounted_animal.mount_owner = null
+		mounted_animal.z_index = 0
+		var old_name := mounted_animal.enemy_name
+		mounted_animal = null
+		return "Đã xuống thú: " + old_name
+	mounted_animal = null
+	var nearest: PrehistoricAnimal
+	var nearest_distance := 130.0
+	for node in get_tree().get_nodes_in_group("tamed_animals"):
+		if not is_instance_valid(node) or not node is PrehistoricAnimal or node.is_mounted:
+			continue
+		var distance := global_position.distance_to(node.global_position)
+		if distance <= nearest_distance:
+			nearest = node
+			nearest_distance = distance
+	if nearest == null:
+		return "Cần đứng gần thú đã thuần hóa để cưỡi"
+	mounted_animal = nearest
+	nearest.is_mounted = true
+	nearest.mount_owner = self
+	nearest.z_index = -1
+	nearest.global_position = global_position + Vector2(0.0, 18.0)
+	return "Đang cưỡi " + nearest.enemy_name + " | Tốc độ x%.2f" % nearest.get_mount_speed_multiplier()
+
+func upgrade_nearby_companion() -> String:
+	var nearest: PrehistoricAnimal
+	var nearest_distance := 150.0
+	for node in get_tree().get_nodes_in_group("tamed_animals"):
+		if not is_instance_valid(node) or not node is PrehistoricAnimal:
+			continue
+		var distance := global_position.distance_to(node.global_position)
+		if distance <= nearest_distance:
+			nearest = node
+			nearest_distance = distance
+	if nearest == null:
+		return "Hãy đến gần thú đồng hành để nâng cấp"
+	if nearest.companion_level >= 3:
+		return "Thú đã đạt cấp tối đa 3"
+	if inventory.get_amount("bone") < 5 or inventory.get_amount("hide") < 3:
+		return "Cần 5 xương và 3 da thú để nâng cấp"
+	if not inventory.remove_item("bone", 5):
+		return "Không đủ xương"
+	if not inventory.remove_item("hide", 3):
+		inventory.add_item("bone", 5)
+		return "Không đủ da thú"
+	nearest.upgrade_companion()
+	return "%s đã lên cấp %d" % [nearest.enemy_name, nearest.companion_level]
