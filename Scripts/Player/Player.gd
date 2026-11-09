@@ -125,6 +125,43 @@ func shoot_arrow() -> bool:
 	attack_cooldown_left = 0.8
 	return true
 
+
+func tame_nearby_animal() -> String:
+	var nearest: PrehistoricAnimal
+	var nearest_distance := 105.0
+	for node in get_tree().get_nodes_in_group("prehistoric_animals"):
+		if not is_instance_valid(node) or not node is PrehistoricAnimal or node.is_tamed:
+			continue
+		var distance := global_position.distance_to(node.global_position)
+		if distance <= nearest_distance:
+			nearest = node
+			nearest_distance = distance
+	if nearest == null:
+		return "Không có thú hoang trong tầm thuần hóa"
+	if get_tree().get_nodes_in_group("tamed_animals").size() >= 3:
+		return "Đội thú đồng hành đã đủ 3 con"
+	var food_item := "meat"
+	var food_cost := 2
+	match nearest.species:
+		"wolf":
+			food_item = "meat"
+			food_cost = 2
+		"saber_tooth":
+			food_item = "meat"
+			food_cost = 5
+		"cave_bear":
+			food_item = "meat"
+			food_cost = 6
+		"mammoth":
+			food_item = "food"
+			food_cost = 8
+	if inventory.get_amount(food_item) < food_cost:
+		return "Cần %d %s để thuần hóa" % [food_cost, food_item]
+	if not inventory.remove_item(food_item, food_cost):
+		return "Không thể tiêu hao thức ăn"
+	nearest.tame_as_companion()
+	return "Đã thuần hóa: " + nearest.enemy_name
+
 func gather_nearby() -> bool:
 	var nearest: ResourceNode
 	var nearest_distance := gather_distance
