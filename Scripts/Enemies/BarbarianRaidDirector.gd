@@ -23,13 +23,19 @@ func _process(_delta: float) -> void:
 	raid_started_this_night = true
 	_start_raid()
 
-func _start_raid() -> void:\n\tvar army_summary: Dictionary = TribeArmySystem.get_army_summary()\n\tif int(army_summary.power) >= 25:\n\t\tprint("Bộ lạc tổ chức phòng thủ! Chiến lực: ", army_summary.power)
+func _start_raid() -> void:
+	var army_summary: Dictionary = TribeArmySystem.get_army_summary()
+	if int(army_summary.power) >= 25:
+	\tprint("Bộ lạc tổ chức phòng thủ! Chiến lực: ", army_summary.power)
 	var player := get_tree().get_first_node_in_group("player") as Node2D
 	if not is_instance_valid(player):
 		return
 	var alive := get_tree().get_nodes_in_group("barbarians").size()
 	var available := maxi(0, max_barbarians_alive - alive)
-	var army: Dictionary = TribeArmySystem.get_army_summary()\n\t# Organized defenders reduce the number of raiders reaching the village.\n\tvar defended := int(army.power / 25)\n\tvar count := mini(maxi(0, raiders_per_wave - defended), available)
+	var army: Dictionary = TribeArmySystem.get_army_summary()
+	# Organized defenders reduce the number of raiders reaching the village.
+	var defended := int(army.power / 25)
+	var count := mini(maxi(0, raiders_per_wave - defended), available)
 	for i in range(count):
 		var angle := TAU * float(i) / float(maxi(1, count)) + randf_range(-0.25, 0.25)
 		var offset := Vector2.RIGHT.rotated(angle) * spawn_distance
