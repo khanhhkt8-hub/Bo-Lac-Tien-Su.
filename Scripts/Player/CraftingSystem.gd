@@ -12,7 +12,10 @@ const RECIPES := {
 	"stone_spear": {"wood": 2, "stone": 1},
 	"campfire": {"wood": 5, "stone": 3},
 	"bow": {"wood": 4, "stone": 2},
-	"arrows": {"wood": 2, "stone": 1}
+	"arrows": {"wood": 2, "stone": 1},
+	"fur_cloak": {"hide": 8, "bone": 3},
+	"herbal_antidote": {"herbs": 3, "berries": 2},
+	"torch": {"wood": 3, "reeds": 2}
 }
 
 func setup(target_inventory: InventorySystem) -> void:
