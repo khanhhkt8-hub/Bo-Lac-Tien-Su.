@@ -24,6 +24,12 @@ func _ready() -> void:
 	_inventory_label = Label.new()
 	_inventory_label.text = "Túi đồ: trống"
 	column.add_child(_inventory_label)
+	var combat_row := HBoxContainer.new()
+	column.add_child(combat_row)
+	var attack_button := Button.new()
+	attack_button.text = "TẤN CÔNG"
+	attack_button.pressed.connect(_on_attack_pressed)
+	combat_row.add_child(attack_button)
 	var gather_button := Button.new()
 	gather_button.text = "THU THẬP TÀI NGUYÊN"
 	gather_button.pressed.connect(_on_gather_pressed)
@@ -77,6 +83,11 @@ func _on_move_button_down(action: String) -> void:
 
 func _on_move_button_up(action: String) -> void:
 	Input.action_release(action)
+
+func _on_attack_pressed() -> void:
+	if _player != null and _player.has_method("attack_nearby"):
+		if not _player.attack_nearby():
+			_craft_status.text = "Không có kẻ địch trong tầm hoặc đang hồi chiêu"
 
 func _on_gather_pressed() -> void:
 	if _player != null and _player.has_method("gather_nearby"):
