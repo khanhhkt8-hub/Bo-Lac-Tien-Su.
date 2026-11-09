@@ -36,6 +36,16 @@ func _ready() -> void:
 	attack_button.text = "TẤN CÔNG"
 	attack_button.pressed.connect(_on_attack_pressed)
 	combat_row.add_child(attack_button)
+	var mount_row := HBoxContainer.new()
+	column.add_child(mount_row)
+	var mount_button := Button.new()
+	mount_button.text = "CƯỠI / XUỐNG THÚ"
+	mount_button.pressed.connect(_on_mount_pressed)
+	mount_row.add_child(mount_button)
+	var upgrade_button := Button.new()
+	upgrade_button.text = "NÂNG CẤP THÚ"
+	upgrade_button.pressed.connect(_on_upgrade_companion_pressed)
+	mount_row.add_child(upgrade_button)
 	var tame_button := Button.new()
 	tame_button.text = "THUẦN HÓA THÚ"
 	tame_button.pressed.connect(_on_tame_pressed)
@@ -206,3 +216,12 @@ func _on_region_changed(region_id: String, data: Dictionary) -> void:
 		int(summary.get("total", 6)),
 		str(data.get("hazard", "Không rõ"))
 	]
+
+
+func _on_mount_pressed() -> void:
+	if _player != null and _player.has_method("toggle_mount_nearby_animal"):
+		_craft_status.text = _player.toggle_mount_nearby_animal()
+
+func _on_upgrade_companion_pressed() -> void:
+	if _player != null and _player.has_method("upgrade_nearby_companion"):
+		_craft_status.text = _player.upgrade_nearby_companion()
