@@ -77,3 +77,12 @@ Game sinh tồn 2D offline, ưu tiên Android, phát triển bằng Godot 4.
 - Khu vực bên trong là một phòng hang riêng biệt trên cùng bản đồ offline, có giới hạn di chuyển và lối ra để quay về mặt đất.
 - Hang có gấu hang và hổ răng kiếm canh giữ; động vật được tạo khi người chơi bước vào và dọn khi rời đi.
 - Hệ thống được tích hợp vào Main.tscn bằng CaveSystem.gd.
+
+
+## Trang bị sinh tồn và hiểm họa môi trường
+- Áo da thú giảm mạnh sát thương lạnh tại Miền Băng Tuyết.
+- Đuốc giảm sát thương do bóng tối và giá lạnh trong Hang Động Cổ Xưa.
+- Thuốc giải thảo dược được tự dùng khi bước vào Đầm Lầy, bảo vệ khỏi độc tố trong 90 giây.
+- Người chơi chịu sát thương môi trường theo thời gian nếu thiếu trang bị phù hợp.
+- Công thức chế tạo: áo da (8 da + 3 xương), thuốc giải (3 thảo dược + 2 quả dại), đuốc (3 gỗ + 2 lau sậy).
+- HUD có các nút chế tạo trang bị sinh tồn. Vật phẩm được lưu trong túi đồ offline.
