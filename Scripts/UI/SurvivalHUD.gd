@@ -41,7 +41,7 @@ func _ready() -> void:
 	gather_button.pressed.connect(_on_gather_pressed)
 	column.add_child(gather_button)
 	_craft_status = Label.new()
-	_craft_status.text = "Rìu: 3 gỗ + 2 đá | Giáo: 2 gỗ + 1 đá | Lửa: 5 gỗ + 3 đá"
+	_craft_status.text = "Chế tạo: Rìu, giáo, cung, tên, lửa trại, trang bị sinh tồn"
 	_craft_status.autowrap_mode = TextServer.AUTOWRAP_WORD
 	column.add_child(_craft_status)
 	var ranged_row := HBoxContainer.new()
@@ -57,6 +57,11 @@ func _ready() -> void:
 	_add_craft_button(buttons, "Rìu đá", "stone_axe")
 	_add_craft_button(buttons, "Giáo đá", "stone_spear")
 	_add_craft_button(buttons, "Đống lửa", "campfire")
+	var survival_gear_row := HBoxContainer.new()
+	column.add_child(survival_gear_row)
+	_add_craft_button(survival_gear_row, "Áo da", "fur_cloak")
+	_add_craft_button(survival_gear_row, "Thuốc giải", "herbal_antidote")
+	_add_craft_button(survival_gear_row, "Đuốc", "torch")
 	_create_mobile_movement_pad()
 	_create_tribe_management_button()
 
