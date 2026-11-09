@@ -5,37 +5,29 @@ signal gathered(resource_type: String, amount: int)
 
 @export_enum("wood", "stone", "food", "water") var resource_type: String = "wood"
 @export_range(1, 99, 1) var amount_available: int = 5
-@export var interaction_distance: float = 56.0
-
-var _player: Node2D
-var _interact_was_pressed := false
 
 func _ready() -> void:
-	body_entered.connect(_on_body_entered)
-	body_exited.connect(_on_body_exited)
+	add_to_group("resource_nodes")
+	queue_redraw()
 
-func _process(_delta: float) -> void:
-	if _player == null or not is_instance_valid(_player):
-		return
-	var pressed := Input.is_key_pressed(KEY_E)
-	if pressed and not _interact_was_pressed and global_position.distance_to(_player.global_position) <= interaction_distance:
-		_gather()
-	_interact_was_pressed = pressed
-
-func _gather() -> void:
-	if amount_available <= 0:
-		return
+func gather_now(player: Node) -> bool:
+	if amount_available <= 0 or player == null or not player.has_method("collect_resource"):
+		return false
 	var amount := amount_available
 	amount_available = 0
-	if _player.has_method("collect_resource"):
-		_player.collect_resource(resource_type, amount)
+	player.collect_resource(resource_type, amount)
 	gathered.emit(resource_type, amount)
 	queue_free()
+	return true
 
-func _on_body_entered(body: Node2D) -> void:
-	if body.is_in_group("player"):
-		_player = body
-
-func _on_body_exited(body: Node2D) -> void:
-	if body == _player:
-		_player = null
+func _draw() -> void:
+	var tint := Color("#8a633c")
+	match resource_type:
+		"stone":
+			tint = Color("#92999b")
+		"food":
+			tint = Color("#b4a34b")
+		"water":
+			tint = Color("#438eb8")
+	draw_circle(Vector2.ZERO, 23.0, tint)
+	draw_circle(Vector2(-7.0, -6.0), 6.0, tint.lightened(0.25))
