@@ -61,6 +61,10 @@ position = Vector2(420, 120)
 [node name="BarbarianGuard" parent="." instance=ExtResource("5_barbarian")]
 position = Vector2(500, 180)
 
+[node name="TribalChief" parent="." instance=ExtResource("5_barbarian")]
+position = Vector2(760, 220)
+is_chief = true
+
 [node name="Wolf" parent="." instance=ExtResource("6_animal")]
 position = Vector2(-420, 100)
 species = "wolf"
