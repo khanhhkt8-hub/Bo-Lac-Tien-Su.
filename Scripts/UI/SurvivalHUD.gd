@@ -179,10 +179,17 @@ func _on_region_changed(region_id: String, data: Dictionary) -> void:
 		_region_label.text = "Khu vực: Vùng hoang dã chưa xác định"
 		return
 	var resources: Array = data.get("resources", [])
+	var wildlife: Array = data.get("wildlife", [])
 	var resource_text := ", ".join(PackedStringArray(resources))
-	_region_label.text = "Khu vực: %s | Nguy hiểm: %d/5 | Khí hậu: %s\nTài nguyên: %s" % [
+	var wildlife_text := ", ".join(PackedStringArray(wildlife))
+	var summary: Dictionary = RegionSystem.get_discovery_summary()
+	_region_label.text = "Khu vực: %s | Nguy hiểm: %d/5 | Khí hậu: %s\nTài nguyên: %s\nThú đặc trưng: %s | Khám phá: %d/%d\nNguy cơ: %s" % [
 		str(data.get("name", "Chưa rõ")),
 		int(data.get("danger", 1)),
 		str(data.get("climate", "Không rõ")),
-		resource_text
+		resource_text,
+		wildlife_text,
+		int(summary.get("discovered", 1)),
+		int(summary.get("total", 6)),
+		str(data.get("hazard", "Không rõ"))
 	]
