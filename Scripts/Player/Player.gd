@@ -1,6 +1,7 @@
 extends CharacterBody2D
 
 @export var move_speed: float = 220.0
+@export var gather_distance: float = 76.0
 
 var survival_stats: SurvivalStats
 var inventory: InventorySystem
@@ -26,6 +27,20 @@ func _physics_process(_delta: float) -> void:
 
 func collect_resource(resource_type: String, amount: int) -> void:
 	inventory.add_item(resource_type, amount)
+
+func gather_nearby() -> bool:
+	var nearest: ResourceNode
+	var nearest_distance := gather_distance
+	for node in get_tree().get_nodes_in_group("resource_nodes"):
+		if not is_instance_valid(node) or not node is ResourceNode:
+			continue
+		var distance := global_position.distance_to(node.global_position)
+		if distance <= nearest_distance:
+			nearest = node
+			nearest_distance = distance
+	if nearest == null:
+		return false
+	return nearest.gather_now(self)
 
 func _draw() -> void:
 	draw_circle(Vector2.ZERO, 14.0, Color("#d9a066"))
