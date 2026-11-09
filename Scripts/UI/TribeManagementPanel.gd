@@ -167,7 +167,8 @@ func _enlist_selected() -> void:
 		_set_status("Đã tuyển vào quân đội. Loại binh lính được phân tự động.")
 	else:
 		_set_status("Cần cư dân trưởng thành đã được phân nghề Chiến binh.")
-	_refresh()\n
+	_refresh()
+
 func _dismiss_selected() -> void:
 	if _resident_ids.is_empty():
 		return
@@ -175,7 +176,8 @@ func _dismiss_selected() -> void:
 		_set_status("Dân làng đã giải ngũ.")
 	else:
 		_set_status("Dân làng này chưa ở trong quân đội.")
-	_refresh()\n
+	_refresh()
+
 func _train_resident() -> void:
 	if _resident_ids.is_empty():
 		_set_status("Không có dân làng để huấn luyện.")
