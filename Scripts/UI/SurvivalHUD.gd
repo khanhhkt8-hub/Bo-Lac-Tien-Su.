@@ -5,6 +5,8 @@ extends CanvasLayer
 var _stats_label: Label
 var _inventory_label: Label
 var _player: Node
+var _stats: SurvivalStats
+var _inventory: InventorySystem
 
 func _ready() -> void:
 	_player = get_node_or_null(player_path)
@@ -20,13 +22,16 @@ func _ready() -> void:
 	_inventory_label = Label.new()
 	_inventory_label.text = "Túi đồ: trống"
 	column.add_child(_inventory_label)
+
 	if _player != null:
-		if _player.survival_stats != null:
-			_player.survival_stats.stats_changed.connect(_on_stats_changed)
-			_on_stats_changed(_player.survival_stats.health, _player.survival_stats.hunger, _player.survival_stats.thirst)
-		if _player.inventory != null:
-			_player.inventory.inventory_changed.connect(_on_inventory_changed)
-			_on_inventory_changed(_player.inventory.items)
+		_stats = _player.get("survival_stats") as SurvivalStats
+		_inventory = _player.get("inventory") as InventorySystem
+		if _stats != null:
+			_stats.stats_changed.connect(_on_stats_changed)
+			_on_stats_changed(_stats.health, _stats.hunger, _stats.thirst)
+		if _inventory != null:
+			_inventory.inventory_changed.connect(_on_inventory_changed)
+			_on_inventory_changed(_inventory.items)
 
 func _on_stats_changed(health: float, hunger: float, thirst: float) -> void:
 	_stats_label.text = "Máu: %d | Đói: %d | Khát: %d" % [roundi(health), roundi(hunger), roundi(thirst)]
