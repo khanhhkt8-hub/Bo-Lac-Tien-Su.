@@ -40,6 +40,7 @@ func add_resident(resident_name: String, age: int, sex: String, role: String = "
 		"health": 100.0, "food": 20, "strength": 10, "stamina": 10, "alive": true, "in_daycare": false
 	})
 	_emit_population()
+	save_population()
 	return resident_id
 
 func recruit_migrant(resident_name: String, age: int, sex: String, role: String = "migrant") -> int:
