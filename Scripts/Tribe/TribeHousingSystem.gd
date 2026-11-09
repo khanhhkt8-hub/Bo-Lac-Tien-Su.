@@ -68,17 +68,36 @@ func upgrade_house(house_id: int) -> bool:
 
 func assign_resident(house_id: int, resident_id: int) -> bool:
 	var house := _find_house(house_id)
-	if house.is_empty() or int(house.resident_ids.size()) >= int(house.capacity):
+	var resident := TribePopulation.get_resident(resident_id)
+	if house.is_empty() or resident.is_empty():
 		return false
 	if house.resident_ids.has(resident_id):
 		return true
+	# Remove stale/dead residents before checking available capacity.
+	_prune_assignments()
+	var currently_assigned := false
+	for other in houses:
+		if other.resident_ids.has(resident_id):
+			currently_assigned = true
+			break
+	if not currently_assigned and house.resident_ids.size() >= int(house.capacity):
+		return false
 	for other in houses:
 		other.resident_ids.erase(resident_id)
 	house.resident_ids.append(resident_id)
 	save_state()
 	return true
 
+func _prune_assignments() -> void:
+	for house in houses:
+		var valid_ids: Array = []
+		for resident_id in house.resident_ids:
+			if not TribePopulation.get_resident(int(resident_id)).is_empty() and not valid_ids.has(resident_id):
+				valid_ids.append(resident_id)
+		house.resident_ids = valid_ids
+
 func get_housing_summary() -> Dictionary:
+	_prune_assignments()
 	var total_capacity := 0
 	var assigned := 0
 	for house in houses:
