@@ -60,9 +60,9 @@ func _on_region_changed(region_id: String, _data: Dictionary) -> void:
 	var region_data: Dictionary = RegionSystem.get_region_data(region_id)
 	var center: Vector2 = region_data.get("center", player.global_position)
 	var radius := float(region_data.get("radius", 600.0))
-	var candidate := center + offset
-	if candidate.distance_to(center) > radius * 0.8:
-		candidate = center + offset.normalized() * radius * 0.6
+	var candidate := player.global_position + offset.normalized() * 300.0
+	if candidate.distance_to(center) > radius * 0.72:
+		candidate = center + candidate.direction_to(center) * radius * 0.65
 	active_camp_position = candidate
 	active_camp_name = str(CAMP_NAMES.get(region_id, "Trại man rợ"))
 	_spawn_camp(region_id)
