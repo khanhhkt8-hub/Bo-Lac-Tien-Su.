@@ -66,7 +66,7 @@ func _spawn_cave_wildlife() -> void:
 
 func _clear_cave_wildlife() -> void:
 	for animal in get_tree().get_nodes_in_group("cave_wildlife"):
-		if is_instance_valid(animal):
+		if is_instance_valid(animal) and not animal.is_in_group("tamed_animals"):
 			animal.queue_free()
 
 func _process(_delta: float) -> void:
