@@ -35,3 +35,10 @@ Game sinh tồn 2D offline, ưu tiên Android, phát triển bằng Godot 4.
 - Phân nhà kiểm tra cư dân hợp lệ, dọn phân công của người đã chết và cho phép chuyển nhà khi nhà đích còn đủ chỗ.
 - Hàng chờ huấn luyện được lưu tiến độ định kỳ mỗi 5 giây; dữ liệu hàng chờ không hợp lệ được loại khi tải.
 - Các thay đổi đã được ghi lên nhánh main. Chưa chạy kiểm thử Godot runtime hoặc build APK trong môi trường hiện tại.
+
+
+### Hệ thống nghề nghiệp bộ lạc
+- Thêm 5 nghề có thể phân công cho cư dân trưởng thành: thợ săn, người hái lượm, nông dân, thợ chế tác và chiến binh.
+- Mỗi 30 giây, mỗi người được phân nghề tạo sản lượng tương ứng vào kho bộ lạc.
+- Số lượng lao động theo nghề và kho sản phẩm được lưu offline.
+- Bảng quản lý bộ lạc có nút đổi nghề cho cư dân đang chọn và hiển thị số lượng nghề cùng kho sản phẩm.
