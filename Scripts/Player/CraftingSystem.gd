@@ -5,10 +5,14 @@ signal crafted(item_id: String)
 
 var inventory: InventorySystem
 
+const RECIPE_OUTPUTS := {"arrows": 5}
+
 const RECIPES := {
 	"stone_axe": {"wood": 3, "stone": 2},
 	"stone_spear": {"wood": 2, "stone": 1},
-	"campfire": {"wood": 5, "stone": 3}
+	"campfire": {"wood": 5, "stone": 3},
+	"bow": {"wood": 4, "stone": 2},
+	"arrows": {"wood": 2, "stone": 1}
 }
 
 func setup(target_inventory: InventorySystem) -> void:
@@ -30,7 +34,7 @@ func craft(item_id: String) -> bool:
 	for resource_id in recipe:
 		if not inventory.remove_item(resource_id, int(recipe[resource_id])):
 			return false
-	inventory.add_item(item_id, 1)
+	inventory.add_item(item_id, int(RECIPE_OUTPUTS.get(item_id, 1)))
 	crafted.emit(item_id)
 	return true
 
