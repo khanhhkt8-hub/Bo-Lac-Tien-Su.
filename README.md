@@ -57,3 +57,16 @@ Game sinh tồn 2D offline, ưu tiên Android, phát triển bằng Godot 4.
 - Rừng có gỗ, quả dại, thảo dược, da thú; đồng cỏ có thức ăn, xương, đá lửa và voi ma mút; đầm lầy có nước, lau sậy, thảo dược; hang động có đá, quặng, xương và thú hang; miền băng có băng, thịt, da và thú lớn.
 - Các điểm sinh theo vùng được dọn khi rời vùng để tránh tích tụ quá nhiều đối tượng; sinh vật và tài nguyên minh họa ban đầu trong khu vực trung tâm vẫn được giữ.
 - ResourceNode hỗ trợ thêm loại tài nguyên mới và màu nhận diện riêng.
+
+
+## Trại man rợ theo vùng
+- Mỗi biome có một trại man rợ riêng với tên, vị trí và lực lượng bảo vệ phù hợp cấp nguy hiểm.
+- Trại gồm lính canh và một thủ lĩnh; tiêu diệt toàn bộ lực lượng sẽ chiếm được trại.
+- Phần thưởng chiếm trại: 15 lương thực, 10 dụng cụ và 5 chiến lực bộ lạc.
+- Tiến độ trại đã chiếm được lưu offline; trại đã dọn sẽ không tự xuất hiện lại khi quay lại vùng.
+- Hệ thống được tích hợp vào scene chính qua BarbarianCampDirector.
+
+## Lưu túi đồ offline
+- InventorySystem tự tải dữ liệu khi nhân vật được tạo và lưu ngay sau mỗi lần nhận hoặc tiêu hao vật phẩm.
+- Các loại tài nguyên mới theo biome (quặng, đá lửa, thảo dược, da, xương, lau sậy, băng và thịt) được lưu dưới dạng ID linh hoạt, không cần whitelist.
+- Dữ liệu túi đồ được lưu riêng trong user://bo_lac_inventory.cfg.
