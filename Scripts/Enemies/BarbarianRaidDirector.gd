@@ -26,7 +26,7 @@ func _process(_delta: float) -> void:
 func _start_raid() -> void:
 	var army_summary: Dictionary = TribeArmySystem.get_army_summary()
 	if int(army_summary.power) >= 25:
-	\tprint("Bộ lạc tổ chức phòng thủ! Chiến lực: ", army_summary.power)
+		print("Bộ lạc tổ chức phòng thủ! Chiến lực: ", army_summary.power)
 	var player := get_tree().get_first_node_in_group("player") as Node2D
 	if not is_instance_valid(player):
 		return
