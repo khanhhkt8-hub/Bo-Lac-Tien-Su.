@@ -1,5 +1,7 @@
 extends CharacterBody2D
 
+const ArrowProjectile = preload("res://Scripts/Player/ArrowProjectile.gd")
+
 @export var move_speed: float = 220.0
 @export var gather_distance: float = 76.0
 
@@ -60,6 +62,32 @@ func attack_nearby() -> bool:
 		attack_cooldown_left = attack_cooldown
 		return true
 	return false
+
+func shoot_arrow() -> bool:
+	if inventory.get_amount("bow") <= 0 or inventory.get_amount("arrows") <= 0:
+		return false
+	if attack_cooldown_left > 0.0:
+		return false
+	var target_enemy: Node2D
+	var nearest_distance := 520.0
+	for node in get_tree().get_nodes_in_group("enemies"):
+		if not is_instance_valid(node) or not node is Node2D:
+			continue
+		var distance := global_position.distance_to(node.global_position)
+		if distance < nearest_distance:
+			target_enemy = node
+			nearest_distance = distance
+	if target_enemy == null:
+		return false
+	if not inventory.remove_item("arrows", 1):
+		return false
+	var projectile := ArrowProjectile.new()
+	projectile.global_position = global_position
+	projectile.direction = global_position.direction_to(target_enemy.global_position)
+	projectile.damage = 24.0
+	get_tree().current_scene.add_child(projectile)
+	attack_cooldown_left = 0.8
+	return true
 
 func gather_nearby() -> bool:
 	var nearest: ResourceNode
