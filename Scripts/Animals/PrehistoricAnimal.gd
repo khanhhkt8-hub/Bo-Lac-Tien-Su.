@@ -8,6 +8,8 @@ var is_tamed := false
 var is_mounted := false
 var mount_owner: Node2D
 var companion_level := 1
+var is_baby := false
+var growth_seconds_remaining := 0.0
 var companion_attack_timer := 0.0
 var companion_target_timer := 0.0
 var companion_target: Node2D
@@ -36,6 +38,46 @@ func _ready() -> void:
 			attack_damage = 28.0
 	super._ready()
 	add_to_group("prehistoric_animals")
+
+func _process(delta: float) -> void:
+	if is_tamed and is_baby:
+		growth_seconds_remaining = maxf(0.0, growth_seconds_remaining - delta)
+		if growth_seconds_remaining <= 0.0:
+			_grow_into_adult()
+
+func set_as_baby(growth_seconds: float = 300.0) -> void:
+	is_baby = true
+	growth_seconds_remaining = maxf(1.0, growth_seconds)
+	scale = Vector2.ONE * 0.62
+	max_health *= 0.55
+	health = max_health
+	attack_damage *= 0.35
+	move_speed *= 0.8
+	queue_redraw()
+
+func _grow_into_adult() -> void:
+	is_baby = false
+	growth_seconds_remaining = 0.0
+	scale = Vector2.ONE
+	match species:
+		"wolf":
+			max_health = 45.0
+			move_speed = 112.0
+			attack_damage = 7.0
+		"saber_tooth":
+			max_health = 90.0
+			move_speed = 128.0
+			attack_damage = 17.0
+		"cave_bear":
+			max_health = 150.0
+			move_speed = 76.0
+			attack_damage = 22.0
+		"mammoth":
+			max_health = 260.0
+			move_speed = 58.0
+			attack_damage = 28.0
+	health = max_health
+	queue_redraw()
 
 func _physics_process(delta: float) -> void:
 	if is_mounted:
@@ -159,6 +201,7 @@ func _draw() -> void:
 		draw_line(Vector2(-5.0, 6.0), Vector2(-3.0, 14.0), Color("#eee1c5"), 2.0)
 		draw_line(Vector2(5.0, 6.0), Vector2(3.0, 14.0), Color("#eee1c5"), 2.0)
 	if is_tamed:
-		draw_string(ThemeDB.fallback_font, Vector2(-10.0, -radius - 7.0), "★%d" % companion_level, HORIZONTAL_ALIGNMENT_LEFT, 40.0, 12, Color("#f2d16b"))
+		var mark := "THÚ CON" if is_baby else "★%d" % companion_level
+		draw_string(ThemeDB.fallback_font, Vector2(-radius, -radius - 7.0), mark, HORIZONTAL_ALIGNMENT_LEFT, 70.0, 12, Color("#f2d16b"))
 	if species == "mammoth":
 		draw_arc(Vector2(0.0, 8.0), radius * 0.65, 0.1, PI - 0.1, 18, Color("#e4d1aa"), 3.0)
