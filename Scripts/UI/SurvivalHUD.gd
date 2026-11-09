@@ -38,6 +38,14 @@ func _ready() -> void:
 	_craft_status.text = "Rìu: 3 gỗ + 2 đá | Giáo: 2 gỗ + 1 đá | Lửa: 5 gỗ + 3 đá"
 	_craft_status.autowrap_mode = TextServer.AUTOWRAP_WORD
 	column.add_child(_craft_status)
+	var ranged_row := HBoxContainer.new()
+	column.add_child(ranged_row)
+	_add_craft_button(ranged_row, "Cung", "bow")
+	_add_craft_button(ranged_row, "Tên x5", "arrows")
+	var shoot_button := Button.new()
+	shoot_button.text = "BẮN CUNG"
+	shoot_button.pressed.connect(_on_shoot_pressed)
+	ranged_row.add_child(shoot_button)
 	var buttons := HBoxContainer.new()
 	column.add_child(buttons)
 	_add_craft_button(buttons, "Rìu đá", "stone_axe")
@@ -88,6 +96,11 @@ func _on_attack_pressed() -> void:
 	if _player != null and _player.has_method("attack_nearby"):
 		if not _player.attack_nearby():
 			_craft_status.text = "Không có kẻ địch trong tầm hoặc đang hồi chiêu"
+
+func _on_shoot_pressed() -> void:
+	if _player != null and _player.has_method("shoot_arrow"):
+		if not _player.shoot_arrow():
+			_craft_status.text = "Cần cung, tên và mục tiêu trong tầm bắn"
 
 func _on_gather_pressed() -> void:
 	if _player != null and _player.has_method("gather_nearby"):
