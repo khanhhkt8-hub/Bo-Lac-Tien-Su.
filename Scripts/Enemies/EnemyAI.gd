@@ -96,7 +96,7 @@ func _on_target_detected(_new_target: Node2D) -> void:
 	pass
 
 func take_damage(amount: float) -> void:
-	health = maxf(0.0, health - amount)
+	health = maxf(0.0, health - maxf(0.0, amount))
 	if health <= 0.0:
 		queue_free()
 
