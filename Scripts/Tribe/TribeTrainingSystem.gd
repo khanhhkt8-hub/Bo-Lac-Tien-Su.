@@ -10,16 +10,25 @@ const FOOD_COST := 5
 
 var training_queue: Array[Dictionary] = []
 var _elapsed: Dictionary = {}
+var _save_accumulator: float = 0.0
+const SAVE_INTERVAL := 5.0
 
 func _ready() -> void:
 	_load_state()
 
 func _process(delta: float) -> void:
+	_save_accumulator += delta
 	for entry in training_queue.duplicate():
 		var resident_id := int(entry.resident_id)
+		if _find_resident(resident_id).is_empty():
+			cancel_training(resident_id)
+			continue
 		_elapsed[resident_id] = float(_elapsed.get(resident_id, 0.0)) + delta
 		if float(_elapsed[resident_id]) >= TRAINING_SECONDS:
 			_complete_training(resident_id)
+	if _save_accumulator >= SAVE_INTERVAL:
+		_save_accumulator = 0.0
+		_save_state()
 
 func start_training(resident_id: int) -> bool:
 	if not is_instance_valid(TribePopulation):
@@ -85,8 +94,10 @@ func _load_state() -> void:
 	if config.load(SAVE_PATH) != OK:
 		return
 	training_queue.clear()
+	var saved_elapsed: Dictionary = config.get_value("training", "elapsed", {})
 	for entry in config.get_value("training", "queue", []):
 		var resident_id := int(entry.get("resident_id", -1))
 		if resident_id >= 0 and not _find_resident(resident_id).is_empty():
 			training_queue.append(entry)
-	_elapsed = config.get_value("training", "elapsed", {})
+			_elapsed[resident_id] = clampf(float(saved_elapsed.get(resident_id, saved_elapsed.get(str(resident_id), 0.0))), 0.0, TRAINING_SECONDS)
+	_save_state()
