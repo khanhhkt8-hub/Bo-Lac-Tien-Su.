@@ -7,7 +7,13 @@ config/name="Bo Lac Tien Su"
 run/main_scene="res://Scenes/Main.tscn"
 config/features=PackedStringArray("4.2", "GL Compatibility")
 
-[autoload]\nCampaignSystem="*res://Scripts/Campaign/CampaignSystem.gd"\nTribePopulation="*res://Scripts/Tribe/TribePopulation.gd"\n\n[display]
+[autoload]
+CampaignSystem="*res://Scripts/Campaign/CampaignSystem.gd"
+TribePopulation="*res://Scripts/Tribe/TribePopulation.gd"
+TribeHousingSystem="*res://Scripts/Tribe/TribeHousingSystem.gd"
+TribeTrainingSystem="*res://Scripts/Tribe/TribeTrainingSystem.gd"
+
+[display]
 window/size/viewport_width=1280
 window/size/viewport_height=720
 window/size/window_width_override=960
