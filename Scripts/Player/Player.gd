@@ -28,6 +28,10 @@ func _physics_process(_delta: float) -> void:
 func collect_resource(resource_type: String, amount: int) -> void:
 	inventory.add_item(resource_type, amount)
 
+func take_damage(amount: float) -> void:
+	if is_instance_valid(survival_stats):
+		survival_stats.take_damage(amount)
+
 func gather_nearby() -> bool:
 	var nearest: ResourceNode
 	var nearest_distance := gather_distance
