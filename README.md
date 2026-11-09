@@ -42,3 +42,11 @@ Game sinh tồn 2D offline, ưu tiên Android, phát triển bằng Godot 4.
 - Mỗi 30 giây, mỗi người được phân nghề tạo sản lượng tương ứng vào kho bộ lạc.
 - Số lượng lao động theo nghề và kho sản phẩm được lưu offline.
 - Bảng quản lý bộ lạc có nút đổi nghề cho cư dân đang chọn và hiển thị số lượng nghề cùng kho sản phẩm.
+
+
+## Hệ thống khám phá vùng đất
+- RegionSystem quản lý 6 khu vực: đồng bằng bộ lạc, rừng nguyên sinh, đồng cỏ, đầm lầy, hang động và miền băng tuyết.
+- Mỗi khu vực có tọa độ, bán kính phát hiện, cấp nguy hiểm, khí hậu, tài nguyên, thú đặc trưng và nguy cơ riêng.
+- Khu vực được nhận diện theo vị trí người chơi; lần đầu bước vào sẽ lưu dấu khám phá offline.
+- HUD hiển thị khu vực hiện tại, cấp nguy hiểm, khí hậu, tài nguyên, thú đặc trưng, nguy cơ và tiến độ khám phá.
+- Bản đồ hiển thị vùng màu để định hướng hành trình. Danh mục tài nguyên/thú hiện là dữ liệu vùng; phân bố tài nguyên và sinh vật riêng theo biome sẽ được triển khai ở bước tiếp theo.
