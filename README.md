@@ -103,3 +103,10 @@ Game sinh tồn 2D offline, ưu tiên Android, phát triển bằng Godot 4.
 - Thú đồng hành có thể nâng cấp tối đa cấp 3; mỗi cấp cần 5 xương và 3 da thú, tăng máu tối đa, sát thương và tốc độ.
 - Thú đã thuần hóa được giữ lại khi rời Hang Động Cổ Xưa; chỉ thú hoang trong hang mới bị dọn.
 - Tiến độ thuần hóa/nâng cấp hiện vẫn chưa được lưu qua lần khởi động game mới.
+
+
+## Lưu thú đồng hành
+- Thú đã thuần hóa, loài, cấp nâng cấp, lượng máu, vị trí tương đối và trạng thái đang cưỡi được lưu trong `user://bo_lac_companions.cfg`.
+- Khi mở game, tối đa 3 thú đã lưu được khôi phục cùng người chơi.
+- Dữ liệu thú được tự lưu sau khi thuần hóa, nâng cấp, cưỡi/xuống thú; đồng thời tự lưu định kỳ 10 giây và khi nhận yêu cầu đóng game.
+- Tệp lưu nằm trong vùng dữ liệu riêng của game trên thiết bị; chưa có đồng bộ đám mây.
