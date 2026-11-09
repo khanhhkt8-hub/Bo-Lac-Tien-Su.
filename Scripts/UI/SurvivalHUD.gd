@@ -10,6 +10,7 @@ var _stats: SurvivalStats
 var _inventory: InventorySystem
 var _crafting: CraftingSystem
 var _tribe_panel: PanelContainer
+var _region_label: Label
 
 func _ready() -> void:
 	_player = get_node_or_null(player_path)
@@ -22,6 +23,10 @@ func _ready() -> void:
 	_stats_label = Label.new()
 	_stats_label.text = "Máu: -- | Đói: -- | Khát: --"
 	column.add_child(_stats_label)
+	_region_label = Label.new()
+	_region_label.text = "Khu vực: Đồng bằng bộ lạc"
+	_region_label.autowrap_mode = TextServer.AUTOWRAP_WORD
+	column.add_child(_region_label)
 	_inventory_label = Label.new()
 	_inventory_label.text = "Túi đồ: trống"
 	column.add_child(_inventory_label)
@@ -55,6 +60,10 @@ func _ready() -> void:
 	_create_mobile_movement_pad()
 	_create_tribe_management_button()
 
+	if RegionSystem != null:
+		RegionSystem.region_changed.connect(_on_region_changed)
+		if not RegionSystem.current_region_id.is_empty():
+			_on_region_changed(RegionSystem.current_region_id, RegionSystem.get_region_data(RegionSystem.current_region_id))
 	if _player != null:
 		_stats = _player.get("survival_stats") as SurvivalStats
 		_inventory = _player.get("inventory") as InventorySystem
@@ -162,3 +171,18 @@ func _create_tribe_management_button() -> void:
 func _toggle_tribe_panel() -> void:
 	if _tribe_panel != null:
 		_tribe_panel.visible = not _tribe_panel.visible
+
+func _on_region_changed(region_id: String, data: Dictionary) -> void:
+	if _region_label == null:
+		return
+	if region_id.is_empty() or data.is_empty():
+		_region_label.text = "Khu vực: Vùng hoang dã chưa xác định"
+		return
+	var resources: Array = data.get("resources", [])
+	var resource_text := ", ".join(PackedStringArray(resources))
+	_region_label.text = "Khu vực: %s | Nguy hiểm: %d/5 | Khí hậu: %s\nTài nguyên: %s" % [
+		str(data.get("name", "Chưa rõ")),
+		int(data.get("danger", 1)),
+		str(data.get("climate", "Không rõ")),
+		resource_text
+	]
