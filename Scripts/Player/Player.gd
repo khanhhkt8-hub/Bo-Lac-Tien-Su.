@@ -1,6 +1,8 @@
 extends CharacterBody2D
 
 const ArrowProjectile = preload("res://Scripts/Player/ArrowProjectile.gd")
+const ANIMAL_SCENE: PackedScene = preload("res://Scenes/PrehistoricAnimal.tscn")
+const COMPANION_SAVE_PATH := "user://bo_lac_companions.cfg"
 
 @export var move_speed: float = 220.0
 @export var gather_distance: float = 76.0
@@ -13,6 +15,7 @@ var current_region_id := ""
 var hazard_damage_timer := 0.0
 var antidote_seconds := 0.0
 var mounted_animal: PrehistoricAnimal
+var _loading_companions := false
 @export var attack_cooldown: float = 0.55
 @export var attack_range: float = 72.0
 
@@ -32,6 +35,7 @@ func _ready() -> void:
 		RegionSystem.region_changed.connect(_on_region_changed)
 		if not RegionSystem.current_region_id.is_empty():
 			_on_region_changed(RegionSystem.current_region_id, RegionSystem.get_region_data(RegionSystem.current_region_id))
+	_load_companions()
 
 func _physics_process(delta: float) -> void:
 	attack_cooldown_left = maxf(0.0, attack_cooldown_left - delta)
@@ -169,6 +173,8 @@ func tame_nearby_animal() -> String:
 	if not inventory.remove_item(food_item, food_cost):
 		return "Không thể tiêu hao thức ăn"
 	nearest.tame_as_companion()
+	_register_companion(nearest)
+	save_companions()
 	return "Đã thuần hóa: " + nearest.enemy_name
 
 func gather_nearby() -> bool:
@@ -199,6 +205,7 @@ func toggle_mount_nearby_animal() -> String:
 		mounted_animal.z_index = 0
 		var old_name := mounted_animal.enemy_name
 		mounted_animal = null
+		save_companions()
 		return "Đã xuống thú: " + old_name
 	mounted_animal = null
 	var nearest: PrehistoricAnimal
@@ -217,6 +224,7 @@ func toggle_mount_nearby_animal() -> String:
 	nearest.mount_owner = self
 	nearest.z_index = -1
 	nearest.global_position = global_position + Vector2(0.0, 18.0)
+	save_companions()
 	return "Đang cưỡi " + nearest.enemy_name + " | Tốc độ x%.2f" % nearest.get_mount_speed_multiplier()
 
 func upgrade_nearby_companion() -> String:
@@ -241,4 +249,68 @@ func upgrade_nearby_companion() -> String:
 		inventory.add_item("bone", 5)
 		return "Không đủ da thú"
 	nearest.upgrade_companion()
+	save_companions()
 	return "%s đã lên cấp %d" % [nearest.enemy_name, nearest.companion_level]
+
+
+func _register_companion(animal: PrehistoricAnimal) -> void:
+	if not is_instance_valid(animal):
+		return
+	if not animal.tree_exited.is_connected(_on_companion_tree_exited):
+		animal.tree_exited.connect(_on_companion_tree_exited)
+
+func _on_companion_tree_exited() -> void:
+	if not _loading_companions:
+		call_deferred("save_companions")
+
+func save_companions() -> void:
+	if _loading_companions:
+		return
+	var config := ConfigFile.new()
+	var index := 0
+	for node in get_tree().get_nodes_in_group("tamed_animals"):
+		if not is_instance_valid(node) or not node is PrehistoricAnimal:
+			continue
+		var animal := node as PrehistoricAnimal
+		var section := "companion_%d" % index
+		config.set_value(section, "species", animal.species)
+		config.set_value(section, "level", animal.companion_level)
+		config.set_value(section, "health", animal.health)
+		config.set_value(section, "mounted", animal.is_mounted and animal == mounted_animal)
+		config.set_value(section, "offset", animal.global_position - global_position)
+		index += 1
+	config.set_value("companions", "count", index)
+	config.save(COMPANION_SAVE_PATH)
+
+func _load_companions() -> void:
+	var config := ConfigFile.new()
+	var error := config.load(COMPANION_SAVE_PATH)
+	if error != OK:
+		return
+	_loading_companions = true
+	var count := clampi(int(config.get_value("companions", "count", 0)), 0, 3)
+	for index in range(count):
+		var section := "companion_%d" % index
+		var species := str(config.get_value(section, "species", "wolf"))
+		if not ["wolf", "saber_tooth", "cave_bear", "mammoth"].has(species):
+			continue
+		var animal := ANIMAL_SCENE.instantiate() as PrehistoricAnimal
+		animal.species = species
+		var scene_root := get_tree().current_scene
+		if scene_root == null:
+			scene_root = get_parent()
+		scene_root.add_child(animal)
+		animal.global_position = global_position + config.get_value(section, "offset", Vector2(80.0 + index * 36.0, 50.0))
+		animal.tame_as_companion()
+		var level := clampi(int(config.get_value(section, "level", 1)), 1, 3)
+		for _upgrade_index in range(level - 1):
+			animal.upgrade_companion()
+		animal.health = clampf(float(config.get_value(section, "health", animal.max_health)), 1.0, animal.max_health)
+		_register_companion(animal)
+		if bool(config.get_value(section, "mounted", false)) and not is_instance_valid(mounted_animal):
+			mounted_animal = animal
+			animal.is_mounted = true
+			animal.mount_owner = self
+			animal.z_index = -1
+			animal.global_position = global_position + Vector2(0.0, 18.0)
+	_loading_companions = false
