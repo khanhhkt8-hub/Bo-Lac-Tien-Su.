@@ -9,6 +9,9 @@ var survival_stats: SurvivalStats
 var inventory: InventorySystem
 var crafting: CraftingSystem
 var attack_cooldown_left: float = 0.0
+var current_region_id := ""
+var hazard_damage_timer := 0.0
+var antidote_seconds := 0.0
 @export var attack_cooldown: float = 0.55
 @export var attack_range: float = 72.0
 
@@ -24,12 +27,45 @@ func _ready() -> void:
 	crafting.name = "Crafting"
 	add_child(crafting)
 	crafting.setup(inventory)
+	if RegionSystem != null:
+		RegionSystem.region_changed.connect(_on_region_changed)
+		if not RegionSystem.current_region_id.is_empty():
+			_on_region_changed(RegionSystem.current_region_id, RegionSystem.get_region_data(RegionSystem.current_region_id))
 
 func _physics_process(delta: float) -> void:
 	attack_cooldown_left = maxf(0.0, attack_cooldown_left - delta)
+	_update_environment_hazards(delta)
 	var direction := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
 	velocity = direction * move_speed
 	move_and_slide()
+
+
+func _on_region_changed(region_id: String, _data: Dictionary) -> void:
+	current_region_id = region_id
+	if region_id == "swampland" and inventory.get_amount("herbal_antidote") > 0:
+		inventory.remove_item("herbal_antidote", 1)
+		antidote_seconds = 90.0
+	elif region_id.is_empty():
+		antidote_seconds = 0.0
+
+func _update_environment_hazards(delta: float) -> void:
+	if current_region_id.is_empty():
+		return
+	antidote_seconds = maxf(0.0, antidote_seconds - delta)
+	hazard_damage_timer += delta
+	if hazard_damage_timer < 1.0:
+		return
+	hazard_damage_timer = 0.0
+	var damage := 0.0
+	match current_region_id:
+		"frostlands":
+			damage = 0.65 if inventory.get_amount("fur_cloak") <= 0 else 0.12
+		"cavern":
+			damage = 0.55 if inventory.get_amount("torch") <= 0 else 0.12
+		"swampland":
+			damage = 0.5 if antidote_seconds <= 0.0 else 0.0
+	if damage > 0.0:
+		take_damage(damage)
 
 func collect_resource(resource_type: String, amount: int) -> void:
 	inventory.add_item(resource_type, amount)
