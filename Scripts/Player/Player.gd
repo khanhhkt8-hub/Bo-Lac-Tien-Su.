@@ -4,6 +4,7 @@ extends CharacterBody2D
 
 var survival_stats: SurvivalStats
 var inventory: InventorySystem
+var crafting: CraftingSystem
 
 func _ready() -> void:
 	add_to_group("player")
@@ -13,6 +14,10 @@ func _ready() -> void:
 	inventory = InventorySystem.new()
 	inventory.name = "Inventory"
 	add_child(inventory)
+	crafting = CraftingSystem.new()
+	crafting.name = "Crafting"
+	add_child(crafting)
+	crafting.setup(inventory)
 
 func _physics_process(_delta: float) -> void:
 	var direction := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
