@@ -58,7 +58,14 @@ func get_job_summary() -> Dictionary:
 			counts[job_id] = int(counts[job_id]) + 1
 	return {"counts": counts, "stockpile": stockpile.duplicate()}
 
-func add_to_stockpile(resource_id: String, amount: int) -> void:\n\tif not stockpile.has(resource_id) or amount <= 0:\n\t\treturn\n\tstockpile[resource_id] = int(stockpile[resource_id]) + amount\n\tproduction_changed.emit(resource_id, int(stockpile[resource_id]))\n\t_save_state()\n\nfunc raid_stockpile(resource_id: String, requested_amount: int) -> int:
+func add_to_stockpile(resource_id: String, amount: int) -> void:
+	if not stockpile.has(resource_id) or amount <= 0:
+		return
+	stockpile[resource_id] = int(stockpile[resource_id]) + amount
+	production_changed.emit(resource_id, int(stockpile[resource_id]))
+	_save_state()
+
+func raid_stockpile(resource_id: String, requested_amount: int) -> int:
 	if not stockpile.has(resource_id) or requested_amount <= 0:
 		return 0
 	var stolen := mini(int(stockpile[resource_id]), requested_amount)
