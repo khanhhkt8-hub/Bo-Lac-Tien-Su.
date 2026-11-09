@@ -12,7 +12,9 @@ CampaignSystem="*res://Scripts/Campaign/CampaignSystem.gd"
 TribePopulation="*res://Scripts/Tribe/TribePopulation.gd"
 TribeHousingSystem="*res://Scripts/Tribe/TribeHousingSystem.gd"
 TribeTrainingSystem="*res://Scripts/Tribe/TribeTrainingSystem.gd"
-TribeJobSystem="*res://Scripts/Tribe/TribeJobSystem.gd"\nTribeArmySystem="*res://Scripts/Tribe/TribeArmySystem.gd"
+TribeJobSystem="*res://Scripts/Tribe/TribeJobSystem.gd"
+TribeArmySystem="*res://Scripts/Tribe/TribeArmySystem.gd"
+RegionSystem="*res://Scripts/World/RegionSystem.gd"
 
 [display]
 window/size/viewport_width=1280
