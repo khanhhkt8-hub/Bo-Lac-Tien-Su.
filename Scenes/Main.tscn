@@ -11,6 +11,7 @@
 [ext_resource type="Script" path="res://Scripts/World/BiomeEncounterDirector.gd" id="9_biome"]
 [ext_resource type="Script" path="res://Scripts/Enemies/BarbarianCampDirector.gd" id="10_camps"]
 [ext_resource type="Script" path="res://Scripts/World/CaveSystem.gd" id="11_cave"]
+[ext_resource type="Script" path="res://Scripts/Enemies/BiomeBossDirector.gd" id="12_boss"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_player"]
 radius = 14.0
@@ -32,6 +33,9 @@ script = ExtResource("10_camps")
 
 [node name="CaveSystem" type="Node2D" parent="."]
 script = ExtResource("11_cave")
+
+[node name="BiomeBossDirector" type="Node2D" parent="."]
+script = ExtResource("12_boss")
 
 [node name="Player" type="CharacterBody2D" parent="."]
 position = Vector2(0, 0)
