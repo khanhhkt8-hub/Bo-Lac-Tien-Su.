@@ -2,13 +2,27 @@ extends CharacterBody2D
 
 @export var move_speed: float = 220.0
 
+var survival_stats: SurvivalStats
+var inventory: InventorySystem
+
+func _ready() -> void:
+	add_to_group("player")
+	survival_stats = SurvivalStats.new()
+	survival_stats.name = "SurvivalStats"
+	add_child(survival_stats)
+	inventory = InventorySystem.new()
+	inventory.name = "Inventory"
+	add_child(inventory)
+
 func _physics_process(_delta: float) -> void:
 	var direction := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
 	velocity = direction * move_speed
 	move_and_slide()
 
+func collect_resource(resource_type: String, amount: int) -> void:
+	inventory.add_item(resource_type, amount)
+
 func _draw() -> void:
-	# Hình nhân vật tạm thời, sẽ thay bằng sprite/animation sau.
 	draw_circle(Vector2.ZERO, 14.0, Color("#d9a066"))
 	draw_circle(Vector2(-4.0, -3.0), 2.0, Color("#292018"))
 	draw_circle(Vector2(4.0, -3.0), 2.0, Color("#292018"))
