@@ -50,3 +50,10 @@ Game sinh tồn 2D offline, ưu tiên Android, phát triển bằng Godot 4.
 - Khu vực được nhận diện theo vị trí người chơi; lần đầu bước vào sẽ lưu dấu khám phá offline.
 - HUD hiển thị khu vực hiện tại, cấp nguy hiểm, khí hậu, tài nguyên, thú đặc trưng, nguy cơ và tiến độ khám phá.
 - Bản đồ hiển thị vùng màu để định hướng hành trình. Danh mục tài nguyên/thú hiện là dữ liệu vùng; phân bố tài nguyên và sinh vật riêng theo biome sẽ được triển khai ở bước tiếp theo.
+
+
+## Sinh tài nguyên và thú theo vùng
+- Khi người chơi bước vào một biome, BiomeEncounterDirector tạo các điểm thu thập và động vật phù hợp với vùng đó.
+- Rừng có gỗ, quả dại, thảo dược, da thú; đồng cỏ có thức ăn, xương, đá lửa và voi ma mút; đầm lầy có nước, lau sậy, thảo dược; hang động có đá, quặng, xương và thú hang; miền băng có băng, thịt, da và thú lớn.
+- Các điểm sinh theo vùng được dọn khi rời vùng để tránh tích tụ quá nhiều đối tượng; sinh vật và tài nguyên minh họa ban đầu trong khu vực trung tâm vẫn được giữ.
+- ResourceNode hỗ trợ thêm loại tài nguyên mới và màu nhận diện riêng.
