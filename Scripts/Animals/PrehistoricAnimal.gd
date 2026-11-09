@@ -96,10 +96,8 @@ func _update_target() -> void:
 	super._update_target()
 
 func take_damage(amount: float) -> void:
-	if is_tamed:
-		return
 	super.take_damage(amount)
-	if health > 0.0 and passive_until_attacked:
+	if health > 0.0 and passive_until_attacked and not is_tamed:
 		var player := get_tree().get_first_node_in_group("player") as Node2D
 		if is_instance_valid(player):
 			target = player
