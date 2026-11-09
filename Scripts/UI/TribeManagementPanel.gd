@@ -6,6 +6,8 @@ var _status: Label
 var _selected_resident_index: int = 0
 var _selected_house_id: int = -1
 var _resident_ids: Array[int] = []
+var _job_ids: Array[String] = ["hunter", "gatherer", "farmer", "crafter", "warrior"]
+var _selected_job_index: int = 0
 
 func _ready() -> void:
 	custom_minimum_size = Vector2(300, 300)
@@ -37,6 +39,10 @@ func _ready() -> void:
 	materials_button.text = "ĐỔI 10 GỖ + 5 ĐÁ TỪ TÚI ĐỒ"
 	materials_button.pressed.connect(_transfer_materials)
 	column.add_child(materials_button)
+	var job_button := Button.new()
+	job_button.text = "ĐỔI NGHỀ CHO DÂN ĐANG CHỌN"
+	job_button.pressed.connect(_assign_selected_job)
+	column.add_child(job_button)
 	var train_button := Button.new()
 	train_button.text = "HUẤN LUYỆN DÂN LÀNG"
 	train_button.pressed.connect(_train_resident)
@@ -62,6 +68,9 @@ func _refresh() -> void:
 	if _selected_house_id == -1 and not TribeHousingSystem.houses.is_empty():
 		_selected_house_id = int(TribeHousingSystem.houses[0].id)
 	var pop: Dictionary = TribePopulation.get_population_summary()
+	var job_summary: Dictionary = TribeJobSystem.get_job_summary()
+	var job_counts: Dictionary = job_summary.counts
+	var stock: Dictionary = job_summary.stockpile
 	var housing: Dictionary = TribeHousingSystem.get_housing_summary()
 	var house_text := "Chưa có nhà"
 	var house := _find_house(_selected_house_id)
@@ -71,7 +80,7 @@ func _refresh() -> void:
 	if not _resident_ids.is_empty():
 		var person := _find_resident(_resident_ids[_selected_resident_index])
 		resident_text = "%s (#%d, %d tuổi)" % [str(person.name), int(person.id), int(person.age)]
-	_summary.text = "Dân số: %d (trẻ %d / trưởng thành %d / cao tuổi %d)\nNhà: %d | Sức chứa: %d | Chưa phân nhà: %d\nĐang chọn: %s\nDân làng: %s\nGỗ: %d | Đá: %d" % [
+	_summary.text = "Dân số: %d (trẻ %d / trưởng thành %d / cao tuổi %d)\nNhà: %d | Sức chứa: %d | Chưa phân nhà: %d\nĐang chọn: %s\nDân làng: %s\nGỗ: %d | Đá: %d\nNghề: Săn %d / Hái %d / Nông %d / Chế tác %d / Lính %d\nKho: Thịt %d, Quả %d, Lương thực %d, Dụng cụ %d" % [
 		int(pop.total), int(pop.children), int(pop.adults), int(pop.elders),
 		int(housing.houses), int(housing.capacity), int(housing.homeless),
 		house_text, resident_text, TribeHousingSystem.wood, TribeHousingSystem.stone
@@ -122,6 +131,19 @@ func _transfer_materials() -> void:
 	inventory.remove_item("stone", 5)
 	TribeHousingSystem.add_materials(10, 5)
 	_set_status("Đã chuyển 10 gỗ và 5 đá vào kho bộ lạc.")
+	_refresh()
+
+func _assign_selected_job() -> void:
+	if _resident_ids.is_empty():
+		_set_status("Không có dân làng để phân nghề.")
+		return
+	var resident_id := _resident_ids[_selected_resident_index]
+	var job_id := _job_ids[_selected_job_index]
+	if TribeJobSystem.assign_job(resident_id, job_id):
+		_set_status("Đã phân công: " + TribeJobSystem.get_job_name(job_id) + ". Sản lượng được cộng mỗi 30 giây.")
+	else:
+		_set_status("Chỉ cư dân trưởng thành mới được nhận nghề.")
+	_selected_job_index = (_selected_job_index + 1) % _job_ids.size()
 	_refresh()
 
 func _train_resident() -> void:
