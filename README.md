@@ -86,3 +86,12 @@ Game sinh tồn 2D offline, ưu tiên Android, phát triển bằng Godot 4.
 - Người chơi chịu sát thương môi trường theo thời gian nếu thiếu trang bị phù hợp.
 - Công thức chế tạo: áo da (8 da + 3 xương), thuốc giải (3 thảo dược + 2 quả dại), đuốc (3 gỗ + 2 lau sậy).
 - HUD có các nút chế tạo trang bị sinh tồn. Vật phẩm được lưu trong túi đồ offline.
+
+
+## Thuần hóa và thú đồng hành
+- Người chơi có thể thuần hóa thú tiền sử ở khoảng cách gần bằng thức ăn phù hợp.
+- Sói cần 2 thịt; hổ răng kiếm cần 5 thịt; gấu hang cần 6 thịt; voi ma mút cần 8 lương thực.
+- Giới hạn đội hình là 3 thú đồng hành cùng lúc.
+- Thú đã thuần hóa đi theo người chơi và tự động tấn công kẻ địch gần đó; không còn bị nhận diện là thú địch.
+- HUD Android có nút THUẦN HÓA THÚ và hiển thị yêu cầu thức ăn khi chưa đủ.
+- Trạng thái thuần hóa hiện chỉ tồn tại trong phiên chơi; chưa lưu đội thú qua lần khởi động sau.
