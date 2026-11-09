@@ -42,4 +42,16 @@ func _start_raid() -> void:
 		var raider := BARBARIAN_SCENE.instantiate() as Node2D
 		get_parent().add_child(raider)
 		raider.global_position = player.global_position + offset
-\nfunc _attempt_resource_raid() -> void:\n\tvar candidates: Array[String] = []\n\tvar stock: Dictionary = TribeJobSystem.stockpile\n\tfor resource_id in ["meat", "berries", "food", "tools"]:\n\t\tif int(stock.get(resource_id, 0)) > 0:\n\t\t\tcandidates.append(resource_id)\n\tif candidates.is_empty():\n\t\treturn\n\tvar target: String = candidates[randi_range(0, candidates.size() - 1)]\n\tvar stolen := TribeJobSystem.raid_stockpile(target, randi_range(1, 3))\n\tif stolen > 0:\n\t\tprint("Man rợ đột kích và cướp ", stolen, " ", target, " khỏi kho bộ lạc!")\n
+
+func _attempt_resource_raid() -> void:
+	var candidates: Array[String] = []
+	var stock: Dictionary = TribeJobSystem.stockpile
+	for resource_id in ["meat", "berries", "food", "tools"]:
+	\tif int(stock.get(resource_id, 0)) > 0:
+	\t\tcandidates.append(resource_id)
+	if candidates.is_empty():
+	\treturn
+	var target: String = candidates[randi_range(0, candidates.size() - 1)]
+	var stolen := TribeJobSystem.raid_stockpile(target, randi_range(1, 3))
+	if stolen > 0:
+	\tprint("Man rợ đột kích và cướp ", stolen, " ", target, " khỏi kho bộ lạc!")\n
