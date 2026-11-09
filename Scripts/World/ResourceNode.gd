@@ -3,7 +3,7 @@ class_name ResourceNode
 
 signal gathered(resource_type: String, amount: int)
 
-@export_enum("wood", "stone", "food", "water") var resource_type: String = "wood"
+@export var resource_type: String = "wood"
 @export_range(1, 99, 1) var amount_available: int = 5
 
 func _ready() -> void:
@@ -29,5 +29,23 @@ func _draw() -> void:
 			tint = Color("#b4a34b")
 		"water":
 			tint = Color("#438eb8")
+		"berries":
+			tint = Color("#9c426f")
+		"herbs":
+			tint = Color("#5d9a4d")
+		"hide":
+			tint = Color("#9b7654")
+		"bone":
+			tint = Color("#ded2ad")
+		"flint":
+			tint = Color("#6d737c")
+		"ore":
+			tint = Color("#b17b45")
+		"reeds":
+			tint = Color("#8b9b48")
+		"ice":
+			tint = Color("#91cde0")
+		"meat":
+			tint = Color("#a7473c")
 	draw_circle(Vector2.ZERO, 23.0, tint)
 	draw_circle(Vector2(-7.0, -6.0), 6.0, tint.lightened(0.25))
