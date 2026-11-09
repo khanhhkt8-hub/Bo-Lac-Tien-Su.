@@ -1,8 +1,9 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://Scripts/World/World.gd" id="1_world"]
 [ext_resource type="Script" path="res://Scripts/Player/Player.gd" id="2_player"]
 [ext_resource type="Script" path="res://Scripts/UI/SurvivalHUD.gd" id="3_hud"]
+[ext_resource type="PackedScene" path="res://Scenes/ResourceNode.tscn" id="4_resource"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_player"]
 radius = 14.0
@@ -23,3 +24,23 @@ position_smoothing_speed = 5.0
 
 [node name="SurvivalHUD" type="CanvasLayer" parent="."]
 script = ExtResource("3_hud")
+
+[node name="WoodNode" parent="." instance=ExtResource("4_resource")]
+position = Vector2(180, 60)
+resource_type = "wood"
+amount_available = 8
+
+[node name="StoneNode" parent="." instance=ExtResource("4_resource")]
+position = Vector2(-180, 100)
+resource_type = "stone"
+amount_available = 6
+
+[node name="FoodNode" parent="." instance=ExtResource("4_resource")]
+position = Vector2(120, -180)
+resource_type = "food"
+amount_available = 5
+
+[node name="WaterNode" parent="." instance=ExtResource("4_resource")]
+position = Vector2(-160, -180)
+resource_type = "water"
+amount_available = 5
