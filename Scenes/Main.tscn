@@ -1,9 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://Scripts/World/World.gd" id="1_world"]
 [ext_resource type="Script" path="res://Scripts/Player/Player.gd" id="2_player"]
 [ext_resource type="Script" path="res://Scripts/UI/SurvivalHUD.gd" id="3_hud"]
 [ext_resource type="PackedScene" path="res://Scenes/ResourceNode.tscn" id="4_resource"]
+[ext_resource type="PackedScene" path="res://Scenes/Barbarian.tscn" id="5_barbarian"]
+[ext_resource type="PackedScene" path="res://Scenes/PrehistoricAnimal.tscn" id="6_animal"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_player"]
 radius = 14.0
@@ -44,3 +46,25 @@ amount_available = 5
 position = Vector2(-160, -180)
 resource_type = "water"
 amount_available = 5
+
+[node name="BarbarianScout" parent="." instance=ExtResource("5_barbarian")]
+position = Vector2(420, 120)
+
+[node name="BarbarianGuard" parent="." instance=ExtResource("5_barbarian")]
+position = Vector2(500, 180)
+
+[node name="Wolf" parent="." instance=ExtResource("6_animal")]
+position = Vector2(-420, 100)
+species = "wolf"
+
+[node name="SaberTooth" parent="." instance=ExtResource("6_animal")]
+position = Vector2(-520, -180)
+species = "saber_tooth"
+
+[node name="CaveBear" parent="." instance=ExtResource("6_animal")]
+position = Vector2(620, -360)
+species = "cave_bear"
+
+[node name="Mammoth" parent="." instance=ExtResource("6_animal")]
+position = Vector2(-700, 420)
+species = "mammoth"
