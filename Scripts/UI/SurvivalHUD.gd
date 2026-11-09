@@ -37,6 +37,7 @@ func _ready() -> void:
 	_add_craft_button(buttons, "Rìu đá", "stone_axe")
 	_add_craft_button(buttons, "Giáo đá", "stone_spear")
 	_add_craft_button(buttons, "Đống lửa", "campfire")
+	_create_mobile_movement_pad()
 
 	if _player != null:
 		_stats = _player.get("survival_stats") as SurvivalStats
@@ -48,6 +49,34 @@ func _ready() -> void:
 		if _inventory != null:
 			_inventory.inventory_changed.connect(_on_inventory_changed)
 			_on_inventory_changed(_inventory.items)
+
+func _create_mobile_movement_pad() -> void:
+	_add_move_button("↑", "ui_up", Vector2(92, -190))
+	_add_move_button("←", "ui_left", Vector2(20, -125))
+	_add_move_button("↓", "ui_down", Vector2(92, -125))
+	_add_move_button("→", "ui_right", Vector2(164, -125))
+
+func _add_move_button(title: String, action: String, offset: Vector2) -> void:
+	var button := Button.new()
+	button.text = title
+	button.custom_minimum_size = Vector2(64, 60)
+	button.anchor_left = 0.0
+	button.anchor_right = 0.0
+	button.anchor_top = 1.0
+	button.anchor_bottom = 1.0
+	button.offset_left = offset.x
+	button.offset_top = offset.y
+	button.offset_right = offset.x + 64.0
+	button.offset_bottom = offset.y + 60.0
+	button.button_down.connect(_on_move_button_down.bind(action))
+	button.button_up.connect(_on_move_button_up.bind(action))
+	add_child(button)
+
+func _on_move_button_down(action: String) -> void:
+	Input.action_press(action)
+
+func _on_move_button_up(action: String) -> void:
+	Input.action_release(action)
 
 func _on_gather_pressed() -> void:
 	if _player != null and _player.has_method("gather_nearby"):
