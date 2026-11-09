@@ -94,7 +94,7 @@ Game sinh tồn 2D offline, ưu tiên Android, phát triển bằng Godot 4.
 - Giới hạn đội hình là 3 thú đồng hành cùng lúc.
 - Thú đã thuần hóa đi theo người chơi và tự động tấn công kẻ địch gần đó; không còn bị nhận diện là thú địch.
 - HUD Android có nút THUẦN HÓA THÚ và hiển thị yêu cầu thức ăn khi chưa đủ.
-- Trạng thái thuần hóa hiện chỉ tồn tại trong phiên chơi; chưa lưu đội thú qua lần khởi động sau.
+- Trạng thái thú đồng hành, cấp nâng cấp, máu, vị trí tương đối và thú đang cưỡi hiện được lưu offline trong `user://bo_lac_companions.cfg`.
 
 
 ## Thú cưỡi và nâng cấp thú đồng hành
@@ -102,7 +102,7 @@ Game sinh tồn 2D offline, ưu tiên Android, phát triển bằng Godot 4.
 - Tốc độ cưỡi theo loài: sói x1,6; hổ răng kiếm x1,8; gấu hang x1,15; voi ma mút x1,35.
 - Thú đồng hành có thể nâng cấp tối đa cấp 3; mỗi cấp cần 5 xương và 3 da thú, tăng máu tối đa, sát thương và tốc độ.
 - Thú đã thuần hóa được giữ lại khi rời Hang Động Cổ Xưa; chỉ thú hoang trong hang mới bị dọn.
-- Tiến độ thuần hóa/nâng cấp hiện vẫn chưa được lưu qua lần khởi động game mới.
+- Đội thú được khôi phục khi mở game; dữ liệu tự lưu sau thay đổi và định kỳ 10 giây.
 
 
 ## Lưu thú đồng hành
