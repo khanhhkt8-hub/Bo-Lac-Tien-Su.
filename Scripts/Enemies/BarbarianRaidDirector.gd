@@ -1,0 +1,38 @@
+extends Node2D
+
+const BARBARIAN_SCENE: PackedScene = preload("res://Scenes/Barbarian.tscn")
+
+@export var raiders_per_wave: int = 3
+@export var spawn_distance: float = 460.0
+@export var max_barbarians_alive: int = 9
+
+var raid_started_this_night: bool = false
+
+func _process(_delta: float) -> void:
+	var cycles := get_tree().get_nodes_in_group("day_night_cycle")
+	if cycles.is_empty():
+		return
+	var cycle := cycles[0] as DayNightCycle
+	if not is_instance_valid(cycle):
+		return
+	if not cycle.is_night:
+		raid_started_this_night = false
+		return
+	if raid_started_this_night:
+		return
+	raid_started_this_night = true
+	_start_raid()
+
+func _start_raid() -> void:
+	var player := get_tree().get_first_node_in_group("player") as Node2D
+	if not is_instance_valid(player):
+		return
+	var alive := get_tree().get_nodes_in_group("barbarians").size()
+	var available := maxi(0, max_barbarians_alive - alive)
+	var count := mini(raiders_per_wave, available)
+	for i in range(count):
+		var angle := TAU * float(i) / float(maxi(1, count)) + randf_range(-0.25, 0.25)
+		var offset := Vector2.RIGHT.rotated(angle) * spawn_distance
+		var raider := BARBARIAN_SCENE.instantiate() as Node2D
+		get_parent().add_child(raider)
+		raider.global_position = player.global_position + offset
