@@ -66,7 +66,7 @@ func _spawn_boss(region_id: String, data: Dictionary) -> void:
 	print("Boss khu vực xuất hiện: ", active_boss_name)
 
 func _on_boss_tree_exiting(region_id: String, boss: PrehistoricAnimal) -> void:
-	if _boss_cleanup:
+	if _boss_cleanup or (is_instance_valid(boss) and bool(boss.get_meta("boss_cleanup", false))):
 		return
 	if is_instance_valid(boss) and boss.health <= 0.0:
 		defeated_bosses[region_id] = true
@@ -81,6 +81,7 @@ func _on_boss_tree_exiting(region_id: String, boss: PrehistoricAnimal) -> void:
 func _remove_active_boss() -> void:
 	if is_instance_valid(active_boss):
 		_boss_cleanup = true
+		active_boss.set_meta("boss_cleanup", true)
 		active_boss.queue_free()
 		active_boss = null
 		_boss_cleanup = false
