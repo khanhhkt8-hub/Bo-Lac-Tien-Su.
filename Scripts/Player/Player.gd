@@ -16,6 +16,7 @@ var hazard_damage_timer := 0.0
 var antidote_seconds := 0.0
 var mounted_animal: PrehistoricAnimal
 var _loading_companions := false
+var _companion_save_timer := 0.0
 @export var attack_cooldown: float = 0.55
 @export var attack_range: float = 72.0
 
@@ -39,6 +40,10 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	attack_cooldown_left = maxf(0.0, attack_cooldown_left - delta)
+	_companion_save_timer += delta
+	if _companion_save_timer >= 10.0:
+		_companion_save_timer = 0.0
+		save_companions()
 	_update_environment_hazards(delta)
 	var direction := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
 	var speed_multiplier := 1.0
@@ -314,3 +319,8 @@ func _load_companions() -> void:
 			animal.z_index = -1
 			animal.global_position = global_position + Vector2(0.0, 18.0)
 	_loading_companions = false
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		save_companions()
