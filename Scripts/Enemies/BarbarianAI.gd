@@ -17,7 +17,7 @@ func _ready() -> void:
 	super._ready()
 	add_to_group("barbarians")
 
-func _on_target_detected(new_target: Node2D) -> void:
+func take_damage(amount: float) -> void:\n\tvar was_alive := health > 0.0\n\tsuper.take_damage(amount)\n\tif is_chief and was_alive and health <= 0.0:\n\t\tTribeJobSystem.add_to_stockpile("tools", 8)\n\t\tTribeJobSystem.add_to_stockpile("food", 12)\n\t\tprint("Đã đánh bại Thủ lĩnh man rợ! Nhận 8 dụng cụ và 12 lương thực.")\n\nfunc _on_target_detected(new_target: Node2D) -> void:
 	for ally in get_tree().get_nodes_in_group("barbarians"):
 		if ally == self or not is_instance_valid(ally):
 			continue
