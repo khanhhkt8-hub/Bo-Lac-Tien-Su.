@@ -27,3 +27,11 @@ Game sinh tồn 2D offline, ưu tiên Android, phát triển bằng Godot 4.
 5. Các vùng khám phá, sự kiện đột kích và lưu game.
 
 Đây là bộ khung khởi đầu; chưa phải bản APK hoàn chỉnh.
+
+
+### Sửa lỗi và độ ổn định hệ thống bộ lạc
+- Dân cư mới được lưu ngay sau khi thêm, tránh mất dữ liệu khi thoát game.
+- TribePopulation cung cấp get_resident() để các hệ thống khác kiểm tra cư dân còn sống.
+- Phân nhà kiểm tra cư dân hợp lệ, dọn phân công của người đã chết và cho phép chuyển nhà khi nhà đích còn đủ chỗ.
+- Hàng chờ huấn luyện được lưu tiến độ định kỳ mỗi 5 giây; dữ liệu hàng chờ không hợp lệ được loại khi tải.
+- Các thay đổi đã được ghi lên nhánh main. Chưa chạy kiểm thử Godot runtime hoặc build APK trong môi trường hiện tại.
