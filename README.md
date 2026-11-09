@@ -12,6 +12,11 @@ Game sinh tồn 2D offline, ưu tiên Android, phát triển bằng Godot 4.
 - Camera bám theo nhân vật.
 - Bản đồ thử nghiệm có nền và các điểm tài nguyên minh họa.
 
+## Hệ thống bộ lạc mới
+- Nhà ở có 5 cấp, tăng sức chứa dân cư; nguyên liệu gỗ/đá và tiến độ được lưu offline.
+- Khu huấn luyện chiến binh: mỗi lượt tốn 5 lương thực, mất 90 giây, tăng 5 sức mạnh và 5 thể lực (tối đa 100); hàng chờ được lưu offline.
+- Hai hệ thống được đăng ký làm Autoload trong `project.godot`.
+
 ## Lộ trình
 1. Vòng lặp sinh tồn: máu, đói, khát.
 2. Thu thập gỗ, đá và thức ăn.
