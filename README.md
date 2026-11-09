@@ -70,3 +70,10 @@ Game sinh tồn 2D offline, ưu tiên Android, phát triển bằng Godot 4.
 - InventorySystem tự tải dữ liệu khi nhân vật được tạo và lưu ngay sau mỗi lần nhận hoặc tiêu hao vật phẩm.
 - Các loại tài nguyên mới theo biome (quặng, đá lửa, thảo dược, da, xương, lau sậy, băng và thịt) được lưu dưới dạng ID linh hoạt, không cần whitelist.
 - Dữ liệu túi đồ được lưu riêng trong user://bo_lac_inventory.cfg.
+
+
+## Hang động có thể khám phá
+- Hang Động Cổ Xưa có cổng vào tại khu vực cavern; chạm vào vòng đánh dấu để đi xuống.
+- Khu vực bên trong là một phòng hang riêng biệt trên cùng bản đồ offline, có giới hạn di chuyển và lối ra để quay về mặt đất.
+- Hang có gấu hang và hổ răng kiếm canh giữ; động vật được tạo khi người chơi bước vào và dọn khi rời đi.
+- Hệ thống được tích hợp vào Main.tscn bằng CaveSystem.gd.
