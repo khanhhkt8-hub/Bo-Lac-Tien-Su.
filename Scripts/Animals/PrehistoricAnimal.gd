@@ -5,6 +5,9 @@ class_name PrehistoricAnimal
 @export var passive_until_attacked: bool = false
 @export var flee_health_ratio: float = 0.0
 var is_tamed := false
+var is_mounted := false
+var mount_owner: Node2D
+var companion_level := 1
 var companion_attack_timer := 0.0
 var companion_target_timer := 0.0
 var companion_target: Node2D
@@ -35,6 +38,11 @@ func _ready() -> void:
 	add_to_group("prehistoric_animals")
 
 func _physics_process(delta: float) -> void:
+	if is_mounted:
+		if is_instance_valid(mount_owner):
+			global_position = mount_owner.global_position + Vector2(0.0, 18.0)
+		velocity = Vector2.ZERO
+		return
 	if not is_tamed:
 		super._physics_process(delta)
 		return
@@ -46,8 +54,32 @@ func tame_as_companion() -> void:
 	target = null
 	companion_target = null
 	remove_from_group("enemies")
+	remove_from_group("cave_wildlife")
 	add_to_group("tamed_animals")
 	queue_redraw()
+
+func get_mount_speed_multiplier() -> float:
+	match species:
+		"wolf":
+			return 1.6
+		"saber_tooth":
+			return 1.8
+		"cave_bear":
+			return 1.15
+		"mammoth":
+			return 1.35
+	return 1.0
+
+func upgrade_companion() -> bool:
+	if not is_tamed or companion_level >= 3:
+		return false
+	companion_level += 1
+	max_health *= 1.2
+	health = minf(max_health, health + max_health * 0.2)
+	attack_damage *= 1.15
+	move_speed *= 1.08
+	queue_redraw()
+	return true
 
 func _companion_follow_and_fight(delta: float) -> void:
 	companion_attack_timer = maxf(0.0, companion_attack_timer - delta)
@@ -126,5 +158,7 @@ func _draw() -> void:
 	if species == "saber_tooth":
 		draw_line(Vector2(-5.0, 6.0), Vector2(-3.0, 14.0), Color("#eee1c5"), 2.0)
 		draw_line(Vector2(5.0, 6.0), Vector2(3.0, 14.0), Color("#eee1c5"), 2.0)
+	if is_tamed:
+		draw_string(ThemeDB.fallback_font, Vector2(-10.0, -radius - 7.0), "★%d" % companion_level, HORIZONTAL_ALIGNMENT_LEFT, 40.0, 12, Color("#f2d16b"))
 	if species == "mammoth":
 		draw_arc(Vector2(0.0, 8.0), radius * 0.65, 0.1, PI - 0.1, 18, Color("#e4d1aa"), 3.0)
