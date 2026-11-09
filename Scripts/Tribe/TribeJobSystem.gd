@@ -58,7 +58,7 @@ func get_job_summary() -> Dictionary:
 			counts[job_id] = int(counts[job_id]) + 1
 	return {"counts": counts, "stockpile": stockpile.duplicate()}
 
-func _produce_resources() -> void:
+func raid_stockpile(resource_id: String, requested_amount: int) -> int:\n\tif not stockpile.has(resource_id) or requested_amount <= 0:\n\t\treturn 0\n\tvar stolen := mini(int(stockpile[resource_id]), requested_amount)\n\tstockpile[resource_id] = int(stockpile[resource_id]) - stolen\n\tif stolen > 0:\n\t\tproduction_changed.emit(resource_id, int(stockpile[resource_id]))\n\t\t_save_state()\n\treturn stolen\n\nfunc _produce_resources() -> void:
 	var produced: Dictionary = {}
 	for key in assignments:
 		var resident_id := int(key)
