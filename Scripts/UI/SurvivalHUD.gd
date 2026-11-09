@@ -36,6 +36,10 @@ func _ready() -> void:
 	attack_button.text = "TẤN CÔNG"
 	attack_button.pressed.connect(_on_attack_pressed)
 	combat_row.add_child(attack_button)
+	var tame_button := Button.new()
+	tame_button.text = "THUẦN HÓA THÚ"
+	tame_button.pressed.connect(_on_tame_pressed)
+	column.add_child(tame_button)
 	var gather_button := Button.new()
 	gather_button.text = "THU THẬP TÀI NGUYÊN"
 	gather_button.pressed.connect(_on_gather_pressed)
@@ -117,6 +121,10 @@ func _on_shoot_pressed() -> void:
 	if _player != null and _player.has_method("shoot_arrow"):
 		if not _player.shoot_arrow():
 			_craft_status.text = "Cần cung, tên và mục tiêu trong tầm bắn"
+
+func _on_tame_pressed() -> void:
+	if _player != null and _player.has_method("tame_nearby_animal"):
+		_craft_status.text = _player.tame_nearby_animal()
 
 func _on_gather_pressed() -> void:
 	if _player != null and _player.has_method("gather_nearby"):
