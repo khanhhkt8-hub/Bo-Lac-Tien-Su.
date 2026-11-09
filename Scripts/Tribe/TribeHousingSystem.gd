@@ -84,11 +84,12 @@ func get_housing_summary() -> Dictionary:
 	for house in houses:
 		total_capacity += int(house.capacity)
 		assigned += house.resident_ids.size()
+	var total_residents := int(TribePopulation.get_population_summary().total)
 	return {
 		"houses": houses.size(),
 		"capacity": total_capacity,
 		"assigned": assigned,
-		"homeless": maxi(0, assigned - total_capacity)
+		"homeless": maxi(0, total_residents - assigned)
 	}
 
 func _find_house(house_id: int) -> Dictionary:
