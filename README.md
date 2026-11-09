@@ -110,3 +110,11 @@ Game sinh tồn 2D offline, ưu tiên Android, phát triển bằng Godot 4.
 - Khi mở game, tối đa 3 thú đã lưu được khôi phục cùng người chơi.
 - Dữ liệu thú được tự lưu sau khi thuần hóa, nâng cấp, cưỡi/xuống thú; đồng thời tự lưu định kỳ 10 giây và khi nhận yêu cầu đóng game.
 - Tệp lưu nằm trong vùng dữ liệu riêng của game trên thiết bị; chưa có đồng bộ đám mây.
+
+
+## Sinh sản và trưởng thành của thú
+- Có thể cho 2 thú đồng hành trưởng thành cùng loài sinh sản khi cả hai ở gần người chơi.
+- Mỗi lần sinh sản tiêu hao 10 lương thực và 5 thịt; cần còn chỗ trong giới hạn đội hình 3 thú.
+- Thú con được tạo ngay, có kích thước và sức chiến đấu thấp hơn; sau 5 phút chơi sẽ trưởng thành.
+- Tiến độ lớn lên của thú con được lưu offline cùng đội thú và tiếp tục khi mở game lại.
+- HUD có nút LAI TẠO THÚ; hiện chỉ hỗ trợ sinh sản cùng loài, chưa có lai chéo.
