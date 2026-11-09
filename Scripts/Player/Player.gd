@@ -280,6 +280,8 @@ func save_companions() -> void:
 		var section := "companion_%d" % index
 		config.set_value(section, "species", animal.species)
 		config.set_value(section, "level", animal.companion_level)
+		config.set_value(section, "is_baby", animal.is_baby)
+		config.set_value(section, "growth_remaining", animal.growth_seconds_remaining)
 		config.set_value(section, "health", animal.health)
 		config.set_value(section, "mounted", animal.is_mounted and animal == mounted_animal)
 		config.set_value(section, "offset", animal.global_position - global_position)
@@ -307,6 +309,8 @@ func _load_companions() -> void:
 		scene_root.add_child(animal)
 		animal.global_position = global_position + config.get_value(section, "offset", Vector2(80.0 + index * 36.0, 50.0))
 		animal.tame_as_companion()
+		if bool(config.get_value(section, "is_baby", false)):
+			animal.set_as_baby(float(config.get_value(section, "growth_remaining", 300.0)))
 		var level := clampi(int(config.get_value(section, "level", 1)), 1, 3)
 		for _upgrade_index in range(level - 1):
 			animal.upgrade_companion()
@@ -324,3 +328,51 @@ func _load_companions() -> void:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		save_companions()
+
+
+func breed_nearby_companions() -> String:
+	var companions: Array[PrehistoricAnimal] = []
+	for node in get_tree().get_nodes_in_group("tamed_animals"):
+		if is_instance_valid(node) and node is PrehistoricAnimal:
+			var animal := node as PrehistoricAnimal
+			if not animal.is_baby and not animal.is_mounted and global_position.distance_to(animal.global_position) <= 190.0:
+				companions.append(animal)
+	if companions.size() < 2:
+		return "Cần 2 thú trưởng thành ở gần để sinh sản"
+	if get_tree().get_nodes_in_group("tamed_animals").size() >= 3:
+		return "Đội thú đã đủ 3 con, hãy có chỗ trống cho thú con"
+	var parent_a: PrehistoricAnimal
+	var parent_b: PrehistoricAnimal
+	var best_distance := 190.0
+	for i in range(companions.size()):
+		for j in range(i + 1, companions.size()):
+			var first := companions[i]
+			var second := companions[j]
+			if first.species != second.species:
+				continue
+			var distance := first.global_position.distance_to(second.global_position)
+			if distance <= best_distance:
+				best_distance = distance
+				parent_a = first
+				parent_b = second
+	if not is_instance_valid(parent_a) or not is_instance_valid(parent_b):
+		return "Cần 2 thú trưởng thành cùng loài ở gần nhau"
+	if inventory.get_amount("food") < 10 or inventory.get_amount("meat") < 5:
+		return "Sinh sản cần 10 lương thực và 5 thịt"
+	if not inventory.remove_item("food", 10):
+		return "Không đủ lương thực"
+	if not inventory.remove_item("meat", 5):
+		inventory.add_item("food", 10)
+		return "Không đủ thịt"
+	var baby := ANIMAL_SCENE.instantiate() as PrehistoricAnimal
+	baby.species = parent_a.species
+	var scene_root := get_tree().current_scene
+	if scene_root == null:
+		scene_root = get_parent()
+	scene_root.add_child(baby)
+	baby.global_position = (parent_a.global_position + parent_b.global_position) * 0.5 + Vector2(24.0, 24.0)
+	baby.tame_as_companion()
+	baby.set_as_baby(300.0)
+	_register_companion(baby)
+	save_companions()
+	return "Thú con %s đã ra đời! Sẽ trưởng thành sau 5 phút" % baby.enemy_name
