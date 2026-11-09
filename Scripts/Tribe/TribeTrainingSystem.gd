@@ -11,6 +11,9 @@ const FOOD_COST := 5
 var training_queue: Array[Dictionary] = []
 var _elapsed: Dictionary = {}
 
+func _ready() -> void:
+	_load_state()
+
 func _process(delta: float) -> void:
 	for entry in training_queue.duplicate():
 		var resident_id := int(entry.resident_id)
@@ -76,3 +79,14 @@ func _save_state() -> void:
 	config.set_value("training", "queue", training_queue)
 	config.set_value("training", "elapsed", _elapsed)
 	config.save(SAVE_PATH)
+
+func _load_state() -> void:
+	var config := ConfigFile.new()
+	if config.load(SAVE_PATH) != OK:
+		return
+	training_queue.clear()
+	for entry in config.get_value("training", "queue", []):
+		var resident_id := int(entry.get("resident_id", -1))
+		if resident_id >= 0 and not _find_resident(resident_id).is_empty():
+			training_queue.append(entry)
+	_elapsed = config.get_value("training", "elapsed", {})
