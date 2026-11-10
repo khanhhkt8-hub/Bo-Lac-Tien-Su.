@@ -64,6 +64,8 @@ func _ready() -> void:
 			_raid_director.raid_warning.connect(_on_raid_warning)
 		if _raid_director.has_signal("raid_started") and not _raid_director.raid_started.is_connected(_on_raid_started):
 			_raid_director.raid_started.connect(_on_raid_started)
+		if _raid_director.has_signal("intruder_detected") and not _raid_director.intruder_detected.is_connected(_on_intruder_detected):
+			_raid_director.intruder_detected.connect(_on_intruder_detected)
 	_day_night_label = Label.new()
 	_day_night_label.text = "NGÀY 1 • ĐANG CẬP NHẬT"
 	column.add_child(_day_night_label)
@@ -318,6 +320,10 @@ func _on_raid_warning(seconds_left: int) -> void:
 func _on_raid_started(raider_count: int) -> void:
 	if _craft_status != null:
 		_craft_status.text = "ĐỘT KÍCH BAN ĐÊM! Có %d kẻ địch xuất hiện. Hãy bảo vệ bộ lạc!" % raider_count
+
+func _on_intruder_detected(distance: int) -> void:
+	if _craft_status != null:
+		_craft_status.text = "CẢNH BÁO XÂM NHẬP! Man rợ đã lọt vào vùng bộ lạc, cách cờ tập hợp %d m. Hãy điều chiến binh!" % distance
 
 func _refresh_day_night_label() -> void:
 	if _day_night_label == null:
