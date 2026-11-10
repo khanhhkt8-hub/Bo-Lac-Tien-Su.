@@ -157,25 +157,40 @@ func take_damage(amount: float) -> void:
 		queue_free()
 
 func _draw() -> void:
-	# Kẻ địch có dáng chiến binh, tóc, giáp da và vũ khí.
-	draw_colored_polygon(PackedVector2Array([Vector2(-13, 7), Vector2(-10, 17), Vector2(10, 17), Vector2(13, 7)]), Color(0.10, 0.10, 0.08, 0.42))
-	draw_line(Vector2(-5, 7), Vector2(-7, 14), Color("#392b22"), 5.0)
-	draw_line(Vector2(5, 7), Vector2(7, 14), Color("#392b22"), 5.0)
+	# Bóng, giáp da ghép mảng và phụ kiện chiến binh.
+	draw_colored_polygon(PackedVector2Array([Vector2(-14, 8), Vector2(-11, 18), Vector2(11, 18), Vector2(14, 8)]), Color(0.07, 0.07, 0.06, 0.42))
+	draw_line(Vector2(-6, 7), Vector2(-8, 15), Color("#30231d"), 6.0)
+	draw_line(Vector2(6, 7), Vector2(8, 15), Color("#30231d"), 6.0)
 	var armor_color := Color("#704735").lerp(Color.WHITE, clampf(hit_flash / 0.16, 0.0, 1.0))
-	draw_colored_polygon(PackedVector2Array([Vector2(-10, -7), Vector2(-8, 8), Vector2(0, 12), Vector2(8, 8), Vector2(10, -7), Vector2(0, -12)]), armor_color)
-	draw_line(Vector2(-8, -3), Vector2(8, 7), Color("#ad8b59"), 3.0)
-	draw_circle(Vector2.ZERO, 11.0, Color("#a86f4d"))
-	draw_arc(Vector2(0, -2), 11.0, PI, TAU, 18, Color("#39251e"), 4.0)
-	draw_circle(Vector2(-3.5, 0), 1.6, Color("#241a16"))
-	draw_circle(Vector2(3.5, 0), 1.6, Color("#241a16"))
-	draw_line(Vector2(11, -3), Vector2(20, -17), Color("#62452c"), 3.0)
-	draw_colored_polygon(PackedVector2Array([Vector2(17, -20), Vector2(24, -26), Vector2(24, -15)]), Color("#b9c0b4"))
-	# Thanh máu phía trên đầu mục tiêu.
-	draw_rect(Rect2(Vector2(-16.0, -29.0), Vector2(32.0, 5.0)), Color("#292521"))
-	draw_rect(Rect2(Vector2(-15.0, -28.0), Vector2(30.0 * health / maxf(1.0, max_health), 3.0)), Color("#d84e43"))
+	draw_colored_polygon(PackedVector2Array([Vector2(-12, -8), Vector2(-9, 8), Vector2(0, 13), Vector2(9, 8), Vector2(12, -8), Vector2(0, -13)]), armor_color.darkened(0.32))
+	draw_colored_polygon(PackedVector2Array([Vector2(-9, -7), Vector2(-7, 7), Vector2(0, 10), Vector2(7, 7), Vector2(9, -7), Vector2(0, -11)]), armor_color)
+	# Tấm giáp vai, dây da và đinh tán.
+	draw_colored_polygon(PackedVector2Array([Vector2(-10, -6), Vector2(-15, -3), Vector2(-12, 3), Vector2(-7, 1)]), Color("#8b6545"))
+	draw_colored_polygon(PackedVector2Array([Vector2(10, -6), Vector2(15, -3), Vector2(12, 3), Vector2(7, 1)]), Color("#8b6545"))
+	draw_line(Vector2(-8, -4), Vector2(8, 6), Color("#d0a46a"), 2.5)
+	draw_line(Vector2(-7, 5), Vector2(7, 5), Color("#4a3024"), 1.5)
+	draw_circle(Vector2(-6, -2), 1.2, Color("#e0c18b"))
+	draw_circle(Vector2(6, 4), 1.2, Color("#e0c18b"))
+	# Đầu, tóc dựng, sơn chiến trận và gương mặt.
+	draw_circle(Vector2(0, -13), 10.5, Color("#a86f4d"))
+	draw_arc(Vector2(0, -16), 10.5, PI, TAU, 18, Color("#39251e"), 4.5)
+	draw_colored_polygon(PackedVector2Array([Vector2(-9, -16), Vector2(-5, -25), Vector2(0, -20), Vector2(5, -26), Vector2(10, -15)]), Color("#39251e"))
+	draw_line(Vector2(-8, -8), Vector2(8, -5), Color("#a83c32"), 2.0)
+	draw_circle(Vector2(-3.5, -13), 1.5, Color("#241a16"))
+	draw_circle(Vector2(3.5, -13), 1.5, Color("#241a16"))
+	draw_line(Vector2(-2, -7), Vector2(2, -7), Color("#573326"), 1.3)
+	# Khiên gỗ nhỏ và vũ khí đá.
+	draw_colored_polygon(PackedVector2Array([Vector2(-16, -2), Vector2(-22, 2), Vector2(-20, 12), Vector2(-14, 15), Vector2(-10, 9)]), Color("#6c472e"))
+	draw_arc(Vector2(-16, 6), 7.0, -1.2, 1.3, 12, Color("#c18a50"), 1.8)
+	draw_line(Vector2(11, -3), Vector2(21, -19), Color("#503624"), 3.2)
+	draw_colored_polygon(PackedVector2Array([Vector2(18, -22), Vector2(25, -29), Vector2(25, -17), Vector2(20, -14)]), Color("#b9c0b4"))
+	draw_line(Vector2(20, -22), Vector2(24, -26), Color("#edf0df"), 1.2)
+	# Thanh máu và hiệu ứng trúng đòn.
+	draw_rect(Rect2(Vector2(-17.0, -33.0), Vector2(34.0, 5.0)), Color("#292521"))
+	draw_rect(Rect2(Vector2(-16.0, -32.0), Vector2(32.0 * health / maxf(1.0, max_health), 3.0)), Color("#d84e43"))
 	if hit_flash > 0.0:
 		for spark_index in range(7):
 			var angle := TAU * float(spark_index) / 7.0
-			var start := Vector2(cos(angle), sin(angle)) * 15.0
-			var finish := Vector2(cos(angle), sin(angle)) * 24.0
+			var start := Vector2(cos(angle), sin(angle)) * 16.0
+			var finish := Vector2(cos(angle), sin(angle)) * 26.0
 			draw_line(start, finish, Color("#ffe08a"), 2.0)
