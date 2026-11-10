@@ -95,7 +95,7 @@ func _refresh() -> void:
 		int(pop.total), int(pop.children), int(pop.adults), int(pop.elders), leader_text,
 		int(housing.houses), int(housing.capacity), int(housing.homeless),
 		house_text, resident_text, TribeHousingSystem.wood, TribeHousingSystem.stone,
-		int(job_counts.hunter), int(job_counts.gatherer), int(job_counts.fisher), int(job_counts.orchardist), int(job_counts.poultry), int(job_counts.miner), int(job_counts.farmer), int(job_counts.crafter), int(job_counts.warrior), int(job_counts.night_guard),
+		int(job_counts.hunter), int(job_counts.gatherer), int(job_counts.fisher), int(job_counts.orchardist), int(job_counts.poultry), int(job_counts.miner), int(job_counts.farmer), int(job_counts.crafter), int(job_counts.warrior), int(job_counts.night_guard), int(job_counts.medic),
 		int(stock.meat), int(stock.fish), int(stock.fruit), int(stock.chicken), int(stock.duck), int(stock.eggs), int(stock.food), int(stock.tools), int(stock.warrior_power),
 		int(army.total), int(army.spear), int(army.archer), int(army.guard)
 	]
