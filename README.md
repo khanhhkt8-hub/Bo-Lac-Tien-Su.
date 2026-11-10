@@ -142,3 +142,11 @@ Game sinh tồn 2D offline, ưu tiên Android, phát triển bằng Godot 4.
 - Bùa nanh chế tạo bằng 6 xương + 3 đá, tăng 15% sát thương kỹ năng.
 - Nút TRANG BỊ THÚ tự trang bị các món đang có trong túi cho thú trưởng thành gần nhất. Trang bị và cấp tiến hóa được lưu offline.
 - Các thay đổi này chỉ thêm trang bị cho thú đồng hành, không thêm cơ chế xây dựng căn cứ.
+
+
+## Ổ trứng và ấp nở thú tiền sử
+- Khi hai thú trưởng thành cùng loài sinh sản, chúng tạo một trứng thay vì sinh thú con ngay lập tức.
+- Trứng cần 180 giây thời gian chơi để ấp; bộ đếm tiếp tục được lưu offline và khôi phục khi mở lại game.
+- Nút XEM Ổ TRỨNG hiển thị loài và thời gian còn lại; nút ẤP / NỞ TRỨNG đưa thú con đã đủ thời gian vào đàn.
+- Trứng đang ấp cũng chiếm một vị trí trong giới hạn đội hình 3 thú để tránh vượt giới hạn khi nở.
+- Thú con sau khi nở tiếp tục cần 5 phút chơi để trưởng thành.
