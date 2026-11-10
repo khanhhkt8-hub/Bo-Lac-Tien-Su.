@@ -121,7 +121,7 @@ func collect_resource(resource_type: String, amount: int) -> void:
 func _physics_process(_delta: float) -> void:
 	_gather_cooldown = maxf(0.0, _gather_cooldown - _delta)
 	if Input.is_action_just_pressed("interact") and _gather_cooldown <= 0.0:
-		_gather_nearest_resource()
+		gather_nearest_resource()
 	var input_vector := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
 	var direction := Vector3(input_vector.x, 0.0, input_vector.y)
 	if direction.length_squared() > 0.01:
