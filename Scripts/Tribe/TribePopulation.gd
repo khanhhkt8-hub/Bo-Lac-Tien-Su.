@@ -16,6 +16,8 @@ const LEADER_RETIREMENT_AGE := 70
 
 var residents: Array[Dictionary] = []
 var _year_accumulator: float = 0.0
+var _needs_accumulator: float = 0.0
+const NEEDS_TICK_SECONDS := 60.0
 var _next_id: int = 1
 var leader_id: int = -1
 var _load_leader_id: int = -1
@@ -33,6 +35,10 @@ func _ready() -> void:
 	_emit_population()
 
 func _process(delta: float) -> void:
+	_needs_accumulator += delta
+	if _needs_accumulator >= NEEDS_TICK_SECONDS:
+		_needs_accumulator -= NEEDS_TICK_SECONDS
+		_advance_resident_needs()
 	_year_accumulator += delta
 	while _year_accumulator >= SECONDS_PER_YEAR:
 		_year_accumulator -= SECONDS_PER_YEAR
@@ -46,7 +52,7 @@ func add_resident(resident_name: String, age: int, sex: String, role: String = "
 	residents.append({
 		"id": resident_id, "name": resident_name, "age": age,
 		"sex": sex, "role": role, "partner_id": -1,
-		"health": 100.0, "food": 20, "strength": 10, "stamina": 10, "alive": true, "in_daycare": false
+		"health": 100.0, "food": 20, "water": 20, "strength": 10, "stamina": 10, "alive": true, "in_daycare": false
 	})
 	_emit_population()
 	save_population()
@@ -167,6 +173,72 @@ func get_population_summary() -> Dictionary:
 		else:
 			summary.elders += 1
 	return summary
+
+
+func _advance_resident_needs() -> void:
+	var changed := false
+	for person in residents:
+		if not bool(person.get("alive", true)):
+			continue
+		var food := int(person.get("food", 0))
+		var water := int(person.get("water", 0))
+		if food > 0:
+			person["food"] = food - 1
+		else:
+			person["health"] = maxf(0.0, float(person.get("health", 100.0)) - 3.0)
+			changed = true
+		if water > 0:
+			person["water"] = water - 1
+		else:
+			person["health"] = maxf(0.0, float(person.get("health", 100.0)) - 5.0)
+			changed = true
+		if float(person.get("health", 100.0)) <= 0.0:
+			person["alive"] = false
+			resident_died.emit(str(person.get("name", "Dân làng")))
+			changed = true
+	var leader := get_leader()
+	if leader.is_empty():
+		elect_new_leader()
+	if changed:
+		_emit_population()
+	save_population()
+
+func add_tribe_supplies(food_amount: int, water_amount: int) -> int:
+	var supplied := 0
+	for person in residents:
+		if not bool(person.get("alive", true)):
+			continue
+		if food_amount > 0:
+			var food_room := maxi(0, 20 - int(person.get("food", 0)))
+			var food_added := mini(food_room, food_amount)
+			person["food"] = int(person.get("food", 0)) + food_added
+			food_amount -= food_added
+			supplied += food_added
+		if water_amount > 0:
+			var water_room := maxi(0, 20 - int(person.get("water", 0)))
+			var water_added := mini(water_room, water_amount)
+			person["water"] = int(person.get("water", 0)) + water_added
+			water_amount -= water_added
+		if food_amount <= 0 and water_amount <= 0:
+			break
+	save_population()
+	return supplied
+
+func get_needs_report() -> String:
+	var hungry := 0
+	var thirsty := 0
+	var critical := 0
+	for person in residents:
+		if not bool(person.get("alive", true)):
+			continue
+		if int(person.get("food", 0)) <= 3:
+			hungry += 1
+		if int(person.get("water", 0)) <= 3:
+			thirsty += 1
+		if float(person.get("health", 100.0)) <= 35.0:
+			critical += 1
+	var summary := get_population_summary()
+	return "DÂN SỐ: %d\\nThiếu lương thực: %d\\nThiếu nước: %d\\nSức khỏe nguy cấp: %d\\n\\nMỗi phút, mỗi người cần 1 phần thức ăn và 1 phần nước. Hãy bổ sung vật tư để duy trì bộ lạc." % [int(summary.total), hungry, thirsty, critical]
 
 func _advance_one_year() -> void:
 	var births: Array[Dictionary] = []
