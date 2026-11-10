@@ -140,7 +140,7 @@ func _update_camera_rotation() -> void:
 		_camera_pivot.rotation.y = _camera_yaw
 		_camera_pivot.rotation.x = _camera_pitch
 
-func _gather_nearest_resource() -> void:
+func gather_nearest_resource() -> void:
 	var nearest: Node3D = null
 	var nearest_distance := 3.4
 	for node in get_tree().get_nodes_in_group("resources_3d"):
@@ -153,3 +153,16 @@ func _gather_nearest_resource() -> void:
 	if nearest != null and nearest.has_method("gather"):
 		if nearest.gather(self):
 			_gather_cooldown = 0.35
+
+func attack_nearest_wildlife() -> void:
+	var target: Node3D = null
+	var nearest_distance := 3.8
+	for animal in get_tree().get_nodes_in_group("wildlife_3d"):
+		if not is_instance_valid(animal):
+			continue
+		var distance := global_position.distance_to(animal.global_position)
+		if distance < nearest_distance:
+			nearest_distance = distance
+			target = animal
+	if target != null and target.has_method("receive_damage"):
+		target.receive_damage(25.0)
