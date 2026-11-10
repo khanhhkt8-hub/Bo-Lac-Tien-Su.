@@ -125,10 +125,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		_dragging = event.pressed
 		_last_touch = event.position
 	elif event is InputEventScreenDrag and _dragging:
-		var delta := event.position - _last_touch
+		var drag_delta: Vector2 = event.position - _last_touch
 		_last_touch = event.position
-		_camera_yaw -= delta.x * mouse_sensitivity * 1.5
-		_camera_pitch = clampf(_camera_pitch - delta.y * mouse_sensitivity * 1.5, -0.85, 0.25)
+		_camera_yaw -= drag_delta.x * mouse_sensitivity * 1.5
+		_camera_pitch = clampf(_camera_pitch - drag_delta.y * mouse_sensitivity * 1.5, -0.85, 0.25)
 		_update_camera_rotation()
 
 func collect_resource(resource_type: String, amount: int) -> void:
@@ -233,7 +233,7 @@ func tame_nearest_wildlife() -> void:
 	if target == null:
 		return
 	var species := str(target.get("species"))
-	var cost := {"wolf": ["meat", 2], "saber_tooth": ["meat", 5], "cave_bear": ["meat", 6], "mammoth": ["food", 8], "deer": ["food", 2]}.get(species, ["food", 2])
+	var cost: Array = {"wolf": ["meat", 2], "saber_tooth": ["meat", 5], "cave_bear": ["meat", 6], "mammoth": ["food", 8], "deer": ["food", 2]}.get(species, ["food", 2])
 	var resource_id := str(cost[0])
 	var required := int(cost[1])
 	if int(inventory.get(resource_id, 0)) < required:
