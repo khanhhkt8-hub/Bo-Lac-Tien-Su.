@@ -13,6 +13,7 @@ var growth_seconds_remaining := 0.0
 var companion_attack_timer := 0.0
 var companion_target_timer := 0.0
 var companion_target: Node2D
+var companion_order := "protect"
 
 func _ready() -> void:
 	match species:
@@ -95,6 +96,7 @@ func tame_as_companion() -> void:
 	passive_until_attacked = true
 	target = null
 	companion_target = null
+	companion_order = "protect"
 	remove_from_group("enemies")
 	remove_from_group("cave_wildlife")
 	add_to_group("tamed_animals")
@@ -123,37 +125,88 @@ func upgrade_companion() -> bool:
 	queue_redraw()
 	return true
 
+func get_companion_skill_name() -> String:
+	match species:
+		"wolf":
+			return "Truy kích nhanh"
+		"saber_tooth":
+			return "Vồ xé"
+		"cave_bear":
+			return "Gấu cuồng nộ"
+		"mammoth":
+			return "Dậm nghiền"
+	return "Đòn đánh thường"
+
+
+func set_companion_order(order: String) -> void:
+	if order not in ["protect", "attack"]:
+		return
+	companion_order = order
+	companion_target = null
+	companion_target_timer = 0.0
+
+
+func _get_skill_damage_multiplier() -> float:
+	match species:
+		"wolf":
+			return 0.9
+		"saber_tooth":
+			return 1.65
+		"cave_bear":
+			return 1.85
+		"mammoth":
+			return 2.1
+	return 1.0
+
+
+func _get_skill_cooldown() -> float:
+	match species:
+		"wolf":
+			return 0.85
+		"saber_tooth":
+			return 1.35
+		"cave_bear":
+			return 1.7
+		"mammoth":
+			return 2.0
+	return 1.5
+
+
 func _companion_follow_and_fight(delta: float) -> void:
 	companion_attack_timer = maxf(0.0, companion_attack_timer - delta)
 	companion_target_timer -= delta
+	var player := get_tree().get_first_node_in_group("player") as Node2D
 	if companion_target_timer <= 0.0:
-		companion_target_timer = 0.45
+		companion_target_timer = 0.4
 		companion_target = null
-		var nearest := 230.0
-		for enemy in get_tree().get_nodes_in_group("enemies"):
-			if not is_instance_valid(enemy) or not enemy is Node2D:
-				continue
-			var distance := global_position.distance_to(enemy.global_position)
-			if distance < nearest:
-				nearest = distance
-				companion_target = enemy
+		if not is_baby:
+			var nearest := 520.0 if companion_order == "attack" else 210.0
+			for enemy in get_tree().get_nodes_in_group("enemies"):
+				if not is_instance_valid(enemy) or not enemy is Node2D:
+					continue
+				var enemy_node := enemy as Node2D
+				var distance := global_position.distance_to(enemy_node.global_position)
+				if companion_order == "protect" and is_instance_valid(player):
+					if player.global_position.distance_to(enemy_node.global_position) > 210.0:
+						continue
+				if distance < nearest:
+					nearest = distance
+					companion_target = enemy_node
 	if is_instance_valid(companion_target):
-		var distance := global_position.distance_to(companion_target.global_position)
-		if distance <= 34.0:
+		var target_distance := global_position.distance_to(companion_target.global_position)
+		if target_distance <= 36.0:
 			velocity = Vector2.ZERO
-			if companion_attack_timer <= 0.0:
-				companion_attack_timer = 1.5
-				if companion_target.has_method("take_damage"):
-					companion_target.take_damage(attack_damage * 0.65)
+			if companion_attack_timer <= 0.0 and companion_target.has_method("take_damage"):
+				companion_attack_timer = _get_skill_cooldown()
+				companion_target.take_damage(attack_damage * _get_skill_damage_multiplier())
 		else:
-			velocity = global_position.direction_to(companion_target.global_position) * move_speed * 1.15
+			velocity = global_position.direction_to(companion_target.global_position) * move_speed * 1.2
 	else:
-		var player := get_tree().get_first_node_in_group("player") as Node2D
 		if not is_instance_valid(player):
 			velocity = Vector2.ZERO
 		else:
-			var distance := global_position.distance_to(player.global_position)
-			if distance > 68.0:
+			var player_distance := global_position.distance_to(player.global_position)
+			if player_distance > 72.0:
 				velocity = global_position.direction_to(player.global_position) * move_speed * 1.25
 			else:
 				velocity = Vector2.ZERO
