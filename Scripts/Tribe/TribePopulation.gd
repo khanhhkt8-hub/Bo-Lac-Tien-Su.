@@ -47,14 +47,14 @@ func _process(delta: float) -> void:
 		_year_accumulator -= SECONDS_PER_YEAR
 		_advance_one_year()
 
-func add_resident(resident_name: String, age: int, sex: String, role: String = "villager") -> int:
+func add_resident(resident_name: String, age: int, sex: String, role: String = "villager", parent_a_id: int = -1, parent_b_id: int = -1) -> int:
 	if age < 0 or sex not in ["male", "female"]:
 		return -1
 	var resident_id := _next_id
 	_next_id += 1
 	var inherited_traits: Dictionary = {}
 	if role == "child":
-		inherited_traits = _inherit_traits_from_parents()
+		inherited_traits = _inherit_traits_from_parents(parent_a_id, parent_b_id)
 	else:
 		inherited_traits = _generate_resident_traits()
 	residents.append({
@@ -82,29 +82,19 @@ func _generate_resident_traits() -> Dictionary:
 	return traits
 
 
-func _inherit_traits_from_parents() -> Dictionary:
-	var parent_traits: Array[Dictionary] = []
-	for parent in residents:
-		if not bool(parent.get("alive", true)):
-			continue
-		if int(parent.get("partner_id", -1)) < 0:
-			continue
-		var partner := _find_resident(int(parent.get("partner_id", -1)))
-		if partner.is_empty() or int(parent.get("id", -1)) > int(partner.get("id", -1)):
-			continue
-		parent_traits.append(parent.get("traits", {}))
-		parent_traits.append(partner.get("traits", {}))
-		if parent_traits.size() >= 2:
-			break
-	if parent_traits.size() < 2:
+func _inherit_traits_from_parents(first_parent_id: int = -1, second_parent_id: int = -1) -> Dictionary:
+	var first_parent := _find_resident(first_parent_id)
+	var second_parent := _find_resident(second_parent_id)
+	if first_parent.is_empty() or second_parent.is_empty():
 		return _generate_resident_traits()
+	var first_traits: Dictionary = first_parent.get("traits", {})
+	var second_traits: Dictionary = second_parent.get("traits", {})
 	var inherited := {}
 	for trait_name in ["strength", "agility", "intelligence", "endurance", "perception"]:
-		var first := int(parent_traits[0].get(trait_name, 5))
-		var second := int(parent_traits[1].get(trait_name, 5))
+		var first := int(first_traits.get(trait_name, 5))
+		var second := int(second_traits.get(trait_name, 5))
 		inherited[trait_name] = clampi(roundi((first + second) / 2.0) + randi_range(-1, 1), 1, 10)
 	return inherited
-
 
 func get_trait_report(resident_id: int) -> String:
 	var person := get_resident(resident_id)
@@ -455,7 +445,7 @@ func _advance_one_year() -> void:
 		elect_new_leader()
 	for mother in births:
 		var baby_name := "Em bé %d" % _next_id
-		add_resident(baby_name, 0, "male" if randf() < 0.5 else "female", "child")
+		add_resident(baby_name, 0, "male" if randf() < 0.5 else "female", "child", int(mother.get("id", -1)), int(mother.get("partner_id", -1)))
 		child_born.emit(baby_name)
 	_emit_population()
 	save_population()
