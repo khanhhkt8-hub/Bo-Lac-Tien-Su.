@@ -28,6 +28,7 @@ var patrol_points: Array[Vector2] = []
 var patrol_index := 0
 var patrol_target: Node2D
 var patrol_scan_timer := 0.0
+var walk_phase := 0.0
 
 func _ready() -> void:
 	add_to_group("tribe_units")
@@ -57,6 +58,7 @@ func set_selected(value: bool) -> void:
 	queue_redraw()
 
 func _process(delta: float) -> void:
+	var previous_position := global_position
 	attack_timer = maxf(0.0, attack_timer - delta)
 	gather_timer = maxf(0.0, gather_timer - delta)
 	hunt_timer = maxf(0.0, hunt_timer - delta)
@@ -83,6 +85,9 @@ func _process(delta: float) -> void:
 		_auto_gather()
 	if role == "hunter" and resident_age >= 18 and not has_move_order and not combat_order_active and not hold_position_active and not patrol_active and hunt_timer <= 0.0:
 		_auto_hunt()
+	if global_position.distance_squared_to(previous_position) > 0.1:
+		walk_phase += delta * 12.0
+		queue_redraw()
 
 func set_hold_position() -> void:
 	patrol_active = false
@@ -308,8 +313,9 @@ func _draw() -> void:
 		role_mark = "◆"
 	# Bóng, thân người, đầu tóc và trang phục theo nghề.
 	draw_colored_polygon(PackedVector2Array([Vector2(-9, 7), Vector2(-6, 15), Vector2(7, 15), Vector2(10, 7)]), Color(0.10, 0.13, 0.09, 0.35))
-	draw_line(Vector2(-4, 5), Vector2(-5, 12), Color("#49352a"), 4.0)
-	draw_line(Vector2(4, 5), Vector2(5, 12), Color("#49352a"), 4.0)
+	var step := sin(walk_phase) * 3.5 if has_move_order or patrol_active or combat_order_active else 0.0
+	draw_line(Vector2(-4, 5), Vector2(-5.0 - step, 12), Color("#49352a"), 4.0)
+	draw_line(Vector2(4, 5), Vector2(5.0 + step, 12), Color("#49352a"), 4.0)
 	draw_colored_polygon(PackedVector2Array([Vector2(-8, -5), Vector2(-7, 7), Vector2(0, 10), Vector2(7, 7), Vector2(8, -5), Vector2(0, -9)]), tint)
 	draw_line(Vector2(-7, -2), Vector2(7, 6), Color("#e0c89b"), 2.0)
 	draw_circle(Vector2(0, -10), 7.0, Color("#d9a066"))
