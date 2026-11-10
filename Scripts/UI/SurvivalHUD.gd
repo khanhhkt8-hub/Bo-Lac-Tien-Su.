@@ -84,6 +84,10 @@ func _ready() -> void:
 	needs_button.text = "NHU CẦU BỘ LẠC"
 	needs_button.pressed.connect(_on_tribe_needs_pressed)
 	needs_row.add_child(needs_button)
+	var treatment_button := Button.new()
+	treatment_button.text = "CHỮA THƯƠNG BỘ LẠC"
+	treatment_button.pressed.connect(_on_treat_tribe_pressed)
+	needs_row.add_child(treatment_button)
 	var supply_button := Button.new()
 	supply_button.text = "CẤP THỨC ĂN + NƯỚC"
 	supply_button.pressed.connect(_on_supply_tribe_pressed)
@@ -336,6 +340,10 @@ func _refresh_day_night_label() -> void:
 func _on_tribe_needs_pressed() -> void:
 	if TribePopulation != null:
 		_craft_status.text = TribePopulation.get_needs_report()
+
+func _on_treat_tribe_pressed() -> void:
+	if TribePopulation != null:
+		_craft_status.text = TribePopulation.treat_wounded_residents()
 
 func _on_supply_tribe_pressed() -> void:
 	if _inventory == null or TribePopulation == null:
