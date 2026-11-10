@@ -236,14 +236,14 @@ func upgrade_nearby_companion() -> String:
 	var nearest: PrehistoricAnimal
 	var nearest_distance := 150.0
 	for node in get_tree().get_nodes_in_group("tamed_animals"):
-		if not is_instance_valid(node) or not node is PrehistoricAnimal:
+		if not is_instance_valid(node) or not node is PrehistoricAnimal or node.is_baby:
 			continue
 		var distance := global_position.distance_to(node.global_position)
 		if distance <= nearest_distance:
 			nearest = node
 			nearest_distance = distance
 	if nearest == null:
-		return "Hãy đến gần thú đồng hành để nâng cấp"
+		return "Hãy đến gần thú trưởng thành để nâng cấp"
 	if nearest.companion_level >= 3:
 		return "Thú đã đạt cấp tối đa 3"
 	if inventory.get_amount("bone") < 5 or inventory.get_amount("hide") < 3:
