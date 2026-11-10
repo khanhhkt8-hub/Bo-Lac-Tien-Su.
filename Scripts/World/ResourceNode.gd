@@ -20,6 +20,17 @@ func gather_now(player: Node) -> bool:
 	queue_free()
 	return true
 
+func gather_for_tribe() -> bool:
+	if amount_available <= 0:
+		return false
+	var amount := amount_available
+	amount_available = 0
+	if TribeJobSystem != null:
+		TribeJobSystem.add_to_stockpile(resource_type, amount)
+	gathered.emit(resource_type, amount)
+	queue_free()
+	return true
+
 func _draw() -> void:
 	var tint := Color("#8a633c")
 	match resource_type:
