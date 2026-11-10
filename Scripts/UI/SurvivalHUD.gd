@@ -50,6 +50,14 @@ func _ready() -> void:
 	tribe_attack_button.text = "BỘ LẠC TẤN CÔNG"
 	tribe_attack_button.pressed.connect(_on_tribe_attack_pressed)
 	tribe_control_row.add_child(tribe_attack_button)
+	var rally_flag_button := Button.new()
+	rally_flag_button.text = "ĐẶT CỜ TẬP HỢP"
+	rally_flag_button.pressed.connect(_on_set_rally_flag_pressed)
+	tribe_control_row.add_child(rally_flag_button)
+	var rally_button := Button.new()
+	rally_button.text = "TẬP HỢP VỀ CỜ"
+	rally_button.pressed.connect(_on_rally_to_flag_pressed)
+	tribe_control_row.add_child(rally_button)
 	var combat_row := HBoxContainer.new()
 	column.add_child(combat_row)
 	var attack_button := Button.new()
@@ -229,6 +237,20 @@ func _on_tribe_attack_pressed() -> void:
 	if _tribe_control != null:
 		var count: int = _tribe_control.order_all_attack()
 		_craft_status.text = "%d thành viên chuyển sang đội hình chiến đấu" % count
+
+func _on_set_rally_flag_pressed() -> void:
+	if _tribe_control != null:
+		_tribe_control.set_rally_mode(true)
+		_craft_status.text = "Chạm lên bản đồ để cắm hoặc dời CỜ TẬP HỢP"
+
+func _on_rally_to_flag_pressed() -> void:
+	if _tribe_control == null:
+		return
+	var count: int = _tribe_control.rally_all_to_flag()
+	if count == 0:
+		_craft_status.text = "Chưa có cờ tập hợp. Hãy chọn ĐẶT CỜ TẬP HỢP trước"
+	else:
+		_craft_status.text = "%d thành viên đang tập hợp về lá cờ" % count
 
 func _on_attack_pressed() -> void:
 	if _player != null and _player.has_method("attack_nearby"):
