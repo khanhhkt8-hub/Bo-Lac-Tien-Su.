@@ -309,6 +309,53 @@ func get_companion_herd_summary() -> String:
 	return "\n".join(lines)
 
 
+func command_companions_attack() -> String:
+	var count := 0
+	for node in get_tree().get_nodes_in_group("tamed_animals"):
+		if not is_instance_valid(node) or not node is PrehistoricAnimal:
+			continue
+		var animal := node as PrehistoricAnimal
+		if animal.is_baby or animal.is_mounted:
+			continue
+		animal.set_companion_order("attack")
+		count += 1
+	save_companions()
+	if count == 0:
+		return "Chưa có thú trưởng thành sẵn sàng chiến đấu"
+	return "Đã ra lệnh TẤN CÔNG cho %d thú" % count
+
+
+func command_companions_protect() -> String:
+	var count := 0
+	for node in get_tree().get_nodes_in_group("tamed_animals"):
+		if not is_instance_valid(node) or not node is PrehistoricAnimal:
+			continue
+		var animal := node as PrehistoricAnimal
+		animal.set_companion_order("protect")
+		count += 1
+	save_companions()
+	if count == 0:
+		return "Bạn chưa có thú đồng hành"
+	return "Đội thú chuyển sang BẢO VỆ người chơi"
+
+
+func get_companion_combat_summary() -> String:
+	var lines: PackedStringArray = ["KỸ NĂNG ĐÀN THÚ"]
+	for node in get_tree().get_nodes_in_group("tamed_animals"):
+		if not is_instance_valid(node) or not node is PrehistoricAnimal:
+			continue
+		var animal := node as PrehistoricAnimal
+		var order_text := "Tấn công" if animal.companion_order == "attack" else "Bảo vệ"
+		lines.append("%s: %s | Lệnh: %s" % [
+			animal.enemy_name,
+			animal.get_companion_skill_name(),
+			order_text
+		])
+	if lines.size() == 1:
+		return "Chưa có thú đồng hành"
+	return "\n".join(lines)
+
+
 func _register_companion(animal: PrehistoricAnimal) -> void:
 	if not is_instance_valid(animal):
 		return
@@ -334,6 +381,7 @@ func save_companions() -> void:
 		config.set_value(section, "is_baby", animal.is_baby)
 		config.set_value(section, "growth_remaining", animal.growth_seconds_remaining)
 		config.set_value(section, "health", animal.health)
+		config.set_value(section, "order", animal.companion_order)
 		config.set_value(section, "mounted", animal.is_mounted and animal == mounted_animal)
 		config.set_value(section, "offset", animal.global_position - global_position)
 		index += 1
@@ -360,6 +408,7 @@ func _load_companions() -> void:
 		scene_root.add_child(animal)
 		animal.global_position = global_position + config.get_value(section, "offset", Vector2(80.0 + index * 36.0, 50.0))
 		animal.tame_as_companion()
+		animal.set_companion_order(str(config.get_value(section, "order", "protect")))
 		if bool(config.get_value(section, "is_baby", false)):
 			animal.set_as_baby(float(config.get_value(section, "growth_remaining", 300.0)))
 		var level := clampi(int(config.get_value(section, "level", 1)), 1, 3)
