@@ -194,3 +194,10 @@ Game sinh tồn 2D offline, ưu tiên Android, phát triển bằng Godot 4.
 - Khi boss còn 65% máu, nó triệu hồi hai thú hộ vệ lãnh địa; hộ vệ biến mất khi rời vùng hoặc boss bị hạ.
 - Khi boss còn 50% máu, nó tiến hóa một lần: tăng 35% máu tối đa, hồi thêm máu, tăng 30% sát thương và 12% tốc độ.
 - Hạ boss nhận thêm một cổ vật riêng theo vùng: `trophy_heartland`, `trophy_primeval_forest`, `trophy_grassland`, `trophy_swampland`, `trophy_cavern`, `trophy_frostlands`. Cổ vật được lưu trong kho bộ lạc để dùng cho hệ thống chế tác/nâng cấp về sau.
+
+
+### Vũ khí di vật từ Boss lãnh địa
+- Sáu cổ vật boss có thể dùng để chế tạo sáu vũ khí riêng: Rìu Ma Mút, Kiếm Răng Hổ, Thương Sấm, Vuốt Đầm Lầy, Chùy Hang và Cung Băng.
+- Mỗi công thức yêu cầu đúng cổ vật của vùng tương ứng cùng nguyên liệu đặc trưng; cổ vật bị tiêu hao khi chế tạo.
+- Khi cầm vũ khí di vật trong túi, đòn đánh cận chiến dùng sát thương riêng từ 46 đến 68, cao hơn vũ khí đá cơ bản.
+- HUD Android có hai hàng nút chế tạo vũ khí di vật; vũ khí và cổ vật đều được lưu trong túi đồ offline.
