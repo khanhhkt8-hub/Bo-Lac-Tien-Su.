@@ -5,6 +5,9 @@ const UNIT_SCRIPT = preload("res://Scripts/Tribe/TribeUnit.gd")
 var units: Dictionary = {}
 var selected_ids: Array[int] = []
 var move_mode := false
+var rally_mode := false
+var rally_point := Vector2.ZERO
+var has_rally_point := false
 var _sync_timer := 0.0
 var _spawn_center := Vector2.ZERO
 
@@ -28,9 +31,12 @@ func _on_population_changed(_total: int, _children: int, _adults: int, _elders: 
 func _sync_units() -> void:
 	if TribePopulation == null:
 		return
+	var alive_ids: Dictionary = {}
+	for person in TribePopulation.residents:
+		if bool(person.get("alive", true)):
+			alive_ids[int(person.get("id", -1))] = true
 	for id in units.keys():
-		var resident := TribePopulation.get_resident(int(id))
-		if resident.is_empty():
+		if not alive_ids.has(int(id)):
 			if is_instance_valid(units[id]):
 				(units[id] as TribeUnit).queue_free()
 			units.erase(id)
@@ -70,6 +76,47 @@ func clear_selection() -> void:
 
 func set_move_mode(enabled: bool) -> void:
 	move_mode = enabled
+
+
+func set_rally_mode(enabled: bool) -> void:
+	rally_mode = enabled
+	move_mode = false
+
+func set_rally_point(destination: Vector2) -> void:
+	rally_point = destination
+	has_rally_point = true
+	queue_redraw()
+
+func rally_all_to_flag() -> int:
+	if not has_rally_point:
+		return 0
+	select_all()
+	var count := 0
+	for id in selected_ids:
+		if not units.has(id) or not is_instance_valid(units[id]):
+			continue
+		var unit: TribeUnit = units[id]
+		var column := count % 5
+		var row := int(count / 5)
+		var slot := Vector2((column - 2) * 34.0, row * 34.0 + 45.0)
+		unit.combat_order_active = false
+		unit.issue_move_order(rally_point + slot)
+		count += 1
+	return count
+
+func _draw() -> void:
+	if not has_rally_point:
+		return
+	var flag_base := to_local(rally_point)
+	draw_circle(flag_base, 58.0, Color(0.95, 0.72, 0.18, 0.10))
+	draw_arc(flag_base, 58.0, 0.0, TAU, 48, Color("#e7c45a"), 2.0)
+	draw_line(flag_base + Vector2(0, 4), flag_base + Vector2(0, -76), Color("#e8dfc8"), 4.0)
+	var flag := PackedVector2Array([
+		flag_base + Vector2(2, -74),
+		flag_base + Vector2(44, -62),
+		flag_base + Vector2(2, -48)
+	])
+	draw_colored_polygon(flag, Color("#d84b3f"))
 
 func order_selected_move(destination: Vector2) -> int:
 	var count := 0
@@ -113,6 +160,10 @@ func get_selected_count() -> int:
 	return selected_ids.size()
 
 func _handle_world_tap(world_pos: Vector2) -> void:
+	if rally_mode:
+		set_rally_point(world_pos)
+		rally_mode = false
+		return
 	var clicked: TribeUnit
 	var best := 25.0
 	for id in units:
