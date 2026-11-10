@@ -311,6 +311,40 @@ func order_all_attack() -> int:
 			count += 1
 	return count
 
+
+func dispatch_nearest_defenders(enemy: Node2D, defender_limit: int = 3) -> int:
+	if not is_instance_valid(enemy) or defender_limit <= 0:
+		return 0
+	var candidates: Array[TribeUnit] = []
+	for id in units:
+		var unit := units[id] as TribeUnit
+		if not is_instance_valid(unit) or unit.resident_age < 18:
+			continue
+		if unit.role != "warrior" and unit.role != "night_guard":
+			continue
+		candidates.append(unit)
+	candidates.sort_custom(func(a: TribeUnit, b: TribeUnit) -> bool:
+		return a.global_position.distance_squared_to(enemy.global_position) < b.global_position.distance_squared_to(enemy.global_position)
+	)
+	var dispatched := 0
+	for unit in candidates:
+		if dispatched >= defender_limit:
+			break
+		if unit.global_position.distance_to(enemy.global_position) > 720.0:
+			continue
+		unit.has_move_order = false
+		unit.combat_order_active = true
+		unit.combat_target = enemy
+		unit.hold_position_active = false
+		unit.hold_target = null
+		unit.patrol_active = false
+		unit.patrol_target = null
+		unit.patrol_points.clear()
+		unit.gathering_target = null
+		unit.hunting_target = null
+		dispatched += 1
+	return dispatched
+
 func get_selected_count() -> int:
 	return selected_ids.size()
 
