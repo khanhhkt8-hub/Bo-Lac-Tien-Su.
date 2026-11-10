@@ -28,6 +28,7 @@ var poison_seconds: float = 0.0
 var poison_damage: float = 0.0
 var poison_tick_timer: float = 0.0
 var hit_flash := 0.0
+var impact_pulse := 0.0
 
 func _ready() -> void:
 	health = max_health
@@ -44,6 +45,7 @@ func _physics_process(delta: float) -> void:
 		return
 	attack_timer = maxf(0.0, attack_timer - delta)
 	hit_flash = maxf(0.0, hit_flash - delta)
+	impact_pulse = maxf(0.0, impact_pulse - delta)
 	slow_seconds = maxf(0.0, slow_seconds - delta)
 	if slow_seconds <= 0.0:
 		slow_multiplier = 1.0
@@ -147,6 +149,7 @@ func apply_poison(duration: float, damage_per_second: float) -> void:
 func take_damage(amount: float) -> void:
 	health = maxf(0.0, health - maxf(0.0, amount))
 	hit_flash = 0.16
+	impact_pulse = 0.22
 	if not surrendered and health > 0.0 and health <= max_health * 0.25 and not bool(get("is_chief")):
 		surrendered = true
 		target = null
@@ -188,6 +191,9 @@ func _draw() -> void:
 	# Thanh máu và hiệu ứng trúng đòn.
 	draw_rect(Rect2(Vector2(-17.0, -33.0), Vector2(34.0, 5.0)), Color("#292521"))
 	draw_rect(Rect2(Vector2(-16.0, -32.0), Vector2(32.0 * health / maxf(1.0, max_health), 3.0)), Color("#d84e43"))
+	if impact_pulse > 0.0:
+		var pulse_progress := 1.0 - impact_pulse / 0.22
+		draw_arc(Vector2(0, -2), 13.0 + pulse_progress * 20.0, 0.0, TAU, 28, Color(1.0, 0.76, 0.38, 1.0 - pulse_progress), 2.0)
 	if hit_flash > 0.0:
 		for spark_index in range(7):
 			var angle := TAU * float(spark_index) / 7.0
