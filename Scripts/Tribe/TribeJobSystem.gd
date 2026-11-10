@@ -113,7 +113,20 @@ func _produce_resources() -> void:
 		# Cứ mỗi 25 điểm tay nghề, sản lượng tăng thêm 1 đơn vị mỗi chu kỳ.
 		# Mức tăng tối đa ở kỹ năng 100 là 4 đơn vị.
 		var skill_bonus := mini(4, int(skills[job_id]) / 25)
-		var amount := base_amount + skill_bonus
+		# Đặc tính bẩm sinh tạo khác biệt thực tế giữa những người cùng nghề.
+		var traits: Dictionary = resident.get("traits", {})
+		var relevant_trait := "strength"
+		if job_id in ["scout"]:
+			relevant_trait = "perception"
+		elif job_id in ["crafter", "herbalist", "medic"]:
+			relevant_trait = "intelligence"
+		elif job_id in ["gatherer", "fisher", "orchardist", "poultry", "farmer"]:
+			relevant_trait = "agility"
+		elif job_id in ["water_carrier", "miner", "night_guard", "warrior", "hunter"]:
+			relevant_trait = "endurance" if job_id in ["water_carrier", "miner", "night_guard"] else "strength"
+		var natural_score := int(traits.get(relevant_trait, 5))
+		var trait_bonus := 1 if natural_score >= 8 else (-1 if natural_score <= 2 else 0)
+		var amount := maxi(1, base_amount + skill_bonus + trait_bonus)
 		stockpile[resource_id] = int(stockpile.get(resource_id, 0)) + amount
 		produced[resource_id] = int(produced.get(resource_id, 0)) + amount
 	for resource_id in produced:
