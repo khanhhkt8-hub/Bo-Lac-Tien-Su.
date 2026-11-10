@@ -90,7 +90,11 @@ func _build_inventory_label() -> void:
 	gather_button.offset_right = -18.0
 	gather_button.offset_bottom = -30.0
 	gather_button.add_theme_font_size_override("font_size", 18)
-	gather_button.pressed.connect(func(): Input.action_press("interact"); Input.action_release("interact"))
+	gather_button.pressed.connect(func():
+		var player := get_tree().get_first_node_in_group("player_3d")
+		if player != null and player.has_method("gather_nearest_resource"):
+			player.gather_nearest_resource()
+	)
 	add_child(gather_button)
 
 func show_inventory(items: Dictionary) -> void:
