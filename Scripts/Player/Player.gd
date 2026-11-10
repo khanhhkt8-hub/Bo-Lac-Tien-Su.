@@ -258,6 +258,57 @@ func upgrade_nearby_companion() -> String:
 	return "%s đã lên cấp %d" % [nearest.enemy_name, nearest.companion_level]
 
 
+func feed_nearby_companion() -> String:
+	var nearest: PrehistoricAnimal
+	var nearest_distance := 165.0
+	for node in get_tree().get_nodes_in_group("tamed_animals"):
+		if not is_instance_valid(node) or not node is PrehistoricAnimal:
+			continue
+		var animal := node as PrehistoricAnimal
+		if animal.health >= animal.max_health - 0.1:
+			continue
+		var distance := global_position.distance_to(animal.global_position)
+		if distance <= nearest_distance:
+			nearest = animal
+			nearest_distance = distance
+	if nearest == null:
+		return "Không có thú bị thương trong tầm chăm sóc"
+	var food_item := "meat"
+	var food_cost := 2
+	if nearest.species == "mammoth":
+		food_item = "food"
+		food_cost = 3
+	if inventory.get_amount(food_item) < food_cost:
+		return "Cần %d %s để cho %s ăn" % [food_cost, food_item, nearest.enemy_name]
+	if not inventory.remove_item(food_item, food_cost):
+		return "Không thể tiêu hao thức ăn"
+	var restored := minf(nearest.max_health * 0.4, nearest.max_health - nearest.health)
+	nearest.health += restored
+	save_companions()
+	return "%s đã hồi %d máu" % [nearest.enemy_name, roundi(restored)]
+
+
+func get_companion_herd_summary() -> String:
+	var companions := get_tree().get_nodes_in_group("tamed_animals")
+	if companions.is_empty():
+		return "Đàn thú: chưa có thú đồng hành"
+	var lines: PackedStringArray = ["ĐÀN THÚ (%d/3)" % companions.size()]
+	for node in companions:
+		if not is_instance_valid(node) or not node is PrehistoricAnimal:
+			continue
+		var animal := node as PrehistoricAnimal
+		var stage := "Thú con" if animal.is_baby else "Cấp %d" % animal.companion_level
+		var riding := " | Đang cưỡi" if animal.is_mounted else ""
+		lines.append("%s — Máu %d/%d — %s%s" % [
+			animal.enemy_name,
+			roundi(animal.health),
+			roundi(animal.max_health),
+			stage,
+			riding
+		])
+	return "\\n".join(lines)
+
+
 func _register_companion(animal: PrehistoricAnimal) -> void:
 	if not is_instance_valid(animal):
 		return
