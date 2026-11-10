@@ -29,6 +29,7 @@ var patrol_index := 0
 var patrol_target: Node2D
 var patrol_scan_timer := 0.0
 var walk_phase := 0.0
+var _health_refresh_timer := 0.0
 
 func _ready() -> void:
 	add_to_group("tribe_units")
@@ -53,6 +54,15 @@ func issue_move_order(destination: Vector2) -> void:
 	move_target = destination
 	has_move_order = true
 
+func take_damage(amount: float) -> void:
+	if resident_id < 0 or not is_instance_valid(TribePopulation):
+		return
+	var remaining := TribePopulation.apply_combat_damage(resident_id, amount)
+	if remaining <= 0.0:
+		queue_free()
+	else:
+		queue_redraw()
+
 func set_selected(value: bool) -> void:
 	selected = value
 	queue_redraw()
@@ -60,6 +70,10 @@ func set_selected(value: bool) -> void:
 func _process(delta: float) -> void:
 	var previous_position := global_position
 	attack_timer = maxf(0.0, attack_timer - delta)
+	_health_refresh_timer -= delta
+	if _health_refresh_timer <= 0.0:
+		_health_refresh_timer = 1.0
+		queue_redraw()
 	gather_timer = maxf(0.0, gather_timer - delta)
 	hunt_timer = maxf(0.0, hunt_timer - delta)
 	defense_scan_timer = maxf(0.0, defense_scan_timer - delta)
@@ -323,6 +337,8 @@ func _draw() -> void:
 		role_mark = "◆"
 	# Bóng, thân người, đầu tóc và trang phục theo nghề.
 	draw_colored_polygon(PackedVector2Array([Vector2(-9, 7), Vector2(-6, 15), Vector2(7, 15), Vector2(10, 7)]), Color(0.10, 0.13, 0.09, 0.35))
+	var resident_data := TribePopulation.get_resident(resident_id) if is_instance_valid(TribePopulation) else {}
+	var resident_health := float(resident_data.get("health", 100.0))
 	var step := sin(walk_phase) * 3.5 if has_move_order or patrol_active or combat_order_active else 0.0
 	draw_line(Vector2(-4, 5), Vector2(-5.0 - step, 12), Color("#49352a"), 4.0)
 	draw_line(Vector2(4, 5), Vector2(5.0 + step, 12), Color("#49352a"), 4.0)
@@ -336,6 +352,10 @@ func _draw() -> void:
 	draw_circle(Vector2(10, -11), 5.0, Color("#27372d"))
 	draw_string(ThemeDB.fallback_font, Vector2(6, -8), role_mark, HORIZONTAL_ALIGNMENT_CENTER, 9.0, 9, Color("#fff1c8"))
 	draw_string(ThemeDB.fallback_font, Vector2(-34.0, -24.0), resident_name, HORIZONTAL_ALIGNMENT_CENTER, 68.0, 10, Color.WHITE)
+	if resident_health < 100.0:
+		draw_rect(Rect2(-13.0, -32.0, 26.0, 4.0), Color("#292521"))
+		draw_rect(Rect2(-12.0, -31.0, 24.0 * resident_health / 100.0, 2.0), Color("#d9534f") if resident_health < 35.0 else Color("#d6b64c"))
+		draw_string(ThemeDB.fallback_font, Vector2(-4.0, -35.0), "!", HORIZONTAL_ALIGNMENT_CENTER, 8.0, 9, Color("#ffcc66"))
 
 func _auto_gather() -> void:
 	if not is_instance_valid(gathering_target) or gathering_target.amount_available <= 0:
