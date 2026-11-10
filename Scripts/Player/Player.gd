@@ -335,7 +335,7 @@ func get_companion_herd_summary() -> String:
 		var gear := " | Giáp" if animal.companion_armor_equipped else ""
 		if animal.companion_fang_equipped:
 			gear += " | Bùa nanh"
-		lines.append("%s — Máu %d/%d — %s%s" % [
+		lines.append("%s — Máu %d/%d — %s%s%s" % [
 			animal.enemy_name,
 			roundi(animal.health),
 			roundi(animal.max_health),
