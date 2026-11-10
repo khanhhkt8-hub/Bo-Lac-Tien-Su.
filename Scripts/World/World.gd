@@ -25,7 +25,8 @@ func _draw() -> void:
 		var p := Vector2(rng.randf_range(-WORLD_EXTENT, WORLD_EXTENT), rng.randf_range(-WORLD_EXTENT, WORLD_EXTENT))
 		var shade := rng.randf_range(-0.055, 0.055)
 		var grass_color := Color(0.39 + shade, 0.57 + shade, 0.29 + shade, 0.72)
-		draw_line(p, p + Vector2(rng.randf_range(-3.0, 3.0), -rng.randf_range(4.0, 10.0)), grass_color, rng.randf_range(1.0, 2.2), true)
+		var grass_sway := sin(_ambient_time * 2.1 + p.x * 0.013 + p.y * 0.009) * 1.8
+		draw_line(p, p + Vector2(rng.randf_range(-3.0, 3.0) + grass_sway, -rng.randf_range(4.0, 10.0)), grass_color, rng.randf_range(1.0, 2.2), true)
 		if i % 5 == 0:
 			draw_circle(p + Vector2(3.0, 2.0), 2.0, Color("#d4c47a"))
 
@@ -98,11 +99,14 @@ func _draw_region(center: Vector2, radius: float, tint: Color, label: String) ->
 func _draw_tree(p: Vector2, size: float, variant: int) -> void:
 	draw_ellipse_placeholder(p + Vector2(7, 12), 15.0 * size, 7.0 * size, Color(0.12, 0.18, 0.10, 0.35))
 	draw_rect(Rect2(p + Vector2(-5.0 * size, -4.0 * size), Vector2(10.0 * size, 31.0 * size)), Color("#765039"))
-	draw_circle(p + Vector2(0, -19.0 * size), 27.0 * size, Color("#315b32") if variant == 0 else (Color("#3d6a36") if variant == 1 else Color("#476f39")))
-	draw_circle(p + Vector2(-13.0 * size, -26.0 * size), 17.0 * size, Color("#548447"))
-	draw_circle(p + Vector2(12.0 * size, -29.0 * size), 18.0 * size, Color("#648f48"))
-	draw_circle(p + Vector2(-5.0 * size, -38.0 * size), 12.0 * size, Color("#789c50"))
-	draw_circle(p + Vector2(-8.0 * size, -34.0 * size), 4.0 * size, Color(0.82, 0.88, 0.55, 0.42))
+	# Tán cây nghiêng nhẹ theo gió, thân cây vẫn đứng yên.
+	var sway := sin(_ambient_time * 1.15 + p.x * 0.004 + p.y * 0.006) * 3.2 * size
+	var canopy := Vector2(sway, 0.0)
+	draw_circle(p + canopy + Vector2(0, -19.0 * size), 27.0 * size, Color("#315b32") if variant == 0 else (Color("#3d6a36") if variant == 1 else Color("#476f39")))
+	draw_circle(p + canopy + Vector2(-13.0 * size, -26.0 * size), 17.0 * size, Color("#548447"))
+	draw_circle(p + canopy + Vector2(12.0 * size, -29.0 * size), 18.0 * size, Color("#648f48"))
+	draw_circle(p + canopy + Vector2(-5.0 * size, -38.0 * size), 12.0 * size, Color("#789c50"))
+	draw_circle(p + canopy + Vector2(-8.0 * size, -34.0 * size), 4.0 * size, Color(0.82, 0.88, 0.55, 0.42))
 
 func _draw_rock_cluster(p: Vector2, size: float) -> void:
 	draw_ellipse_placeholder(p + Vector2(5, 10), 38.0 * size, 13.0 * size, Color(0.12, 0.16, 0.12, 0.35))
