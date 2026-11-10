@@ -306,7 +306,7 @@ func get_companion_herd_summary() -> String:
 			stage,
 			riding
 		])
-	return "\\n".join(lines)
+	return "\n".join(lines)
 
 
 func _register_companion(animal: PrehistoricAnimal) -> void:
