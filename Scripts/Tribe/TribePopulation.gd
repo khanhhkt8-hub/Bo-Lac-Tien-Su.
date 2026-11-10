@@ -63,6 +63,8 @@ func elect_new_leader() -> Dictionary:
 	for person in residents:
 		if not bool(person.get("alive", true)) or int(person.get("age", 0)) < ADULT_AGE:
 			continue
+		if int(person.get("id", -1)) == leader_id and int(person.get("age", 0)) >= LEADER_RETIREMENT_AGE:
+			continue
 		candidates.append(person)
 	if candidates.is_empty():
 		leader_id = -1
