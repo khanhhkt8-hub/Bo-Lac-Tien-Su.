@@ -317,6 +317,52 @@ func _advance_one_year() -> void:
 	_emit_population()
 	save_population()
 
+
+func apply_combat_damage(resident_id: int, damage: float) -> float:
+	var person := get_resident(resident_id)
+	if person.is_empty():
+		return 0.0
+	var old_health := float(person.get("health", 100.0))
+	var new_health := maxf(0.0, old_health - maxf(0.0, damage))
+	person["health"] = new_health
+	if new_health <= 0.0:
+		person["alive"] = false
+		resident_died.emit(str(person.get("name", "Dân làng")))
+		if resident_id == leader_id:
+			elect_new_leader()
+	_emit_population()
+	save_population()
+	return new_health
+
+func treat_wounded_residents() -> String:
+	var treated := 0
+	var herbs_used := 0
+	for person in residents:
+		if not bool(person.get("alive", true)):
+			continue
+		var health := float(person.get("health", 100.0))
+		if health >= 100.0 and not bool(person.get("illness", false)):
+			continue
+		if TribeJobSystem == null or TribeJobSystem.raid_stockpile("herbs", 1) <= 0:
+			break
+		person["health"] = minf(100.0, health + 35.0)
+		person["illness"] = false
+		treated += 1
+		herbs_used += 1
+	if treated > 0:
+		save_population()
+		_emit_population()
+	if treated == 0:
+		return "Không có người cần chữa hoặc kho đã hết thảo dược."
+	return "Đã chữa %d người, dùng %d bó thảo dược." % [treated, herbs_used]
+
+func get_wounded_count() -> int:
+	var count := 0
+	for person in residents:
+		if bool(person.get("alive", true)) and float(person.get("health", 100.0)) < 100.0:
+			count += 1
+	return count
+
 func get_resident(resident_id: int) -> Dictionary:
 	return _find_resident(resident_id)
 
