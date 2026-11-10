@@ -26,6 +26,7 @@ var slow_multiplier: float = 1.0
 var poison_seconds: float = 0.0
 var poison_damage: float = 0.0
 var poison_tick_timer: float = 0.0
+var hit_flash := 0.0
 
 func _ready() -> void:
 	health = max_health
@@ -35,6 +36,7 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	attack_timer = maxf(0.0, attack_timer - delta)
+	hit_flash = maxf(0.0, hit_flash - delta)
 	slow_seconds = maxf(0.0, slow_seconds - delta)
 	if slow_seconds <= 0.0:
 		slow_multiplier = 1.0
@@ -121,8 +123,12 @@ func apply_poison(duration: float, damage_per_second: float) -> void:
 	poison_damage = maxf(poison_damage, damage_per_second)
 	poison_tick_timer = minf(poison_tick_timer, 1.0) if poison_tick_timer > 0.0 else 1.0
 
+	queue_redraw()
+
 func take_damage(amount: float) -> void:
 	health = maxf(0.0, health - maxf(0.0, amount))
+	hit_flash = 0.16
+	queue_redraw()
 	if health <= 0.0 and not is_queued_for_deletion():
 		defeated.emit(self)
 		queue_free()
@@ -132,7 +138,8 @@ func _draw() -> void:
 	draw_colored_polygon(PackedVector2Array([Vector2(-13, 7), Vector2(-10, 17), Vector2(10, 17), Vector2(13, 7)]), Color(0.10, 0.10, 0.08, 0.42))
 	draw_line(Vector2(-5, 7), Vector2(-7, 14), Color("#392b22"), 5.0)
 	draw_line(Vector2(5, 7), Vector2(7, 14), Color("#392b22"), 5.0)
-	draw_colored_polygon(PackedVector2Array([Vector2(-10, -7), Vector2(-8, 8), Vector2(0, 12), Vector2(8, 8), Vector2(10, -7), Vector2(0, -12)]), Color("#704735"))
+	var armor_color := Color("#704735").lerp(Color.WHITE, clampf(hit_flash / 0.16, 0.0, 1.0))
+	draw_colored_polygon(PackedVector2Array([Vector2(-10, -7), Vector2(-8, 8), Vector2(0, 12), Vector2(8, 8), Vector2(10, -7), Vector2(0, -12)]), armor_color)
 	draw_line(Vector2(-8, -3), Vector2(8, 7), Color("#ad8b59"), 3.0)
 	draw_circle(Vector2.ZERO, 11.0, Color("#a86f4d"))
 	draw_arc(Vector2(0, -2), 11.0, PI, TAU, 18, Color("#39251e"), 4.0)
@@ -143,3 +150,9 @@ func _draw() -> void:
 	# Thanh máu phía trên đầu mục tiêu.
 	draw_rect(Rect2(Vector2(-16.0, -29.0), Vector2(32.0, 5.0)), Color("#292521"))
 	draw_rect(Rect2(Vector2(-15.0, -28.0), Vector2(30.0 * health / maxf(1.0, max_health), 3.0)), Color("#d84e43"))
+	if hit_flash > 0.0:
+		for spark_index in range(7):
+			var angle := TAU * float(spark_index) / 7.0
+			var start := Vector2(cos(angle), sin(angle)) * 15.0
+			var finish := Vector2(cos(angle), sin(angle)) * 24.0
+			draw_line(start, finish, Color("#ffe08a"), 2.0)
