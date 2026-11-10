@@ -184,11 +184,15 @@ func _advance_resident_needs() -> void:
 		var water := int(person.get("water", 0))
 		if food > 0:
 			person["food"] = food - 1
+		elif _consume_stockpile_food():
+			person["food"] = 0
 		else:
 			person["health"] = maxf(0.0, float(person.get("health", 100.0)) - 3.0)
 			changed = true
 		if water > 0:
 			person["water"] = water - 1
+		elif TribeJobSystem != null and TribeJobSystem.raid_stockpile("water", 1) > 0:
+			person["water"] = 0
 		else:
 			person["health"] = maxf(0.0, float(person.get("health", 100.0)) - 5.0)
 			changed = true
@@ -202,6 +206,15 @@ func _advance_resident_needs() -> void:
 	if changed:
 		_emit_population()
 	save_population()
+
+
+func _consume_stockpile_food() -> bool:
+	if TribeJobSystem == null:
+		return false
+	for resource_id in ["food", "meat", "fish", "fruit", "berries", "chicken", "duck", "eggs"]:
+		if TribeJobSystem.raid_stockpile(resource_id, 1) > 0:
+			return true
+	return false
 
 func add_tribe_supplies(food_amount: int, water_amount: int) -> int:
 	var supplied := 0
@@ -238,7 +251,13 @@ func get_needs_report() -> String:
 		if float(person.get("health", 100.0)) <= 35.0:
 			critical += 1
 	var summary := get_population_summary()
-	return "DÂN SỐ: %d\\nThiếu lương thực: %d\\nThiếu nước: %d\\nSức khỏe nguy cấp: %d\\n\\nMỗi phút, mỗi người cần 1 phần thức ăn và 1 phần nước. Hãy bổ sung vật tư để duy trì bộ lạc." % [int(summary.total), hungry, thirsty, critical]
+	var stock_food := 0
+	var stock_water := 0
+	if TribeJobSystem != null:
+		for resource_id in ["food", "meat", "fish", "fruit", "berries", "chicken", "duck", "eggs"]:
+			stock_food += int(TribeJobSystem.stockpile.get(resource_id, 0))
+		stock_water = int(TribeJobSystem.stockpile.get("water", 0))
+	return "DÂN SỐ: %d\\nThiếu lương thực: %d\\nThiếu nước: %d\\nSức khỏe nguy cấp: %d\\nKho thức ăn: %d | Kho nước: %d\\n\\nKho bộ lạc tự động nuôi dân làng. Mỗi phút cần 1 phần thức ăn và 1 phần nước/người." % [int(summary.total), hungry, thirsty, critical, stock_food, stock_water]
 
 func _advance_one_year() -> void:
 	var births: Array[Dictionary] = []
