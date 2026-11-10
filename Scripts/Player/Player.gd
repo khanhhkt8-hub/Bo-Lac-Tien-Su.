@@ -46,6 +46,8 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	attack_cooldown_left = maxf(0.0, attack_cooldown_left - delta)
 	attack_flash = maxf(0.0, attack_flash - delta)
+	if attack_flash > 0.0:
+		queue_redraw()
 	if velocity.length_squared() > 10.0:
 		walk_phase += delta * 13.0
 		queue_redraw()
