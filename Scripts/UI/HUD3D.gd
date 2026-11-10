@@ -8,6 +8,21 @@ func _ready() -> void:
 	add_to_group("hud_3d")
 	_build_controls()
 	_build_inventory_label()
+	_update_tribe_status()
+
+func _process(delta: float) -> void:
+	_status_timer += delta
+	if _status_timer >= 3.0:
+		_status_timer = 0.0
+		_update_tribe_status()
+
+func _update_tribe_status() -> void:
+	if not is_instance_valid(_status_label) or not is_instance_valid(TribePopulation):
+		return
+	var summary: Dictionary = TribePopulation.get_population_summary()
+	var leader: Dictionary = TribePopulation.get_leader()
+	var leader_name := str(leader.get("name", "Chưa có")) if not leader.is_empty() else "Chưa có"
+	_status_label.text = "BỘ LẠC: %d  |  TRẺ: %d  NGƯỜI LỚN: %d  NGƯỜI GIÀ: %d\\nTỘC TRƯỞNG: %s" % [int(summary.get("total", 0)), int(summary.get("children", 0)), int(summary.get("adults", 0)), int(summary.get("elders", 0)), leader_name]
 
 func _build_controls() -> void:
 	var panel := PanelContainer.new()
@@ -67,6 +82,8 @@ func _exit_tree() -> void:
 
 var _inventory_label: Label
 var _health_label: Label
+var _status_label: Label
+var _status_timer := 0.0
 
 func _build_inventory_label() -> void:
 	_inventory_label = Label.new()
@@ -88,6 +105,16 @@ func _build_inventory_label() -> void:
 	_health_label.offset_bottom = 54.0
 	_health_label.add_theme_font_size_override("font_size", 22)
 	_health_label.text = "SINH LỰC: 100 / 100"
+	_status_label = Label.new()
+	_status_label.anchor_left = 0.0
+	_status_label.anchor_top = 0.0
+	_status_label.offset_left = 18.0
+	_status_label.offset_top = 58.0
+	_status_label.offset_right = 390.0
+	_status_label.offset_bottom = 118.0
+	_status_label.add_theme_font_size_override("font_size", 15)
+	_status_label.modulate = Color("#fff0cf")
+	add_child(_status_label)
 	add_child(_health_label)
 	add_child(_inventory_label)
 	var gather_button := Button.new()
@@ -188,3 +215,7 @@ func show_inventory(items: Dictionary) -> void:
 func show_health(current: float, maximum: float) -> void:
 	if is_instance_valid(_health_label):
 		_health_label.text = "SINH LỰC: %d / %d" % [roundi(current), roundi(maximum)]
+
+func show_message(message: String) -> void:
+	if is_instance_valid(_health_label):
+		_health_label.text = message
