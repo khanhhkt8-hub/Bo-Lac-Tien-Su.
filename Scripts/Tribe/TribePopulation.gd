@@ -55,7 +55,7 @@ func add_resident(resident_name: String, age: int, sex: String, role: String = "
 	residents.append({
 		"id": resident_id, "name": resident_name, "age": age,
 		"sex": sex, "role": role, "partner_id": -1,
-		"health": 100.0, "food": 20, "water": 20, "strength": 10, "stamina": 10, "morale": 70.0, "experience": 0, "alive": true, "in_daycare": false, "illness": false
+		"health": 100.0, "food": 20, "water": 20, "strength": 10, "stamina": 10, "morale": 70.0, "experience": 0, "skills": {}, "alive": true, "in_daycare": false, "illness": false
 	})
 	_emit_population()
 	save_population()
@@ -548,6 +548,8 @@ func load_population() -> void:
 				person["illness"] = false
 			if not person.has("experience"):
 				person["experience"] = 0
+			if not person.has("skills") or not (person["skills"] is Dictionary):
+				person["skills"] = {}
 			residents.append(person)
 	_next_id = int(config.get_value("tribe", "next_id", residents.size() + 1))
 	_load_leader_id = int(config.get_value("tribe", "leader_id", -1))
