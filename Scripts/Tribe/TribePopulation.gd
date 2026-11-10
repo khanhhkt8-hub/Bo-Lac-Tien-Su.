@@ -188,9 +188,23 @@ func get_population_summary() -> Dictionary:
 
 func _advance_resident_needs() -> void:
 	var changed := false
-	for person in residents:
-		if not bool(person.get("alive", true)):
-			continue
+	# Trẻ em được xét nhu cầu trước để ưu tiên nguồn lương thực và nước khi khan hiếm.
+	var needs_order: Array[Dictionary] = []
+	for resident in residents:
+		if bool(resident.get("alive", true)):
+			needs_order.append(resident)
+	needs_order.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		var age_a := int(a.get("age", 18))
+		var age_b := int(b.get("age", 18))
+		var child_a := age_a < ADULT_AGE
+		var child_b := age_b < ADULT_AGE
+		if child_a != child_b:
+			return child_a
+		if age_a != age_b:
+			return age_a < age_b
+		return float(a.get("health", 100.0)) < float(b.get("health", 100.0))
+	)
+	for person in needs_order:
 		var food := int(person.get("food", 0))
 		var water := int(person.get("water", 0))
 		var fed := false
