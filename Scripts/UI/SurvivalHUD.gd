@@ -46,6 +46,20 @@ func _ready() -> void:
 	upgrade_button.text = "NÂNG CẤP THÚ"
 	upgrade_button.pressed.connect(_on_upgrade_companion_pressed)
 	mount_row.add_child(upgrade_button)
+	var command_row := HBoxContainer.new()
+	column.add_child(command_row)
+	var attack_order_button := Button.new()
+	attack_order_button.text = "THÚ TẤN CÔNG"
+	attack_order_button.pressed.connect(_on_companion_attack_order_pressed)
+	command_row.add_child(attack_order_button)
+	var protect_order_button := Button.new()
+	protect_order_button.text = "THÚ BẢO VỆ"
+	protect_order_button.pressed.connect(_on_companion_protect_order_pressed)
+	command_row.add_child(protect_order_button)
+	var skill_button := Button.new()
+	skill_button.text = "KỸ NĂNG ĐÀN THÚ"
+	skill_button.pressed.connect(_on_companion_combat_summary_pressed)
+	column.add_child(skill_button)
 	var care_row := HBoxContainer.new()
 	column.add_child(care_row)
 	var feed_button := Button.new()
@@ -253,3 +267,16 @@ func _on_feed_companion_pressed() -> void:
 func _on_herd_summary_pressed() -> void:
 	if _player != null and _player.has_method("get_companion_herd_summary"):
 		_craft_status.text = _player.get_companion_herd_summary()
+
+
+func _on_companion_attack_order_pressed() -> void:
+	if _player != null and _player.has_method("command_companions_attack"):
+		_craft_status.text = _player.command_companions_attack()
+
+func _on_companion_protect_order_pressed() -> void:
+	if _player != null and _player.has_method("command_companions_protect"):
+		_craft_status.text = _player.command_companions_protect()
+
+func _on_companion_combat_summary_pressed() -> void:
+	if _player != null and _player.has_method("get_companion_combat_summary"):
+		_craft_status.text = _player.get_companion_combat_summary()
