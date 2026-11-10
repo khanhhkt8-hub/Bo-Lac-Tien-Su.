@@ -41,6 +41,10 @@ func _ready() -> void:
 	select_all_button.text = "CHỌN CẢ BỘ LẠC"
 	select_all_button.pressed.connect(_on_select_all_tribe_pressed)
 	tribe_control_row.add_child(select_all_button)
+	var area_select_button := Button.new()
+	area_select_button.text = "CHỌN VÙNG"
+	area_select_button.pressed.connect(_on_selection_area_pressed.bind(area_select_button))
+	tribe_control_row.add_child(area_select_button)
 	var move_order_button := Button.new()
 	move_order_button.text = "DI CHUYỂN"
 	move_order_button.pressed.connect(_on_move_order_pressed)
@@ -233,6 +237,14 @@ func _on_select_all_tribe_pressed() -> void:
 	if _tribe_control != null:
 		var count: int = _tribe_control.select_all()
 		_craft_status.text = "Đã chọn %d thành viên bộ lạc" % count
+
+func _on_selection_area_pressed(button: Button) -> void:
+	if _tribe_control == null:
+		return
+	var enabled := not bool(_tribe_control.get("selection_area_mode"))
+	_tribe_control.call("set_selection_area_mode", enabled)
+	button.text = "THOÁT CHỌN VÙNG" if enabled else "CHỌN VÙNG"
+	_craft_status.text = "Kéo ngón tay để khoanh vùng chọn nhiều dân làng." if enabled else "Đã thoát chế độ chọn vùng."
 
 func _on_move_order_pressed() -> void:
 	if _tribe_control != null:
