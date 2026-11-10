@@ -239,3 +239,11 @@ Game sinh tồn 2D offline, ưu tiên Android, phát triển bằng Godot 4.
 - Android: bật KÉO BẢN ĐỒ rồi vuốt màn hình để lia camera; tắt chế độ này để chạm chọn đơn vị hoặc ra lệnh.
 - Nút VỀ TRUNG TÂM đưa camera về vị trí Player hiện tại.
 - Giới hạn zoom hiện tại: 0.55x đến 1.65x.
+
+
+### Chọn nhiều đơn vị bằng khung kéo
+- Trên PC, giữ chuột trái và kéo trên bản đồ để tạo khung chọn; thả chuột để chọn tất cả dân làng nằm trong khung.
+- Trên Android, bật nút CHỌN VÙNG rồi kéo ngón tay qua nhóm dân làng; thả tay để xác nhận nhóm được chọn. Tắt CHỌN VÙNG để quay lại thao tác chạm chọn/ra lệnh thông thường.
+- Khung chọn có viền xanh trong suốt; các đơn vị được chọn vẫn giữ vòng sáng nhận diện.
+- Chế độ chọn vùng, di chuyển và đặt cờ tập hợp được tách biệt để tránh một thao tác kích hoạt nhiều lệnh cùng lúc.
+- Chưa chạy kiểm thử Godot runtime hoặc build APK.
