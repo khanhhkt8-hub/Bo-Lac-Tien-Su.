@@ -79,7 +79,7 @@ func _process(delta: float) -> void:
 		_update_hold_position(delta)
 	elif combat_order_active and resident_age >= 18 and not has_move_order:
 		_update_combat_order(delta)
-	if role == "warrior" and resident_age >= 18 and not has_move_order and not combat_order_active and not hold_position_active and not patrol_active:
+	if (role == "warrior" or (role == "night_guard" and _is_night())) and resident_age >= 18 and not has_move_order and not combat_order_active and not hold_position_active and not patrol_active:
 		_auto_defend(delta)
 	if role == "gatherer" and resident_age >= 18 and not has_move_order and not combat_order_active and not hold_position_active and not patrol_active and gather_timer <= 0.0:
 		_auto_gather()
@@ -250,11 +250,15 @@ func _update_combat_order(delta: float) -> void:
 	if not is_instance_valid(combat_target) or combat_target.is_queued_for_deletion():
 		combat_target = null
 
+func _is_night() -> bool:
+	var cycles := get_tree().get_nodes_in_group("day_night_cycle")
+	return not cycles.is_empty() and bool(cycles[0].get("is_night"))
+
 func _auto_defend(delta: float) -> void:
 	if defense_scan_timer <= 0.0 or not is_instance_valid(defense_target):
-		defense_scan_timer = 0.35
+		defense_scan_timer = 0.25 if role == "night_guard" else 0.35
 		defense_target = null
-		var best_distance := 260.0
+		var best_distance := 360.0 if role == "night_guard" else 260.0
 		var protected_nodes: Array[Node2D] = []
 		var player := get_tree().get_first_node_in_group("player") as Node2D
 		if is_instance_valid(player):
@@ -285,8 +289,8 @@ func _auto_defend(delta: float) -> void:
 		global_position += global_position.direction_to(defense_target.global_position) * move_speed * delta
 	else:
 		if attack_timer <= 0.0 and defense_target.has_method("take_damage"):
-			defense_target.take_damage(9.0)
-			attack_timer = 1.1
+			defense_target.take_damage(12.0 if role == "night_guard" else 9.0)
+			attack_timer = 0.9 if role == "night_guard" else 1.1
 		if not is_instance_valid(defense_target) or defense_target.is_queued_for_deletion():
 			defense_target = null
 
@@ -311,6 +315,9 @@ func _draw() -> void:
 	elif role == "water_carrier":
 		tint = Color("#4f9ecb")
 		role_mark = "≈"
+	elif role == "night_guard":
+		tint = Color("#8d6bb5")
+		role_mark = "☾"
 	elif role == "crafter":
 		tint = Color("#a18ac0")
 		role_mark = "◆"
