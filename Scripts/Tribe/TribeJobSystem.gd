@@ -266,6 +266,8 @@ func resolve_tribe_attack(enemy_power: int, attack_type: String = "barbarian") -
 	var pressure := maxi(1, enemy_power - int(defense * 0.65))
 	var injury_budget := maxi(1, roundi(float(pressure) / 8.0))
 	var injured := 0
+	var food_lost := 0
+	var wood_lost := 0
 	var candidates: Array[Dictionary] = []
 	for key in assignments:
 		if str(assignments[key]) not in ["warrior", "night_guard"]:
@@ -289,10 +291,10 @@ func resolve_tribe_attack(enemy_power: int, attack_type: String = "barbarian") -
 		for person in TribePopulation.residents:
 			if bool(person.get("alive", true)) and int(person.get("age", 0)) >= 18:
 				person["morale"] = maxf(0.0, float(person.get("morale", 70.0)) - 3.0)
-		var food_loss := mini(int(stockpile.get("food", 0)), maxi(1, enemy_power / 10))
-		var wood_loss := mini(int(stockpile.get("wood", 0)), maxi(1, enemy_power / 15))
-		raid_stockpile("food", food_loss)
-		raid_stockpile("wood", wood_loss)
+		var food_loss := maxi(1, enemy_power / 10)
+		var wood_loss := maxi(1, enemy_power / 15)
+		food_lost = raid_stockpile("food", food_loss)
+		wood_lost = raid_stockpile("wood", wood_loss)
 	TribePopulation.save_population()
 	if TribePopulation.has_method("_emit_population"):
 		TribePopulation._emit_population()
@@ -304,7 +306,8 @@ func resolve_tribe_attack(enemy_power: int, attack_type: String = "barbarian") -
 		"defense_power": defense,
 		"enemy_power": enemy_power,
 		"injured": injured,
-		"food_lost": 0 if won else mini(enemy_power / 10, int(stockpile.get("food", 0)) + maxi(1, enemy_power / 10)),
+		"food_lost": food_lost,
+		"wood_lost": wood_lost,
 		"message": "Bộ lạc đẩy lùi được cuộc tập kích!" if won else "Bộ lạc bị đánh bại, kho lương thực và gỗ bị cướp!"
 	}
 
