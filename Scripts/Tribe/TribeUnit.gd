@@ -308,6 +308,9 @@ func _draw() -> void:
 	elif role == "scout":
 		tint = Color("#55a99b")
 		role_mark = "!"
+	elif role == "water_carrier":
+		tint = Color("#4f9ecb")
+		role_mark = "≈"
 	elif role == "crafter":
 		tint = Color("#a18ac0")
 		role_mark = "◆"
