@@ -47,20 +47,26 @@ func dispatch_scouts(resident_ids: Array, destination: Vector2, unit_registry: D
 
 func _update_missions() -> void:
 	var completed: Array[Dictionary] = []
+	var cancelled: Array[Dictionary] = []
 	for mission in missions:
 		var resident_id := int(mission.get("resident_id", -1))
 		var target: Vector2 = mission.get("target", Vector2.ZERO)
 		var unit := _find_unit(resident_id)
 		if unit == null:
-			completed.append(mission)
+			cancelled.append(mission)
 			continue
-		if unit.global_position.distance_to(target) <= ARRIVAL_RADIUS and not bool(unit.get("has_move_order")):
+		var distance := unit.global_position.distance_to(target)
+		if distance <= ARRIVAL_RADIUS and not bool(unit.get("has_move_order")):
 			completed.append(mission)
+		elif not bool(unit.get("has_move_order")) and distance > ARRIVAL_RADIUS:
+			cancelled.append(mission)
 	for mission in completed:
 		missions.erase(mission)
 		var target: Vector2 = mission.get("target", Vector2.ZERO)
 		_create_report(target, int(mission.get("resident_id", -1)))
 		status_changed.emit("Trinh sát đã đến nơi. Báo cáo mới: " + str(reports[0].get("region", "khu vực mới")) + ".")
+	for mission in cancelled:
+		missions.erase(mission)
 	if not completed.is_empty():
 		_save_reports()
 
