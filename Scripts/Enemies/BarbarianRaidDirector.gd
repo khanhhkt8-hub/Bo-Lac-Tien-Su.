@@ -2,6 +2,7 @@ extends Node2D
 
 signal raid_warning(seconds_left: int)
 signal raid_started(raider_count: int)
+signal intruder_detected(distance: int)
 
 const BARBARIAN_SCENE: PackedScene = preload("res://Scenes/Barbarian.tscn")
 
@@ -14,8 +15,11 @@ var raid_started_this_night: bool = false
 var nights_survived: int = 0
 var warning_time_left: float = -1.0
 var last_warning_second: int = -1
+var _intrusion_scan_timer := 0.0
+var _alerted_intruders: Dictionary = {}
 
 func _process(_delta: float) -> void:
+	_scan_for_intruders(_delta)
 	var cycles := get_tree().get_nodes_in_group("day_night_cycle")
 	if cycles.is_empty():
 		return
@@ -81,3 +85,33 @@ func _attempt_resource_raid() -> void:
 	var stolen := TribeJobSystem.raid_stockpile(target, randi_range(1, 3))
 	if stolen > 0:
 		print("Man rợ đột kích và cướp ", stolen, " ", target, " khỏi kho bộ lạc!")
+
+
+func _scan_for_intruders(delta: float) -> void:
+	_intrusion_scan_timer -= delta
+	if _intrusion_scan_timer > 0.0:
+		return
+	_intrusion_scan_timer = 0.5
+	var control := get_parent().get_node_or_null("TribeControlSystem")
+	var center := Vector2.ZERO
+	if control != null and bool(control.get("has_rally_point")):
+		center = control.get("rally_point")
+	else:
+		var player := get_tree().get_first_node_in_group("player") as Node2D
+		if not is_instance_valid(player):
+			return
+		center = player.global_position
+	var active_ids: Dictionary = {}
+	for intruder in get_tree().get_nodes_in_group("barbarians"):
+		if not is_instance_valid(intruder) or not intruder is Node2D:
+			continue
+		var enemy := intruder as Node2D
+		var enemy_id := enemy.get_instance_id()
+		active_ids[enemy_id] = true
+		var distance := enemy.global_position.distance_to(center)
+		if distance <= 340.0 and not _alerted_intruders.has(enemy_id):
+			_alerted_intruders[enemy_id] = true
+			intruder_detected(roundi(distance))
+	for alerted_id in _alerted_intruders.keys():
+		if not active_ids.has(alerted_id):
+			_alerted_intruders.erase(alerted_id)
