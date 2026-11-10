@@ -148,7 +148,14 @@ func set_rally_mode(enabled: bool) -> void:
 	_drag_selecting = false
 	queue_redraw()
 
-func set_scout_mode(enabled: bool) -> void:\n\tscout_mode = enabled\n\tmove_mode = false\n\trally_mode = false\n\tpatrol_mode = false\n\tselection_area_mode = false\n\t_pointer_down = false\n\t_drag_selecting = false\n\nfunc set_patrol_mode(enabled: bool) -> void:
+func set_scout_mode(enabled: bool) -> void:
+	scout_mode = enabled
+	move_mode = false
+	rally_mode = false
+	patrol_mode = false
+	selection_area_mode = false
+	_pointer_down = false
+	_drag_selecting = false\n\nfunc set_patrol_mode(enabled: bool) -> void:
 	patrol_mode = enabled
 	_patrol_points.clear()
 	move_mode = false
