@@ -40,6 +40,18 @@ func _draw() -> void:
 			tint = Color("#b4a34b")
 		"water":
 			tint = Color("#438eb8")
+		"fish":
+			tint = Color("#3e9bb5")
+		"fruit":
+			tint = Color("#d66b3d")
+		"chicken":
+			tint = Color("#e4c56b")
+		"duck":
+			tint = Color("#6eaa75")
+		"eggs":
+			tint = Color("#eee0b4")
+		"clay":
+			tint = Color("#a66b51")
 		"berries":
 			tint = Color("#9c426f")
 		"herbs":
