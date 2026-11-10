@@ -12,10 +12,13 @@ var _crafting: CraftingSystem
 var _tribe_panel: PanelContainer
 var _region_label: Label
 var _tribe_control: Node
+var _rts_camera: Camera2D
+var _camera_drag_active := false
 
 func _ready() -> void:
 	_player = get_node_or_null(player_path)
 	_tribe_control = get_node_or_null("../TribeControlSystem")
+	_rts_camera = get_node_or_null("../Camera2D") as Camera2D
 	var panel := PanelContainer.new()
 	panel.position = Vector2(16, 16)
 	panel.custom_minimum_size = Vector2(350, 178)
@@ -58,6 +61,14 @@ func _ready() -> void:
 	rally_button.text = "TẬP HỢP VỀ CỜ"
 	rally_button.pressed.connect(_on_rally_to_flag_pressed)
 	tribe_control_row.add_child(rally_button)
+	var camera_button := Button.new()
+	camera_button.text = "KÉO BẢN ĐỒ"
+	camera_button.pressed.connect(_on_camera_drag_toggle_pressed.bind(camera_button))
+	tribe_control_row.add_child(camera_button)
+	var focus_button := Button.new()
+	focus_button.text = "VỀ TRUNG TÂM"
+	focus_button.pressed.connect(_on_camera_focus_pressed)
+	tribe_control_row.add_child(focus_button)
 	var combat_row := HBoxContainer.new()
 	column.add_child(combat_row)
 	var attack_button := Button.new()
@@ -251,6 +262,21 @@ func _on_rally_to_flag_pressed() -> void:
 		_craft_status.text = "Chưa có cờ tập hợp. Hãy chọn ĐẶT CỜ TẬP HỢP trước"
 	else:
 		_craft_status.text = "%d thành viên đang tập hợp về lá cờ" % count
+
+
+func _on_camera_drag_toggle_pressed(button: Button) -> void:
+	if _rts_camera == null:
+		return
+	_camera_drag_active = not _camera_drag_active
+	_rts_camera.set_drag_enabled(_camera_drag_active)
+	button.text = "THOÁT KÉO BẢN ĐỒ" if _camera_drag_active else "KÉO BẢN ĐỒ"
+	_craft_status.text = "Đang kéo bản đồ: vuốt màn hình để di chuyển camera" if _camera_drag_active else "Đã tắt chế độ kéo bản đồ"
+
+func _on_camera_focus_pressed() -> void:
+	if _rts_camera == null or _player == null:
+		return
+	_rts_camera.focus_world_position(_player.global_position)
+	_craft_status.text = "Camera đã trở về trung tâm bộ lạc"
 
 func _on_attack_pressed() -> void:
 	if _player != null and _player.has_method("attack_nearby"):
