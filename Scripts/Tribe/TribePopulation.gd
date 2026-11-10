@@ -5,6 +5,9 @@ extends Node
 signal population_changed(total: int, children: int, adults: int, elders: int)
 signal resident_died(resident_name: String)
 signal child_born(resident_name: String)
+signal resident_became_adult(resident_name: String, resident_id: int)
+signal resident_became_elder(resident_name: String, resident_id: int)
+signal resident_became_ill(resident_name: String, resident_id: int)
 signal leader_changed(old_leader: Dictionary, new_leader: Dictionary)
 
 const SAVE_PATH := "user://bo_lac_population.cfg"
@@ -244,6 +247,7 @@ func _advance_resident_needs() -> void:
 					changed = true
 				if float(person.get("health", 100.0)) <= 60.0 and randf() < 0.04:
 					person["illness"] = true
+					resident_became_ill.emit(str(person.get("name", "Dân làng")), int(person.get("id", -1)))
 					changed = true
 		if float(person.get("health", 100.0)) <= 0.0:
 			person["alive"] = false
@@ -314,15 +318,28 @@ func get_needs_report() -> String:
 func _advance_one_year() -> void:
 	var births: Array[Dictionary] = []
 	for person in residents:
-		if not person.alive:
+		if not bool(person.get("alive", true)):
 			continue
-		person.age = int(person.age) + 1
-		if int(person.age) >= MAX_AGE or (int(person.age) >= ELDER_AGE and randf() < 0.08):
-			person.alive = false
-			person.health = 0.0
-			resident_died.emit(str(person.name))
+		var previous_age := int(person.get("age", 0))
+		person["age"] = previous_age + 1
+		var current_age := int(person.age)
+		var resident_name := str(person.get("name", "Dân làng"))
+		var resident_id := int(person.get("id", -1))
+		# Phát tín hiệu mốc tuổi để giao diện và hệ thống nghề có thể cập nhật.
+		if previous_age < ADULT_AGE and current_age >= ADULT_AGE:
+			resident_became_adult.emit(resident_name, resident_id)
+		if previous_age < ELDER_AGE and current_age >= ELDER_AGE:
+			resident_became_elder.emit(resident_name, resident_id)
+		# Người già có nguy cơ qua đời tăng dần theo tuổi; tuổi 90 là giới hạn tối đa.
+		var elder_death_chance := clampf(0.025 + float(current_age - ELDER_AGE) * 0.012, 0.025, 0.30)
+		if current_age >= MAX_AGE or (current_age >= ELDER_AGE and randf() < elder_death_chance):
+			person["alive"] = false
+			person["health"] = 0.0
+			resident_died.emit(resident_name)
+			if resident_id == leader_id:
+				elect_new_leader()
 			continue
-		if int(person.age) >= 20 and int(person.age) <= 40 and person.sex == "female" and int(person.partner_id) != -1:
+		if current_age >= 20 and current_age <= 40 and str(person.get("sex", "")) == "female" and int(person.get("partner_id", -1)) != -1:
 			if randf() < 0.18:
 				births.append(person)
 	var current_leader := get_leader()
