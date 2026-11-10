@@ -213,3 +213,13 @@ Game sinh tồn 2D offline, ưu tiên Android, phát triển bằng Godot 4.
 - Cung Băng: Băng Phong Tiễn, gây 32 sát thương và làm chậm 65% trong 4 giây.
 - Hiệu ứng độc và làm chậm được xử lý trực tiếp trong EnemyAI; không cần vật phẩm tiêu hao khi kích hoạt kỹ năng.
 - Các thay đổi đã được ghi lên nhánh main. Chưa chạy kiểm thử Godot runtime hoặc build APK trong môi trường hiện tại.
+
+
+## Điều khiển toàn bộ bộ lạc kiểu chiến thuật
+- Mỗi cư dân còn sống được tạo thành một đơn vị hiển thị trực tiếp trên bản đồ; màu đơn vị phân biệt chiến binh, thợ săn, người hái lượm và nông dân.
+- Có thể chạm/click từng đơn vị để chọn riêng; nút CHỌN CẢ BỘ LẠC chọn toàn bộ cư dân.
+- Nút DI CHUYỂN bật chế độ ra lệnh; chạm vị trí trên bản đồ để điều nhóm đã chọn đến đó, các thành viên tự dàn đội hình.
+- Nút THEO TÔI tập hợp nhóm đã chọn quanh nhân vật thủ lĩnh; nút BỘ LẠC TẤN CÔNG chuyển nhóm được chọn sang vai trò chiến đấu và tự đánh kẻ địch ở gần.
+- Cư dân mới được thêm tự động vào bản đồ; cư dân đã chết được loại khỏi đội hình. Nghề nghiệp được đồng bộ từ hệ thống phân công.
+- Đây là nền tảng RTS đầu tiên; các lệnh chuyên sâu như khai thác tài nguyên theo điểm, đội hình, chia tiểu đội và chiến dịch nhiều mũi sẽ tiếp tục được mở rộng.
+- Đã ghi thay đổi lên nhánh main; chưa chạy Godot runtime hoặc build APK.
