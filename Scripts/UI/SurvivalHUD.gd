@@ -46,6 +46,16 @@ func _ready() -> void:
 	upgrade_button.text = "NÂNG CẤP THÚ"
 	upgrade_button.pressed.connect(_on_upgrade_companion_pressed)
 	mount_row.add_child(upgrade_button)
+	var care_row := HBoxContainer.new()
+	column.add_child(care_row)
+	var feed_button := Button.new()
+	feed_button.text = "CHO THÚ ĂN / HỒI MÁU"
+	feed_button.pressed.connect(_on_feed_companion_pressed)
+	care_row.add_child(feed_button)
+	var herd_button := Button.new()
+	herd_button.text = "XEM ĐÀN THÚ"
+	herd_button.pressed.connect(_on_herd_summary_pressed)
+	care_row.add_child(herd_button)
 	var breed_button := Button.new()
 	breed_button.text = "LAI TẠO THÚ"
 	breed_button.pressed.connect(_on_breed_companions_pressed)
@@ -234,3 +244,12 @@ func _on_upgrade_companion_pressed() -> void:
 func _on_breed_companions_pressed() -> void:
 	if _player != null and _player.has_method("breed_nearby_companions"):
 		_craft_status.text = _player.breed_nearby_companions()
+
+
+func _on_feed_companion_pressed() -> void:
+	if _player != null and _player.has_method("feed_nearby_companion"):
+		_craft_status.text = _player.feed_nearby_companion()
+
+func _on_herd_summary_pressed() -> void:
+	if _player != null and _player.has_method("get_companion_herd_summary"):
+		_craft_status.text = _player.get_companion_herd_summary()
