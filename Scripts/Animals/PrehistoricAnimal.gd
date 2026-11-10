@@ -18,6 +18,7 @@ var companion_order := "protect"
 var companion_armor_equipped := false
 var companion_fang_equipped := false
 var rarity := "common"
+var mutation := "none"
 var is_pack_leader := false
 
 func _ready() -> void:
@@ -54,7 +55,38 @@ func _process(delta: float) -> void:
 func set_rarity(rarity_id: String) -> void:
 	rarity = rarity_id if rarity_id in ["common", "rare", "legendary"] else "common"
 	_apply_rarity_stats()
+	_apply_mutation_stats()
 	queue_redraw()
+
+
+func set_mutation(mutation_id: String) -> void:
+	mutation = mutation_id if mutation_id in ["none", "ember", "frost", "venom", "storm", "divine"] else "none"
+	_apply_mutation_stats()
+	queue_redraw()
+
+
+func _apply_mutation_stats() -> void:
+	var health_multiplier := 1.0
+	var damage_multiplier := 1.0
+	var speed_multiplier := 1.0
+	match mutation:
+		"ember":
+			damage_multiplier = 1.18
+		"frost":
+			health_multiplier = 1.2
+		"venom":
+			damage_multiplier = 1.1
+			speed_multiplier = 1.08
+		"storm":
+			speed_multiplier = 1.2
+		"divine":
+			health_multiplier = 1.25
+			damage_multiplier = 1.25
+			speed_multiplier = 1.12
+	max_health *= health_multiplier
+	health = minf(max_health, health * health_multiplier)
+	attack_damage *= damage_multiplier
+	move_speed *= speed_multiplier
 
 
 func _apply_rarity_stats() -> void:
@@ -95,6 +127,7 @@ func _set_adult_base_stats() -> void:
 			move_speed = 58.0
 			attack_damage = 28.0
 	_apply_rarity_stats()
+	_apply_mutation_stats()
 
 
 func set_as_baby(growth_seconds: float = 300.0) -> void:
@@ -369,6 +402,17 @@ func _draw() -> void:
 		body_color = body_color.lerp(Color("#48c8d8"), 0.5)
 	elif rarity == "legendary":
 		body_color = body_color.lerp(Color("#f0bd45"), 0.62)
+	match mutation:
+		"ember":
+			body_color = body_color.lerp(Color("#f05b32"), 0.48)
+		"frost":
+			body_color = body_color.lerp(Color("#75dfff"), 0.55)
+		"venom":
+			body_color = body_color.lerp(Color("#83d64a"), 0.5)
+		"storm":
+			body_color = body_color.lerp(Color("#b58cff"), 0.55)
+		"divine":
+			body_color = body_color.lerp(Color("#fff4b0"), 0.72)
 	draw_circle(Vector2.ZERO, radius, body_color)
 	draw_circle(Vector2(-radius * 0.25, -radius * 0.15), 2.5, Color("#211b17"))
 	draw_circle(Vector2(radius * 0.25, -radius * 0.15), 2.5, Color("#211b17"))
@@ -380,6 +424,8 @@ func _draw() -> void:
 		draw_string(ThemeDB.fallback_font, Vector2(-radius, -radius - 7.0), mark, HORIZONTAL_ALIGNMENT_LEFT, 70.0, 12, Color("#f2d16b"))
 	if is_tamed and companion_level >= 4:
 		draw_arc(Vector2.ZERO, radius + 10.0, 0.0, TAU, 40, Color("#fff0a0"), 4.0)
+	if is_tamed and mutation != "none":
+		draw_arc(Vector2.ZERO, radius + 8.0, 0.0, TAU, 36, body_color.lightened(0.35), 2.0)
 	if is_tamed and is_pack_leader:
 		draw_arc(Vector2.ZERO, radius + 16.0, 0.0, TAU, 48, Color("#ff7de2"), 3.5)
 		draw_string(ThemeDB.fallback_font, Vector2(-radius, radius + 18.0), "THÚ CHÚA", HORIZONTAL_ALIGNMENT_LEFT, 90.0, 11, Color("#ffb6ee"))
