@@ -81,7 +81,6 @@ func _process(delta: float) -> void:
 	elif resident_health >= 45.0:
 		wounded_resting = false
 	if wounded_resting:
-		velocity = Vector2.ZERO
 		return
 	gather_timer = maxf(0.0, gather_timer - delta)
 	hunt_timer = maxf(0.0, hunt_timer - delta)
