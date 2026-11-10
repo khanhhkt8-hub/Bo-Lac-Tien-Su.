@@ -52,7 +52,7 @@ func add_resident(resident_name: String, age: int, sex: String, role: String = "
 	residents.append({
 		"id": resident_id, "name": resident_name, "age": age,
 		"sex": sex, "role": role, "partner_id": -1,
-		"health": 100.0, "food": 20, "water": 20, "strength": 10, "stamina": 10, "alive": true, "in_daycare": false
+		"health": 100.0, "food": 20, "water": 20, "strength": 10, "stamina": 10, "alive": true, "in_daycare": false, "illness": false
 	})
 	_emit_population()
 	save_population()
@@ -182,20 +182,42 @@ func _advance_resident_needs() -> void:
 			continue
 		var food := int(person.get("food", 0))
 		var water := int(person.get("water", 0))
+		var fed := false
+		var hydrated := false
 		if food > 0:
 			person["food"] = food - 1
+			fed = true
 		elif _consume_stockpile_food():
 			person["food"] = 0
+			fed = true
 		else:
 			person["health"] = maxf(0.0, float(person.get("health", 100.0)) - 3.0)
 			changed = true
 		if water > 0:
 			person["water"] = water - 1
+			hydrated = true
 		elif TribeJobSystem != null and TribeJobSystem.raid_stockpile("water", 1) > 0:
 			person["water"] = 0
+			hydrated = true
 		else:
 			person["health"] = maxf(0.0, float(person.get("health", 100.0)) - 5.0)
 			changed = true
+		# Healthy, well-fed villagers slowly recover. Illness needs herbs to cure.
+		if fed and hydrated:
+			if bool(person.get("illness", false)):
+				person["health"] = maxf(0.0, float(person.get("health", 100.0)) - 2.0)
+				if TribeJobSystem != null and TribeJobSystem.raid_stockpile("herbs", 1) > 0:
+					person["illness"] = false
+					person["health"] = minf(100.0, float(person.get("health", 0.0)) + 8.0)
+				changed = true
+			else:
+				var old_health := float(person.get("health", 100.0))
+				person["health"] = minf(100.0, old_health + 1.0)
+				if float(person["health"]) != old_health:
+					changed = true
+				if float(person.get("health", 100.0)) <= 60.0 and randf() < 0.04:
+					person["illness"] = true
+					changed = true
 		if float(person.get("health", 100.0)) <= 0.0:
 			person["alive"] = false
 			resident_died.emit(str(person.get("name", "Dân làng")))
@@ -241,6 +263,7 @@ func get_needs_report() -> String:
 	var hungry := 0
 	var thirsty := 0
 	var critical := 0
+	var sick := 0
 	for person in residents:
 		if not bool(person.get("alive", true)):
 			continue
@@ -250,6 +273,8 @@ func get_needs_report() -> String:
 			thirsty += 1
 		if float(person.get("health", 100.0)) <= 35.0:
 			critical += 1
+		if bool(person.get("illness", false)):
+			sick += 1
 	var summary := get_population_summary()
 	var stock_food := 0
 	var stock_water := 0
@@ -257,7 +282,7 @@ func get_needs_report() -> String:
 		for resource_id in ["food", "meat", "fish", "fruit", "berries", "chicken", "duck", "eggs"]:
 			stock_food += int(TribeJobSystem.stockpile.get(resource_id, 0))
 		stock_water = int(TribeJobSystem.stockpile.get("water", 0))
-	return "DÂN SỐ: %d\\nThiếu lương thực: %d\\nThiếu nước: %d\\nSức khỏe nguy cấp: %d\\nKho thức ăn: %d | Kho nước: %d\\n\\nKho bộ lạc tự động nuôi dân làng. Mỗi phút cần 1 phần thức ăn và 1 phần nước/người." % [int(summary.total), hungry, thirsty, critical, stock_food, stock_water]
+	return "DÂN SỐ: %d\\nThiếu lương thực: %d\\nThiếu nước: %d\\nĐang mắc bệnh: %d\\nSức khỏe nguy cấp: %d\\nKho thức ăn: %d | Kho nước: %d\\n\\nDân đủ ăn uống sẽ hồi 1 máu mỗi phút. Người bệnh cần thảo dược trong kho để chữa." % [int(summary.total), hungry, thirsty, sick, critical, stock_food, stock_water]
 
 func _advance_one_year() -> void:
 	var births: Array[Dictionary] = []
@@ -318,6 +343,8 @@ func load_population() -> void:
 				person["water"] = 20
 			if not person.has("health"):
 				person["health"] = 100.0
+			if not person.has("illness"):
+				person["illness"] = false
 			residents.append(person)
 	_next_id = int(config.get_value("tribe", "next_id", residents.size() + 1))
 	_load_leader_id = int(config.get_value("tribe", "leader_id", -1))
