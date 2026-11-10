@@ -52,8 +52,10 @@ func _build_creature() -> void:
 		for side in [-1.0, 1.0]:
 			_ellipsoid("Ear", Vector3(side * head_size.x * 0.72, dimensions.y + dimensions.y * 0.78, -dimensions.z * 0.69), Vector3(0.12, 0.2, 0.1), body_material)
 	if species == "saber_tooth":
+		for side in [-1.0, 1.0]:
 			_ellipsoid("Fang", Vector3(side * head_size.x * 0.55, dimensions.y + dimensions.y * 0.12, -dimensions.z * 1.05), Vector3(0.07, 0.28, 0.07), _mat(Color("#f0dfb4")))
-		if species == "mammoth":
+	if species == "mammoth":
+		for side in [-1.0, 1.0]:
 			_ellipsoid("Tusk", Vector3(side * dimensions.x * 0.42, dimensions.y + dimensions.y * 0.28, -dimensions.z * 0.95), Vector3(0.12, 0.58, 0.12), _mat(Color("#e5d6ad")))
 	if species == "deer":
 		for side in [-1.0, 1.0]:
