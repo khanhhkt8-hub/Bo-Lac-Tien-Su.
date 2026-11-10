@@ -70,4 +70,4 @@ func _get_pinch_distance() -> float:
 	if _touch_points.size() < 2:
 		return 0.0
 	var points: Array = _touch_points.values()
-	return (points[0] as Vector2).distance_to(points[1] as Vector2)
+	return Vector2(points[0]).distance_to(Vector2(points[1]))
