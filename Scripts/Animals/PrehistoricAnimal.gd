@@ -157,16 +157,19 @@ func set_companion_order(order: String) -> void:
 
 
 func _get_skill_damage_multiplier() -> float:
+	var base_multiplier := 1.0
 	match species:
 		"wolf":
-			return 0.9
+			base_multiplier = 0.9
 		"saber_tooth":
-			return 1.65
+			base_multiplier = 1.65
 		"cave_bear":
-			return 1.85
+			base_multiplier = 1.85
 		"mammoth":
-			return 2.1
-	return 1.0
+			base_multiplier = 2.1
+	var evolution_bonus := 1.0 + float(companion_level - 1) * 0.25
+	var gear_bonus := 1.15 if companion_fang_equipped else 1.0
+	return base_multiplier * evolution_bonus * gear_bonus
 
 
 func _get_skill_cooldown() -> float:
