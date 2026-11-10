@@ -76,7 +76,8 @@ func _ready() -> void:
 	var squad_row := HBoxContainer.new()
 	column.add_child(squad_row)
 	_add_squad_button(squad_row, "CHIẾN BINH", "warrior")
-	_add_squad_button(squad_row, "THỢ SĂN", "hunter")\n\t_add_squad_button(squad_row, "TRINH SÁT", "scout")
+	_add_squad_button(squad_row, "THỢ SĂN", "hunter")
+	_add_squad_button(squad_row, "TRINH SÁT", "scout")
 	_add_squad_button(squad_row, "HÁI LƯỢM", "gatherer")
 	_add_squad_button(squad_row, "NÔNG DÂN", "farmer")
 	_add_squad_button(squad_row, "THỢ CHẾ TÁC", "crafter")
@@ -96,7 +97,17 @@ func _ready() -> void:
 	clear_selection_button.text = "BỎ CHỌN"
 	clear_selection_button.pressed.connect(_on_clear_tribe_selection_pressed)
 	squad_row.add_child(clear_selection_button)
-	var scout_row := HBoxContainer.new()\n\tcolumn.add_child(scout_row)\n\tvar scout_button := Button.new()\n\tscout_button.text = "GIAO NHIỆM VỤ TRINH SÁT"\n\tscout_button.pressed.connect(_on_scout_mode_pressed.bind(scout_button))\n\tscout_row.add_child(scout_button)\n\tvar scout_report_button := Button.new()\n\tscout_report_button.text = "BÁO CÁO TRINH SÁT"\n\tscout_report_button.pressed.connect(_on_scout_report_pressed)\n\tscout_row.add_child(scout_report_button)\n\tvar combat_row := HBoxContainer.new()
+	var scout_row := HBoxContainer.new()
+	column.add_child(scout_row)
+	var scout_button := Button.new()
+	scout_button.text = "GIAO NHIỆM VỤ TRINH SÁT"
+	scout_button.pressed.connect(_on_scout_mode_pressed.bind(scout_button))
+	scout_row.add_child(scout_button)
+	var scout_report_button := Button.new()
+	scout_report_button.text = "BÁO CÁO TRINH SÁT"
+	scout_report_button.pressed.connect(_on_scout_report_pressed)
+	scout_row.add_child(scout_report_button)
+	var combat_row := HBoxContainer.new()
 	column.add_child(combat_row)
 	var attack_button := Button.new()
 	attack_button.text = "TẤN CÔNG"
@@ -334,7 +345,18 @@ func _on_tribe_attack_pressed() -> void:
 		var count: int = _tribe_control.order_all_attack()
 		_craft_status.text = "%d thành viên chuyển sang đội hình chiến đấu" % count
 
-func _on_scout_mode_pressed(button: Button) -> void:\n\tif _tribe_control == null:\n\t\treturn\n\tvar enabled := not bool(_tribe_control.get("scout_mode"))\n\tif enabled and int(_tribe_control.call("get_selected_count")) == 0:\n\t\t_craft_status.text = "Hãy chọn tiểu đội TRINH SÁT trước."\n\t\treturn\n\t_tribe_control.call("set_scout_mode", enabled)\n\tbutton.text = "CHỌN ĐIỂM ĐẾN" if enabled else "GIAO NHIỆM VỤ TRINH SÁT"\n\t_craft_status.text = "Chạm vào vùng chưa khám phá để cử trinh sát đến đó." if enabled else "Đã hủy nhiệm vụ trinh sát."\n\nfunc _on_scout_report_pressed() -> void:\n\tif ScoutSystem != null:\n\t\t_craft_status.text = ScoutSystem.get_latest_report_text()\n\nfunc _on_patrol_pressed(button: Button) -> void:
+func _on_scout_mode_pressed(button: Button) -> void:
+	if _tribe_control == null:
+	\treturn
+	var enabled := not bool(_tribe_control.get("scout_mode"))
+	if enabled and int(_tribe_control.call("get_selected_count")) == 0:
+	\t_craft_status.text = "Hãy chọn tiểu đội TRINH SÁT trước."
+	\treturn
+	_tribe_control.call("set_scout_mode", enabled)
+	button.text = "CHỌN ĐIỂM ĐẾN" if enabled else "GIAO NHIỆM VỤ TRINH SÁT"
+	_craft_status.text = "Chạm vào vùng chưa khám phá để cử trinh sát đến đó." if enabled else "Đã hủy nhiệm vụ trinh sát."\n\nfunc _on_scout_report_pressed() -> void:
+	if ScoutSystem != null:
+	\t_craft_status.text = ScoutSystem.get_latest_report_text()\n\nfunc _on_patrol_pressed(button: Button) -> void:
 	if _tribe_control == null:
 		return
 	var enabled := not bool(_tribe_control.get("patrol_mode"))
