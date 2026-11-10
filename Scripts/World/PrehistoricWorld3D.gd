@@ -45,6 +45,12 @@ func _build_environment() -> void:
 	environment.ambient_light_sky_contribution = 0.72
 	environment.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	environment.tonemap_exposure = 1.0
+	# Lớp sương khí quyển tạo chiều sâu cho rừng và địa hình xa.
+	environment.fog_enabled = true
+	environment.fog_light_color = Color("#a8b8a0")
+	environment.fog_density = 0.0018
+	environment.fog_sky_affect = 0.28
+	environment.fog_aerial_perspective = 0.45
 	environment.glow_enabled = true
 	environment.glow_intensity = 0.35
 	environment.glow_strength = 0.65
