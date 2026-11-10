@@ -6,7 +6,7 @@ var units: Dictionary = {}
 var selected_ids: Array[int] = []
 var move_mode := false
 var rally_mode := false
-var patrol_mode := false
+var patrol_mode := false\nvar scout_mode := false
 var _patrol_points: Array[Vector2] = []
 var selection_area_mode := false
 var _pointer_down := false
@@ -148,7 +148,7 @@ func set_rally_mode(enabled: bool) -> void:
 	_drag_selecting = false
 	queue_redraw()
 
-func set_patrol_mode(enabled: bool) -> void:
+func set_scout_mode(enabled: bool) -> void:\n\tscout_mode = enabled\n\tmove_mode = false\n\trally_mode = false\n\tpatrol_mode = false\n\tselection_area_mode = false\n\t_pointer_down = false\n\t_drag_selecting = false\n\nfunc set_patrol_mode(enabled: bool) -> void:
 	patrol_mode = enabled
 	_patrol_points.clear()
 	move_mode = false
