@@ -482,6 +482,7 @@ func save_companions() -> void:
 		var section := "companion_%d" % index
 		config.set_value(section, "species", animal.species)
 		config.set_value(section, "rarity", animal.rarity)
+		config.set_value(section, "mutation", animal.mutation)
 		config.set_value(section, "level", animal.companion_level)
 		config.set_value(section, "is_baby", animal.is_baby)
 		config.set_value(section, "growth_remaining", animal.growth_seconds_remaining)
@@ -499,6 +500,8 @@ func save_companions() -> void:
 		var egg_section := "egg_%d" % egg_index
 		config.set_value(egg_section, "species", str(incubating_eggs[egg_index].get("species", "wolf")))
 		config.set_value(egg_section, "remaining", float(incubating_eggs[egg_index].get("remaining", 0.0)))
+		config.set_value(egg_section, "rarity", str(incubating_eggs[egg_index].get("rarity", "common")))
+		config.set_value(egg_section, "mutation", str(incubating_eggs[egg_index].get("mutation", "none")))
 	config.save(COMPANION_SAVE_PATH)
 
 func _load_companions() -> void:
@@ -513,7 +516,12 @@ func _load_companions() -> void:
 		var egg_section := "egg_%d" % egg_index
 		var egg_species := str(config.get_value(egg_section, "species", "wolf"))
 		if egg_species in ["wolf", "saber_tooth", "cave_bear", "mammoth"]:
-			incubating_eggs.append({"species": egg_species, "remaining": maxf(0.0, float(config.get_value(egg_section, "remaining", 0.0)))})
+			incubating_eggs.append({
+				"species": egg_species,
+				"remaining": maxf(0.0, float(config.get_value(egg_section, "remaining", 0.0))),
+				"rarity": str(config.get_value(egg_section, "rarity", "common")),
+				"mutation": str(config.get_value(egg_section, "mutation", "none"))
+			})
 	var count := clampi(int(config.get_value("companions", "count", 0)), 0, 3)
 	for index in range(count):
 		var section := "companion_%d" % index
@@ -529,6 +537,7 @@ func _load_companions() -> void:
 		animal.global_position = global_position + config.get_value(section, "offset", Vector2(80.0 + index * 36.0, 50.0))
 		animal.tame_as_companion()
 		animal.set_rarity(str(config.get_value(section, "rarity", "common")))
+		animal.set_mutation(str(config.get_value(section, "mutation", "none")))
 		animal.set_companion_order(str(config.get_value(section, "order", "protect")))
 		animal.companion_armor_equipped = bool(config.get_value(section, "armor", false))
 		animal.companion_fang_equipped = bool(config.get_value(section, "fang", false))
@@ -588,9 +597,17 @@ func breed_nearby_companions() -> String:
 	if not inventory.remove_item("meat", 5):
 		inventory.add_item("food", 10)
 		return "Không đủ thịt"
-	incubating_eggs.append({"species": parent_a.species, "remaining": 180.0})
+	var inherited_rarity := "common"
+	if parent_a.rarity == "legendary" and parent_b.rarity == "legendary":
+		inherited_rarity = "legendary" if randf() < 0.2 else "rare"
+	elif parent_a.rarity != "common" or parent_b.rarity != "common":
+		inherited_rarity = "legendary" if randf() < 0.04 else "rare"
+	var mutation_roll := randf()
+	var egg_mutation := "divine" if mutation_roll < 0.01 and inherited_rarity == "legendary" else ("ember" if mutation_roll < 0.04 else ("frost" if mutation_roll < 0.07 else ("venom" if mutation_roll < 0.10 else ("storm" if mutation_roll < 0.13 else "none"))))
+	incubating_eggs.append({"species": parent_a.species, "remaining": 180.0, "rarity": inherited_rarity, "mutation": egg_mutation})
 	save_companions()
-	return "Đã đẻ trứng %s! Thời gian ấp: 3 phút" % parent_a.enemy_name
+	var mutation_label := " | Đột biến: " + egg_mutation if egg_mutation != "none" else ""
+	return "Đã đẻ trứng %s (%s%s)! Thời gian ấp: 3 phút" % [parent_a.enemy_name, inherited_rarity, mutation_label]
 
 
 
@@ -610,6 +627,7 @@ func hatch_ready_egg() -> String:
 			remaining = minf(remaining, float(egg.get("remaining", 180.0)))
 		return "Trứng chưa nở, còn khoảng %d giây" % ceili(remaining)
 	var species := str(incubating_eggs[ready_index].get("species", "wolf"))
+	var ready_egg: Dictionary = incubating_eggs[ready_index].duplicate(true)
 	incubating_eggs.remove_at(ready_index)
 	var baby := ANIMAL_SCENE.instantiate() as PrehistoricAnimal
 	baby.species = species
@@ -621,7 +639,12 @@ func hatch_ready_egg() -> String:
 	baby.tame_as_companion()
 	var rarity_roll := randf()
 	var baby_rarity := "legendary" if rarity_roll < 0.02 else ("rare" if rarity_roll < 0.14 else "common")
+	var stored_rarity := str(ready_egg.get("rarity", ""))
+	if stored_rarity in ["rare", "legendary"]:
+		baby_rarity = stored_rarity
 	baby.set_rarity(baby_rarity)
+	var egg_mutation := str(ready_egg.get("mutation", "none"))
+	baby.set_mutation(egg_mutation)
 	baby.set_as_baby(300.0)
 	_register_companion(baby)
 	save_companions()
@@ -637,5 +660,7 @@ func get_egg_summary() -> String:
 		var species := str(egg.get("species", "wolf"))
 		var remaining := float(egg.get("remaining", 0.0))
 		var state := "ĐÃ SẴN SÀNG NỞ" if remaining <= 0.0 else "Còn %d giây" % ceili(remaining)
-		lines.append("%s — %s" % [species, state])
+		var rarity := str(egg.get("rarity", "common"))
+		var mutation := str(egg.get("mutation", "none"))
+		lines.append("%s — %s — %s%s" % [species, rarity, state, " — Đột biến " + mutation if mutation != "none" else ""])
 	return "\n".join(lines)
