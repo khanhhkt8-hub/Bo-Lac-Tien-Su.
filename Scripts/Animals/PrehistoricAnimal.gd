@@ -14,6 +14,8 @@ var companion_attack_timer := 0.0
 var companion_target_timer := 0.0
 var companion_target: Node2D
 var companion_order := "protect"
+var companion_armor_equipped := false
+var companion_fang_equipped := false
 
 func _ready() -> void:
 	match species:
@@ -125,6 +127,14 @@ func upgrade_companion() -> bool:
 	queue_redraw()
 	return true
 
+func get_evolution_name() -> String:
+	if companion_level >= 3:
+		return "Cổ Thú Thức Tỉnh"
+	if companion_level == 2:
+		return "Thú Chiến Tinh Nhuệ"
+	return "Thú Đồng Hành"
+
+
 func get_companion_skill_name() -> String:
 	match species:
 		"wolf":
@@ -223,7 +233,8 @@ func _update_target() -> void:
 	super._update_target()
 
 func take_damage(amount: float) -> void:
-	super.take_damage(amount)
+	var adjusted_damage := amount * (0.7 if is_tamed and companion_armor_equipped else 1.0)
+	super.take_damage(adjusted_damage)
 	if health > 0.0 and passive_until_attacked and not is_tamed:
 		var player := get_tree().get_first_node_in_group("player") as Node2D
 		if is_instance_valid(player):
