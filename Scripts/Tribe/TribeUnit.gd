@@ -348,7 +348,7 @@ func _draw() -> void:
 	var tint := Color("#d7b16a")
 	var role_mark := "D"
 	if role == "warrior":
-		tint = Color("#b84b3f")
+		tint = Color("#a84b3e")
 		role_mark = "⚔"
 	elif role == "hunter":
 		tint = Color("#668fbd")
@@ -371,19 +371,32 @@ func _draw() -> void:
 	elif role == "crafter":
 		tint = Color("#a18ac0")
 		role_mark = "◆"
-	# Bóng, thân người, đầu tóc và trang phục theo nghề.
-	draw_colored_polygon(PackedVector2Array([Vector2(-9, 7), Vector2(-6, 15), Vector2(7, 15), Vector2(10, 7)]), Color(0.10, 0.13, 0.09, 0.35))
 	var resident_data := TribePopulation.get_resident(resident_id) if is_instance_valid(TribePopulation) else {}
 	var resident_health := float(resident_data.get("health", 100.0))
-	var step := sin(walk_phase) * 3.5 if has_move_order or patrol_active or combat_order_active else 0.0
-	draw_line(Vector2(-4, 5), Vector2(-5.0 - step, 12), Color("#49352a"), 4.0)
-	draw_line(Vector2(4, 5), Vector2(5.0 + step, 12), Color("#49352a"), 4.0)
-	draw_colored_polygon(PackedVector2Array([Vector2(-8, -5), Vector2(-7, 7), Vector2(0, 10), Vector2(7, 7), Vector2(8, -5), Vector2(0, -9)]), tint)
-	draw_line(Vector2(-7, -2), Vector2(7, 6), Color("#e0c89b"), 2.0)
-	draw_circle(Vector2(0, -10), 7.0, Color("#d9a066"))
-	draw_arc(Vector2(0, -12), 7.0, PI, TAU, 16, Color("#3a2a20"), 3.5)
+	var moving := has_move_order or patrol_active or combat_order_active
+	var step := sin(walk_phase) * 3.5 if moving else 0.0
+	# Bóng chân và đôi dép.
+	draw_colored_polygon(PackedVector2Array([Vector2(-11, 8), Vector2(-7, 16), Vector2(8, 16), Vector2(11, 8)]), Color(0.08, 0.10, 0.07, 0.34))
+	draw_line(Vector2(-4, 5), Vector2(-5.0 - step, 13), Color("#392b22"), 5.0)
+	draw_line(Vector2(4, 5), Vector2(5.0 + step, 13), Color("#392b22"), 5.0)
+	draw_line(Vector2(-5.0 - step, 13), Vector2(-8.0 - step, 14), Color("#c49a66"), 3.0)
+	draw_line(Vector2(5.0 + step, 13), Vector2(8.0 + step, 14), Color("#c49a66"), 3.0)
+	# Áo da hai lớp, viền và dây đeo.
+	draw_colored_polygon(PackedVector2Array([Vector2(-9, -6), Vector2(-8, 7), Vector2(0, 11), Vector2(8, 7), Vector2(9, -6), Vector2(0, -11)]), tint.darkened(0.35))
+	draw_colored_polygon(PackedVector2Array([Vector2(-7, -6), Vector2(-6, 6), Vector2(0, 9), Vector2(6, 6), Vector2(7, -6), Vector2(0, -9)]), tint)
+	draw_line(Vector2(-7, -3), Vector2(7, 6), Color("#e0c89b"), 2.0)
+	draw_line(Vector2(-7, 5), Vector2(7, 5), tint.darkened(0.45), 1.2)
+	draw_arc(Vector2(0, -7), 8.0, PI + 0.1, TAU - 0.1, 14, Color("#e3cda3"), 2.0)
+	# Đầu, tóc, tai và gương mặt.
+	draw_circle(Vector2(-6.5, -10), 1.8, Color("#b9784d"))
+	draw_circle(Vector2(6.5, -10), 1.8, Color("#b9784d"))
+	draw_circle(Vector2(0, -10), 7.2, Color("#d9a066"))
+	draw_arc(Vector2(0, -12), 7.2, PI, TAU, 16, Color("#3a2a20"), 4.0)
+	draw_colored_polygon(PackedVector2Array([Vector2(-6, -13), Vector2(-3, -19), Vector2(2, -17), Vector2(6, -18), Vector2(7, -11)]), Color("#3a2a20"))
 	draw_circle(Vector2(-2.5, -10), 1.0, Color("#292018"))
 	draw_circle(Vector2(2.5, -10), 1.0, Color("#292018"))
+	draw_line(Vector2(-1.5, -5), Vector2(1.5, -5), Color("#74422f"), 1.1)
+	# Dấu nghề và vòng chọn.
 	draw_arc(Vector2.ZERO, 15.0 if selected else 12.0, 0.0, TAU, 28, Color("#fff2a6") if selected else Color("#342b20"), 2.5 if selected else 1.0)
 	draw_circle(Vector2(10, -11), 5.0, Color("#27372d"))
 	draw_string(ThemeDB.fallback_font, Vector2(6, -8), role_mark, HORIZONTAL_ALIGNMENT_CENTER, 9.0, 9, Color("#fff1c8"))
