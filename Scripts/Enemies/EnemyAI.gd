@@ -56,14 +56,26 @@ func _physics_process(delta: float) -> void:
 	queue_redraw()
 
 func _update_target() -> void:
+	if is_instance_valid(target) and not target.is_queued_for_deletion():
+		if global_position.distance_to(target.global_position) <= detection_range * 1.45:
+			return
+	target = null
+	var nearest := detection_range
+	var candidates: Array[Node2D] = []
+	var player := get_tree().get_first_node_in_group("player") as Node2D
+	if is_instance_valid(player):
+		candidates.append(player)
+	for unit in get_tree().get_nodes_in_group("tribe_units"):
+		if not is_instance_valid(unit) or unit.is_queued_for_deletion() or not unit is Node2D:
+			continue
+		candidates.append(unit as Node2D)
+	for candidate in candidates:
+		var distance := global_position.distance_to(candidate.global_position)
+		if distance <= nearest:
+			nearest = distance
+			target = candidate
 	if is_instance_valid(target):
-		if global_position.distance_to(target.global_position) > detection_range * 1.45:
-			target = null
-	if not is_instance_valid(target):
-		var player := get_tree().get_first_node_in_group("player") as Node2D
-		if is_instance_valid(player) and global_position.distance_to(player.global_position) <= detection_range:
-			target = player
-			_on_target_detected(player)
+		_on_target_detected(target)
 
 func _update_state() -> void:
 	if is_instance_valid(target):
