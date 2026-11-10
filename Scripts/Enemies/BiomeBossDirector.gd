@@ -19,8 +19,12 @@ var active_boss: PrehistoricAnimal
 var active_boss_name := ""
 var active_boss_position := Vector2.ZERO
 var _boss_cleanup := false
+var _boss_evolved := false
+var _guards_summoned := false
+var active_guards: Array[PrehistoricAnimal] = []
 
 func _ready() -> void:
+	set_process(true)
 	_load_progress()
 	RegionSystem.region_changed.connect(_on_region_changed)
 
@@ -28,6 +32,9 @@ func _on_region_changed(region_id: String, _region_data: Dictionary) -> void:
 	if region_id == active_region:
 		return
 	_remove_active_boss()
+	_remove_active_guards()
+	_boss_evolved = false
+	_guards_summoned = false
 	active_region = region_id
 	if region_id.is_empty() or not BOSS_DATA.has(region_id) or bool(defeated_bosses.get(region_id, false)):
 		queue_redraw()
@@ -65,6 +72,62 @@ func _spawn_boss(region_id: String, data: Dictionary) -> void:
 	active_boss_name = str(data.name)
 	print("Boss khu vực xuất hiện: ", active_boss_name)
 
+func _process(_delta: float) -> void:
+	if not is_instance_valid(active_boss):
+		return
+	var health_ratio := active_boss.health / maxf(1.0, active_boss.max_health)
+	if health_ratio <= 0.65 and not _guards_summoned:
+		_summon_territory_guards()
+	if health_ratio <= 0.5 and not _boss_evolved:
+		_evolve_active_boss()
+	queue_redraw()
+
+
+func _evolve_active_boss() -> void:
+	if not is_instance_valid(active_boss):
+		return
+	_boss_evolved = true
+	var old_max_health := active_boss.max_health
+	active_boss.max_health *= 1.35
+	active_boss.health = minf(active_boss.max_health, active_boss.health + old_max_health * 0.35)
+	active_boss.attack_damage *= 1.3
+	active_boss.move_speed *= 1.12
+	active_boss.scale *= 1.18
+	active_boss.enemy_name = "THỨC TỈNH: " + active_boss_name
+	active_boss.queue_redraw()
+	print("Boss tiến hóa: ", active_boss.enemy_name)
+
+
+func _summon_territory_guards() -> void:
+	if not is_instance_valid(active_boss):
+		return
+	_guards_summoned = true
+	var guard_species := ["wolf", "saber_tooth"]
+	for index in range(2):
+		var guard := ANIMAL_SCENE.instantiate() as PrehistoricAnimal
+		guard.species = str(guard_species[index])
+		add_child(guard)
+		guard.global_position = active_boss.global_position + Vector2(72.0, 0.0).rotated(float(index) * PI)
+		guard.enemy_name = "Hộ vệ lãnh địa"
+		guard.max_health = 115.0 if index == 0 else 155.0
+		guard.health = guard.max_health
+		guard.attack_damage = 18.0 if index == 0 else 23.0
+		guard.move_speed *= 1.15
+		guard.detection_range = 390.0
+		guard.attack_range = 36.0
+		guard.passive_until_attacked = false
+		guard.add_to_group("boss_guards")
+		active_guards.append(guard)
+	print("Boss triệu hồi 2 thú hộ vệ lãnh địa.")
+
+
+func _remove_active_guards() -> void:
+	for guard in active_guards:
+		if is_instance_valid(guard):
+			guard.queue_free()
+	active_guards.clear()
+
+
 func _on_boss_tree_exiting(region_id: String, boss: PrehistoricAnimal) -> void:
 	if _boss_cleanup or (is_instance_valid(boss) and bool(boss.get_meta("boss_cleanup", false))):
 		return
@@ -74,7 +137,9 @@ func _on_boss_tree_exiting(region_id: String, boss: PrehistoricAnimal) -> void:
 		var data: Dictionary = BOSS_DATA[region_id]
 		TribeJobSystem.add_to_stockpile(str(data.reward), int(data.amount))
 		TribeJobSystem.add_to_stockpile("warrior_power", 12)
-		print("Đã hạ boss ", data.name, "! Nhận ", data.amount, " ", data.reward, " và 12 chiến lực.")
+		TribeJobSystem.add_to_stockpile("trophy_" + region_id, 1)
+		print("Đã hạ boss ", data.name, "! Nhận ", data.amount, " ", data.reward, ", 12 chiến lực và 1 cổ vật độc quyền.")
+		_remove_active_guards()
 	active_boss = null
 	queue_redraw()
 
@@ -90,7 +155,11 @@ func _draw() -> void:
 	if is_instance_valid(active_boss):
 		var point := to_local(active_boss_position)
 		draw_arc(point, 42.0, 0.0, TAU, 40, Color("#e3a63b"), 3.0)
-		draw_string(ThemeDB.fallback_font, point + Vector2(-100.0, -58.0), active_boss_name, HORIZONTAL_ALIGNMENT_LEFT, 220.0, 17, Color("#ffdb79"))
+		draw_string(ThemeDB.fallback_font, point + Vector2(-100.0, -58.0), ("★ " if _boss_evolved else "") + active_boss_name, HORIZONTAL_ALIGNMENT_LEFT, 260.0, 17, Color("#ff8c54") if _boss_evolved else Color("#ffdb79"))
+		if _boss_evolved:
+			draw_arc(point, 55.0, 0.0, TAU, 48, Color("#ff633e"), 4.0)
+		if _guards_summoned:
+			draw_string(ThemeDB.fallback_font, point + Vector2(-90.0, 66.0), "HỘ VỆ ĐÃ TRIỆU HỒI", HORIZONTAL_ALIGNMENT_LEFT, 200.0, 11, Color("#ff9b76"))
 
 func _save_progress() -> void:
 	var config := ConfigFile.new()
