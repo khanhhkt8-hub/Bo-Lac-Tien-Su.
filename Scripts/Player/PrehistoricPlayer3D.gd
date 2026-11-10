@@ -1,6 +1,8 @@
 extends CharacterBody3D
 class_name PrehistoricPlayer3D
 
+const SAVE_PATH := "user://bo_lac_player_3d.cfg"
+
 @export var move_speed: float = 6.5
 @export var mouse_sensitivity: float = 0.004
 @export var camera_distance: float = 8.5
@@ -16,12 +18,14 @@ var max_health := 100.0
 var _respawn_position := Vector3.ZERO
 var _gather_cooldown := 0.0
 var _nearby_resource: Node3D = null
+var _save_timer := 0.0
 
 func _ready() -> void:
 	add_to_group("player_3d")
 	_build_character()
 	_build_camera()
 	_respawn_position = global_position
+	_load_player_state()
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func _build_character() -> void:
@@ -117,12 +121,41 @@ func _unhandled_input(event: InputEvent) -> void:
 		_update_camera_rotation()
 
 func collect_resource(resource_type: String, amount: int) -> void:
+	if amount <= 0:
+		return
 	inventory[resource_type] = int(inventory.get(resource_type, 0)) + amount
 	var hud := get_tree().get_first_node_in_group("hud_3d")
 	if hud != null and hud.has_method("show_inventory"):
 		hud.show_inventory(inventory)
+	_save_player_state()
+
+func _load_player_state() -> void:
+	var config := ConfigFile.new()
+	if config.load(SAVE_PATH) != OK:
+		return
+	var saved_inventory: Variant = config.get_value("player", "inventory", {})
+	if saved_inventory is Dictionary:
+		inventory = saved_inventory
+	health = clampf(float(config.get_value("player", "health", max_health)), 1.0, max_health)
+	var saved_position: Variant = config.get_value("player", "position", _respawn_position)
+	if saved_position is Vector3:
+		global_position = Vector3(clampf(saved_position.x, -850.0, 850.0), maxf(0.2, saved_position.y), clampf(saved_position.z, -850.0, 850.0))
+
+func _save_player_state() -> void:
+	var config := ConfigFile.new()
+	config.set_value("player", "inventory", inventory)
+	config.set_value("player", "health", health)
+	config.set_value("player", "position", global_position)
+	config.save(SAVE_PATH)
+
+func _exit_tree() -> void:
+	_save_player_state()
 
 func _physics_process(_delta: float) -> void:
+	_save_timer += _delta
+	if _save_timer >= 8.0:
+		_save_timer = 0.0
+		_save_player_state()
 	_gather_cooldown = maxf(0.0, _gather_cooldown - _delta)
 	if Input.is_action_just_pressed("interact") and _gather_cooldown <= 0.0:
 		gather_nearest_resource()
@@ -168,7 +201,19 @@ func tame_nearest_wildlife() -> void:
 		if distance < nearest_distance:
 			nearest_distance = distance
 			target = animal
-	if target != null and target.tame():
+	if target == null:
+		return
+	var species := str(target.get("species"))
+	var cost := {"wolf": ["meat", 2], "saber_tooth": ["meat", 5], "cave_bear": ["meat", 6], "mammoth": ["food", 8], "deer": ["food", 2]}.get(species, ["food", 2])
+	var resource_id := str(cost[0])
+	var required := int(cost[1])
+	if int(inventory.get(resource_id, 0)) < required:
+		var hud := get_tree().get_first_node_in_group("hud_3d")
+		if hud != null and hud.has_method("show_message"):
+			hud.show_message("CẦN %d %s ĐỂ THUẦN HÓA" % [required, resource_id.to_upper()])
+		return
+	if target.tame():
+		inventory[resource_id] = int(inventory.get(resource_id, 0)) - required
 		collect_resource("trust", 1)
 
 func take_damage(amount: float) -> void:
@@ -181,6 +226,7 @@ func take_damage(amount: float) -> void:
 		global_position = _respawn_position + Vector3(0.0, 0.5, 0.0)
 		velocity = Vector3.ZERO
 		collect_resource("injury_recovery", 1)
+	_save_player_state()
 
 func attack_nearest_wildlife() -> void:
 	var nearest: Node3D = null
