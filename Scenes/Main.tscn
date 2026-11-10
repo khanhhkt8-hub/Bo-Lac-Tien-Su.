@@ -15,6 +15,7 @@
 [ext_resource type="Script" path="res://Scripts/Tribe/TribeControlSystem.gd" id="13_tribe_control"]
 [ext_resource type="Script" path="res://Scripts/World/RTSCamera.gd" id="14_rts_camera"]
 [ext_resource type="Script" path="res://Scripts/World/FogOfWar.gd" id="15_fog"]
+[ext_resource type="Script" path="res://Scripts/World/WeatherEffects.gd" id="16_weather"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_player"]
 radius = 14.0
@@ -142,6 +143,9 @@ species = "cave_bear"
 [node name="Mammoth" parent="." instance=ExtResource("6_animal")]
 position = Vector2(-700, 420)
 species = "mammoth"
+
+[node name="WeatherEffects" type="Node2D" parent="."]
+script = ExtResource("16_weather")
 
 [node name="FogOfWar" type="Node2D" parent="."]
 script = ExtResource("15_fog")
