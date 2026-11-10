@@ -15,6 +15,11 @@ var gather_timer := 0.0
 var gathering_target: ResourceNode
 var hunting_target: Node2D
 var hunt_timer := 0.0
+var defense_target: Node2D
+var defense_scan_timer := 0.0
+
+func _ready() -> void:
+	add_to_group("tribe_units")
 
 func setup(data: Dictionary) -> void:
 	resident_id = int(data.get("id", -1))
@@ -35,6 +40,7 @@ func _process(delta: float) -> void:
 	attack_timer = maxf(0.0, attack_timer - delta)
 	gather_timer = maxf(0.0, gather_timer - delta)
 	hunt_timer = maxf(0.0, hunt_timer - delta)
+	defense_scan_timer = maxf(0.0, defense_scan_timer - delta)
 	if has_move_order:
 		var offset := move_target - global_position
 		if offset.length() <= 7.0:
@@ -42,6 +48,8 @@ func _process(delta: float) -> void:
 			global_position = move_target
 		else:
 			global_position += offset.normalized() * move_speed * delta
+	if role == "warrior" and resident_age >= 18 and not has_move_order:
+		_auto_defend(delta)
 	if role == "gatherer" and resident_age >= 18 and not has_move_order and gather_timer <= 0.0:
 		_auto_gather()
 	if role == "hunter" and resident_age >= 18 and not has_move_order and hunt_timer <= 0.0:
@@ -59,6 +67,47 @@ func _process(delta: float) -> void:
 		if target != null and target.has_method("take_damage"):
 			target.take_damage(8.0)
 			attack_timer = 1.4
+
+
+func _auto_defend(delta: float) -> void:
+	if defense_scan_timer <= 0.0 or not is_instance_valid(defense_target):
+		defense_scan_timer = 0.35
+		defense_target = null
+		var best_distance := 260.0
+		var protected_nodes: Array[Node2D] = []
+		var player := get_tree().get_first_node_in_group("player") as Node2D
+		if is_instance_valid(player):
+			protected_nodes.append(player)
+		for unit in get_tree().get_nodes_in_group("tribe_units"):
+			if not is_instance_valid(unit) or unit == self or not unit is Node2D:
+				continue
+			protected_nodes.append(unit as Node2D)
+		for enemy in get_tree().get_nodes_in_group("enemies"):
+			if not is_instance_valid(enemy) or enemy.is_queued_for_deletion() or not enemy is Node2D:
+				continue
+			var enemy_node := enemy as Node2D
+			var threatens_tribe := false
+			for protected in protected_nodes:
+				if is_instance_valid(protected) and enemy_node.global_position.distance_to(protected.global_position) <= 210.0:
+					threatens_tribe = true
+					break
+			if not threatens_tribe:
+				continue
+			var distance := global_position.distance_to(enemy_node.global_position)
+			if distance < best_distance:
+				best_distance = distance
+				defense_target = enemy_node
+	if not is_instance_valid(defense_target):
+		return
+	var distance_to_target := global_position.distance_to(defense_target.global_position)
+	if distance_to_target > 34.0:
+		global_position += global_position.direction_to(defense_target.global_position) * move_speed * delta
+	else:
+		if attack_timer <= 0.0 and defense_target.has_method("take_damage"):
+			defense_target.take_damage(9.0)
+			attack_timer = 1.1
+		if not is_instance_valid(defense_target) or defense_target.is_queued_for_deletion():
+			defense_target = null
 
 func _draw() -> void:
 	var tint := Color("#d7b16a")
