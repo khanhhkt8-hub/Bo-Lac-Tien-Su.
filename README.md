@@ -320,3 +320,14 @@ Game sinh tồn 2D offline, ưu tiên Android, phát triển bằng Godot 4.
 - Các điểm tài nguyên dùng chung ResourceNode; cư dân có thể thu thập vào kho bộ lạc, người chơi có thể thu thập theo cơ chế hiện có.
 - Kho bộ lạc bổ sung cá, trái cây, gà, vịt, trứng và đất sét; nghề mới gồm ngư dân, người thu hái trái cây, người chăm gia cầm và thợ khai mỏ.
 - Phân công nghề tạo sản lượng theo chu kỳ 30 giây; tài nguyên và nghề được lưu offline.
+
+
+## Đội trinh sát và báo cáo khám phá
+- Nghề Trinh sát dành cho cư dân trưởng thành; phân công tại bảng quản lý bộ lạc.
+- Trinh sát di chuyển nhanh hơn dân làng thường và có tầm nhìn 520 đơn vị, giúp mở rộng sương mù chiến tranh.
+- Chọn tiểu đội TRINH SÁT, nhấn GIAO NHIỆM VỤ TRINH SÁT rồi chạm vị trí trên bản đồ để cử đội đến khám phá.
+- Khi đội đến nơi, hệ thống lập báo cáo về tài nguyên, thú hoang, kẻ địch và khu vực phát hiện.
+- Tối đa 20 báo cáo gần nhất được lưu offline trong `user://bo_lac_scout_reports.cfg`.
+- Nếu đội bị điều đi nơi khác hoặc không còn tồn tại trước khi tới đích, nhiệm vụ bị hủy và không tạo báo cáo giả.
+- HUD có nút BÁO CÁO TRINH SÁT để xem báo cáo gần nhất.
+- Đã thêm ScoutSystem vào Autoload; chưa chạy kiểm thử Godot runtime hoặc build APK.
