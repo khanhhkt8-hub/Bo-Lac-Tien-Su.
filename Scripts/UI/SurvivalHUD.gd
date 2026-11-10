@@ -36,6 +36,10 @@ func _ready() -> void:
 	_leader_label = Label.new()
 	_leader_label.text = "Tộc trưởng: đang cập nhật..."
 	column.add_child(_leader_label)
+	var leadership_button := Button.new()
+	leadership_button.text = "HỘI ĐỒNG TỘC TRƯỞNG"
+	leadership_button.pressed.connect(_on_show_leadership_pressed)
+	column.add_child(leadership_button)
 	if TribePopulation != null:
 		if not TribePopulation.leader_changed.is_connected(_on_tribe_leader_changed):
 			TribePopulation.leader_changed.connect(_on_tribe_leader_changed)
@@ -256,6 +260,18 @@ func _ready() -> void:
 		if _inventory != null:
 			_inventory.inventory_changed.connect(_on_inventory_changed)
 			_on_inventory_changed(_inventory.items)
+
+func _on_show_leadership_pressed() -> void:
+	if TribePopulation == null:
+		return
+	var dialog := AcceptDialog.new()
+	dialog.title = "HỘI ĐỒNG TỘC TRƯỞNG"
+	dialog.dialog_text = TribePopulation.get_leadership_report()
+	dialog.min_size = Vector2i(560, 520)
+	add_child(dialog)
+	dialog.confirmed.connect(dialog.queue_free)
+	dialog.canceled.connect(dialog.queue_free)
+	dialog.popup_centered()
 
 func _refresh_leader_label() -> void:
 	if _leader_label == null or TribePopulation == null:
