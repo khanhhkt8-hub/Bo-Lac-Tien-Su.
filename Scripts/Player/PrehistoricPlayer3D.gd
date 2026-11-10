@@ -11,6 +11,9 @@ var _camera: Camera3D
 var _dragging := false
 var _last_touch := Vector2.ZERO
 var inventory: Dictionary = {}
+var health := 100.0
+var max_health := 100.0
+var _respawn_position := Vector3.ZERO
 var _gather_cooldown := 0.0
 var _nearby_resource: Node3D = null
 
@@ -18,6 +21,7 @@ func _ready() -> void:
 	add_to_group("player_3d")
 	_build_character()
 	_build_camera()
+	_respawn_position = global_position
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func _build_character() -> void:
@@ -179,3 +183,28 @@ func tame_nearest_wildlife() -> void:
 			target = animal
 	if target != null and target.tame():
 		collect_resource("trust", 1)
+
+func take_damage(amount: float) -> void:
+	health = maxf(0.0, health - maxf(0.0, amount))
+	var hud := get_tree().get_first_node_in_group("hud_3d")
+	if hud != null and hud.has_method("show_health"):
+		hud.show_health(health, max_health)
+	if health <= 0.0:
+		health = max_health
+		global_position = _respawn_position + Vector3(0.0, 0.5, 0.0)
+		velocity = Vector3.ZERO
+		collect_resource("injury_recovery", 1)
+
+func attack_nearest_wildlife() -> void:
+	var nearest: Node3D = null
+	var nearest_distance := 3.8
+	for group_name in ["wildlife_3d", "barbarians_3d"]:
+		for target in get_tree().get_nodes_in_group(group_name):
+			if not is_instance_valid(target) or not target.has_method("receive_damage"):
+				continue
+			var distance := global_position.distance_to(target.global_position)
+			if distance < nearest_distance:
+				nearest_distance = distance
+				nearest = target
+	if nearest != null:
+		nearest.receive_damage(28.0)
