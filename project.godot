@@ -14,7 +14,7 @@ TribeHousingSystem="*res://Scripts/Tribe/TribeHousingSystem.gd"
 TribeTrainingSystem="*res://Scripts/Tribe/TribeTrainingSystem.gd"
 TribeJobSystem="*res://Scripts/Tribe/TribeJobSystem.gd"
 TribeArmySystem="*res://Scripts/Tribe/TribeArmySystem.gd"
-RegionSystem="*res://Scripts/World/RegionSystem.gd"
+RegionSystem="*res://Scripts/World/RegionSystem.gd"\nScoutSystem="*res://Scripts/Tribe/ScoutSystem.gd"
 
 [display]
 window/size/viewport_width=1280
