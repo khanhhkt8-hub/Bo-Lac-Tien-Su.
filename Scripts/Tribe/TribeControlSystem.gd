@@ -2,6 +2,7 @@ extends Node2D
 ## RTS-style control for all tribe residents.
 
 const UNIT_SCRIPT = preload("res://Scripts/Tribe/TribeUnit.gd")
+const RALLY_SAVE_PATH := "user://bo_lac_rally_flag.cfg"
 var units: Dictionary = {}
 var selected_ids: Array[int] = []
 var move_mode := false
@@ -24,6 +25,7 @@ func _ready() -> void:
 	var player := get_parent().get_node_or_null("Player")
 	if player != null:
 		_spawn_center = player.global_position
+	_load_rally_point()
 	_sync_units()
 	if TribePopulation != null and not TribePopulation.population_changed.is_connected(_on_population_changed):
 		TribePopulation.population_changed.connect(_on_population_changed)
@@ -194,6 +196,21 @@ func order_selected_patrol(points: Array[Vector2]) -> int:
 func set_rally_point(destination: Vector2) -> void:
 	rally_point = destination
 	has_rally_point = true
+	_save_rally_point()
+	queue_redraw()
+
+func _save_rally_point() -> void:
+	var config := ConfigFile.new()
+	config.set_value("rally", "position", rally_point)
+	config.set_value("rally", "placed", has_rally_point)
+	config.save(RALLY_SAVE_PATH)
+
+func _load_rally_point() -> void:
+	var config := ConfigFile.new()
+	if config.load(RALLY_SAVE_PATH) != OK:
+		return
+	has_rally_point = bool(config.get_value("rally", "placed", false))
+	rally_point = config.get_value("rally", "position", Vector2.ZERO)
 	queue_redraw()
 
 func rally_all_to_flag() -> int:
