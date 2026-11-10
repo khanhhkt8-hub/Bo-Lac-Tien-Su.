@@ -165,3 +165,11 @@ Game sinh tồn 2D offline, ưu tiên Android, phát triển bằng Godot 4.
 - Gấu Hang Huyền Thoại dùng Chấn Địa Cuồng Nộ, gây sát thương diện rộng quanh bản thân.
 - Voi Ma Mút Huyền Thoại dùng Địa Chấn Cổ Đại, gây sát thương diện rộng với bán kính lớn hơn.
 - Kỹ năng đặc biệt tự kích hoạt khi chiến đấu, có thời gian hồi riêng 5 giây; bảng KỸ NĂNG ĐÀN THÚ hiển thị tên kỹ năng theo phẩm chất.
+
+
+## Thức tỉnh Thần Thú
+- Chỉ thú Huyền Thoại trưởng thành đã đạt cấp 3 mới có thể thức tỉnh.
+- Thức tỉnh tiêu hao 12 xương, 8 quặng và 5 da thú; thú đạt cấp 4 với danh hiệu Thần Thú Giáng Thế.
+- Thần Thú nhận thêm 45% máu tối đa, 30% sát thương và 10% tốc độ ở lần tiến hóa cuối; kỹ năng huyền thoại mạnh hơn và hồi chiêu còn 3,5 giây.
+- Thần Thú có vòng hào quang vàng sáng riêng; cấp tiến hóa được lưu offline.
+- Nút THỨC TỈNH THẦN THÚ chỉ xuất hiện như thao tác trong HUD, không thêm hệ thống xây dựng căn cứ.
