@@ -15,7 +15,9 @@ const RECIPES := {
 	"arrows": {"wood": 2, "stone": 1},
 	"fur_cloak": {"hide": 8, "bone": 3},
 	"herbal_antidote": {"herbs": 3, "berries": 2},
-	"torch": {"wood": 3, "reeds": 2}
+	"torch": {"wood": 3, "reeds": 2},
+	"companion_armor": {"hide": 6, "bone": 4},
+	"companion_fang": {"bone": 6, "stone": 3}
 }
 
 func setup(target_inventory: InventorySystem) -> void:
