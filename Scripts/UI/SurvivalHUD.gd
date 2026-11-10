@@ -99,6 +99,14 @@ func _ready() -> void:
 	_add_craft_button(buttons, "Rìu đá", "stone_axe")
 	_add_craft_button(buttons, "Giáo đá", "stone_spear")
 	_add_craft_button(buttons, "Đống lửa", "campfire")
+	var companion_gear_row := HBoxContainer.new()
+	column.add_child(companion_gear_row)
+	_add_craft_button(companion_gear_row, "Giáp thú", "companion_armor")
+	_add_craft_button(companion_gear_row, "Bùa nanh", "companion_fang")
+	var equip_gear_button := Button.new()
+	equip_gear_button.text = "TRANG BỊ THÚ"
+	equip_gear_button.pressed.connect(_on_equip_companion_gear_pressed)
+	companion_gear_row.add_child(equip_gear_button)
 	var survival_gear_row := HBoxContainer.new()
 	column.add_child(survival_gear_row)
 	_add_craft_button(survival_gear_row, "Áo da", "fur_cloak")
@@ -280,3 +288,8 @@ func _on_companion_protect_order_pressed() -> void:
 func _on_companion_combat_summary_pressed() -> void:
 	if _player != null and _player.has_method("get_companion_combat_summary"):
 		_craft_status.text = _player.get_companion_combat_summary()
+
+
+func _on_equip_companion_gear_pressed() -> void:
+	if _player != null and _player.has_method("equip_nearby_companion_gear"):
+		_craft_status.text = _player.equip_nearby_companion_gear()
