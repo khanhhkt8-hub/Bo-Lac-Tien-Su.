@@ -32,43 +32,58 @@ func gather_for_tribe() -> bool:
 	return true
 
 func _draw() -> void:
+	# Bệ bóng và biểu tượng tài nguyên riêng, không còn là các chấm tròn giống nhau.
+	draw_ellipse_placeholder(Vector2(4, 13), 27.0, 10.0, Color(0.10, 0.14, 0.09, 0.35))
 	var tint := Color("#8a633c")
+	var symbol := "?"
 	match resource_type:
+		"wood":
+			tint = Color("#47743d")
+			symbol = "♣"
 		"stone":
 			tint = Color("#92999b")
-		"food":
+			symbol = "◆"
+		"food", "meat":
 			tint = Color("#b4a34b")
-		"water":
+			symbol = "●" if resource_type == "food" else "M"
+		"water", "fish":
 			tint = Color("#438eb8")
-		"fish":
-			tint = Color("#3e9bb5")
-		"fruit":
+			symbol = "≈" if resource_type == "water" else "><>"
+		"fruit", "berries":
 			tint = Color("#d66b3d")
-		"chicken":
+			symbol = "●"
+		"chicken", "duck":
 			tint = Color("#e4c56b")
-		"duck":
-			tint = Color("#6eaa75")
+			symbol = "♟"
 		"eggs":
 			tint = Color("#eee0b4")
+			symbol = "o"
 		"clay":
 			tint = Color("#a66b51")
-		"berries":
-			tint = Color("#9c426f")
-		"herbs":
+			symbol = "■"
+		"herbs", "reeds":
 			tint = Color("#5d9a4d")
+			symbol = "♠"
 		"hide":
 			tint = Color("#9b7654")
+			symbol = "H"
 		"bone":
 			tint = Color("#ded2ad")
-		"flint":
-			tint = Color("#6d737c")
-		"ore":
-			tint = Color("#b17b45")
-		"reeds":
-			tint = Color("#8b9b48")
-		"ice":
-			tint = Color("#91cde0")
-		"meat":
-			tint = Color("#a7473c")
-	draw_circle(Vector2.ZERO, 23.0, tint)
-	draw_circle(Vector2(-7.0, -6.0), 6.0, tint.lightened(0.25))
+			symbol = "Y"
+		"flint", "ore", "ice":
+			tint = Color("#6d8790") if resource_type == "ice" else Color("#858d91")
+			symbol = "◆"
+	draw_circle(Vector2.ZERO, 23.0, Color("#283b29"))
+	draw_circle(Vector2.ZERO, 19.0, tint)
+	draw_circle(Vector2(-6.0, -7.0), 6.0, tint.lightened(0.28))
+	var font := ThemeDB.fallback_font
+	draw_string(font, Vector2(-12.0, 6.0), symbol, HORIZONTAL_ALIGNMENT_CENTER, 25.0, 18, Color("#fff4d8"))
+	draw_rect(Rect2(Vector2(-18.0, 25.0), Vector2(36.0, 5.0)), Color("#292b25"))
+	draw_rect(Rect2(Vector2(-18.0, 25.0), Vector2(36.0 * float(amount_available) / 24.0, 5.0)), Color("#e5d18b"))
+
+func draw_ellipse_placeholder(center: Vector2, radius_x: float, radius_y: float, tint: Color) -> void:
+	var points := PackedVector2Array()
+	for i in range(20):
+		var angle := TAU * float(i) / 20.0
+		points.append(center + Vector2(cos(angle) * radius_x, sin(angle) * radius_y))
+	draw_colored_polygon(points, tint)
