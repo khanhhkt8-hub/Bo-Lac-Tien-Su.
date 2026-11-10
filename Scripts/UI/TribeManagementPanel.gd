@@ -6,7 +6,7 @@ var _status: Label
 var _selected_resident_index: int = 0
 var _selected_house_id: int = -1
 var _resident_ids: Array[int] = []
-var _job_ids: Array[String] = ["hunter", "gatherer", "fisher", "orchardist", "poultry", "miner", "farmer", "crafter", "warrior", "night_guard"]
+var _job_ids: Array[String] = ["hunter", "gatherer", "fisher", "orchardist", "poultry", "miner", "farmer", "herbalist", "medic", "crafter", "warrior", "night_guard"]
 var _selected_job_index: int = 0
 
 func _ready() -> void:
@@ -91,7 +91,7 @@ func _refresh() -> void:
 	if not _resident_ids.is_empty():
 		var person := _find_resident(_resident_ids[_selected_resident_index])
 		resident_text = "%s (#%d, %d tuổi)" % [str(person.name), int(person.id), int(person.age)]
-	_summary.text = "Dân số: %d (trẻ %d / trưởng thành %d / cao tuổi %d)\nTộc trưởng: %s\nNhà: %d | Sức chứa: %d | Chưa phân nhà: %d\nĐang chọn: %s\nDân làng: %s\nGỗ: %d | Đá: %d\nNghề: Săn %d / Hái %d / Cá %d / Trái cây %d / Gia cầm %d / Mỏ %d / Nông %d / Chế tác %d / Lính %d / Canh đêm %d\nKho: Thịt %d, Cá %d, Trái cây %d, Gà %d, Vịt %d, Trứng %d, Lương thực %d, Dụng cụ %d, Chiến lực %d\nQuân đội: %d (Giáo %d / Cung %d / Vệ binh %d)" % [
+	_summary.text = "Dân số: %d (trẻ %d / trưởng thành %d / cao tuổi %d)\nTộc trưởng: %s\nNhà: %d | Sức chứa: %d | Chưa phân nhà: %d\nĐang chọn: %s\nDân làng: %s\nGỗ: %d | Đá: %d\nNghề: Săn %d / Hái %d / Cá %d / Trái cây %d / Gia cầm %d / Mỏ %d / Nông %d / Chế tác %d / Lính %d / Canh đêm %d / Thầy thuốc %d\nKho: Thịt %d, Cá %d, Trái cây %d, Gà %d, Vịt %d, Trứng %d, Lương thực %d, Dụng cụ %d, Chiến lực %d\nQuân đội: %d (Giáo %d / Cung %d / Vệ binh %d)" % [
 		int(pop.total), int(pop.children), int(pop.adults), int(pop.elders), leader_text,
 		int(housing.houses), int(housing.capacity), int(housing.homeless),
 		house_text, resident_text, TribeHousingSystem.wood, TribeHousingSystem.stone,
