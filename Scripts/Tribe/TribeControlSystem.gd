@@ -182,6 +182,9 @@ func _handle_world_tap(world_pos: Vector2) -> void:
 		order_selected_move(world_pos)
 
 func _unhandled_input(event: InputEvent) -> void:
+	var camera := get_parent().get_node_or_null("Camera2D")
+	if event is InputEventScreenTouch and camera != null and bool(camera.get("drag_enabled")):
+		return
 	if event is InputEventMouseButton and event.pressed:
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			_handle_world_tap(get_global_mouse_position())
