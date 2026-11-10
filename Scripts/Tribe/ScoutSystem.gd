@@ -1,6 +1,8 @@
 extends Node
 ## Scout missions reveal nearby world information and persist field reports offline.
 
+signal status_changed(message: String)
+
 const SAVE_PATH := "user://bo_lac_scout_reports.cfg"
 const REPORT_LIMIT := 20
 const ARRIVAL_RADIUS := 34.0
@@ -26,7 +28,7 @@ func dispatch_scouts(resident_ids: Array, destination: Vector2, unit_registry: D
 		if not unit_registry.has(resident_id):
 			continue
 		var unit := unit_registry[resident_id] as Node2D
-		if not is_instance_valid(unit) or str(unit.get("role")) != "scout":
+		if not is_instance_valid(unit) or str(unit.get("role")) != "scout" or int(unit.get("resident_age")) < 18:
 			continue
 		var slot := Vector2(float(dispatched % 3) * 26.0, float(int(dispatched / 3)) * 26.0)
 		var target := destination + slot
@@ -35,9 +37,13 @@ func dispatch_scouts(resident_ids: Array, destination: Vector2, unit_registry: D
 			missions.append({"resident_id": resident_id, "target": target, "started_at": Time.get_unix_time_from_system()})
 			dispatched += 1
 	if dispatched == 0:
-		return "Hãy chọn ít nhất một trinh sát trưởng thành trước khi giao nhiệm vụ."
+		var warning := "Hãy chọn ít nhất một trinh sát trưởng thành trước khi giao nhiệm vụ."
+		status_changed.emit(warning)
+		return warning
 	_save_reports()
-	return "Đã cử %d trinh sát đến khu vực được đánh dấu. Báo cáo sẽ xuất hiện khi đội đến nơi." % dispatched
+	var message := "Đã cử %d trinh sát đến khu vực được đánh dấu. Báo cáo sẽ xuất hiện khi đội đến nơi." % dispatched
+	status_changed.emit(message)
+	return message
 
 func _update_missions() -> void:
 	var completed: Array[Dictionary] = []
@@ -54,6 +60,7 @@ func _update_missions() -> void:
 		missions.erase(mission)
 		var target: Vector2 = mission.get("target", Vector2.ZERO)
 		_create_report(target, int(mission.get("resident_id", -1)))
+		status_changed.emit("Trinh sát đã đến nơi. Báo cáo mới: " + str(reports[0].get("region", "khu vực mới")) + ".")
 	if not completed.is_empty():
 		_save_reports()
 
