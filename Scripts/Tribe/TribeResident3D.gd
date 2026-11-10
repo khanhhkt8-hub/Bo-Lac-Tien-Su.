@@ -22,6 +22,7 @@ func setup(data: Dictionary) -> void:
 	resident_id = int(data.get("id", -1))
 	resident_name = str(data.get("name", "Dân làng"))
 	resident_age = int(data.get("age", 18))
+	health = float(data.get("health", 100.0))
 	resident_role = str(data.get("job", data.get("role", "villager")))
 	is_chieftain = resident_role == "chieftain"
 	name = "Resident_%s" % resident_id
