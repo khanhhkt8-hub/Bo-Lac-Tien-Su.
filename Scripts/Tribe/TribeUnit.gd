@@ -75,7 +75,7 @@ func _process(delta: float) -> void:
 		_update_hold_position(delta)
 	elif combat_order_active and resident_age >= 18 and not has_move_order:
 		_update_combat_order(delta)
-	if role == "warrior" and resident_age >= 18 and not has_move_order and not combat_order_active and not hold_position_active:
+	if role == "warrior" and resident_age >= 18 and not has_move_order and not combat_order_active and not hold_position_active and not patrol_active:
 		_auto_defend(delta)
 	if role == "gatherer" and resident_age >= 18 and not has_move_order and not combat_order_active and not hold_position_active and not patrol_active and gather_timer <= 0.0:
 		_auto_gather()
@@ -110,7 +110,6 @@ func set_patrol_route(points: Array[Vector2]) -> void:
 	has_move_order = false
 	gathering_target = null
 	hunting_target = null
-	global_position = global_position
 
 func _update_patrol(delta: float) -> void:
 	if patrol_points.size() < 2:
