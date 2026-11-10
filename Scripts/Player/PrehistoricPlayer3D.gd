@@ -19,6 +19,12 @@ var _respawn_position := Vector3.ZERO
 var _gather_cooldown := 0.0
 var _nearby_resource: Node3D = null
 var _save_timer := 0.0
+var _walk_phase := 0.0
+var _body_mesh: MeshInstance3D
+var _left_arm: MeshInstance3D
+var _right_arm: MeshInstance3D
+var _left_leg: MeshInstance3D
+var _right_leg: MeshInstance3D
 
 func _ready() -> void:
 	add_to_group("player_3d")
@@ -37,12 +43,17 @@ func _build_character() -> void:
 	body_shape.position.y = 0.95
 	add_child(body_shape)
 	_add_capsule("Body", Vector3(0.0, 1.05, 0.0), Vector3(0.48, 0.78, 0.34), Color("#9a633e"))
+	_body_mesh = get_node_or_null("Body") as MeshInstance3D
 	_add_sphere("Head", Vector3(0.0, 1.88, 0.0), Vector3(0.31, 0.36, 0.3), Color("#d5a071"))
 	_add_sphere("Hair", Vector3(0.0, 2.12, -0.035), Vector3(0.33, 0.2, 0.33), Color("#30251f"))
 	_add_capsule("LeftArm", Vector3(-0.34, 1.12, 0.0), Vector3(0.16, 0.48, 0.16), Color("#c18a5b"))
+	_left_arm = get_node_or_null("LeftArm") as MeshInstance3D
 	_add_capsule("RightArm", Vector3(0.34, 1.12, 0.0), Vector3(0.16, 0.48, 0.16), Color("#c18a5b"))
+	_right_arm = get_node_or_null("RightArm") as MeshInstance3D
 	_add_capsule("LeftLeg", Vector3(-0.16, 0.38, 0.0), Vector3(0.17, 0.48, 0.18), Color("#4a3327"))
+	_left_leg = get_node_or_null("LeftLeg") as MeshInstance3D
 	_add_capsule("RightLeg", Vector3(0.16, 0.38, 0.0), Vector3(0.17, 0.48, 0.18), Color("#4a3327"))
+	_right_leg = get_node_or_null("RightLeg") as MeshInstance3D
 	_add_box("LeatherStrap", Vector3(0.0, 1.14, 0.19), Vector3(0.08, 0.86, 0.035), Color("#e0bd83"))
 
 func _add_sphere(label: String, pos: Vector3, dimensions: Vector3, color: Color) -> void:
@@ -171,6 +182,24 @@ func _physics_process(_delta: float) -> void:
 		velocity.z = move_toward(velocity.z, 0.0, move_speed * 5.0 * _delta)
 	velocity.y -= 22.0 * _delta
 	move_and_slide()
+	_animate_character(_delta)
+
+func _animate_character(delta: float) -> void:
+	var horizontal_speed := Vector2(velocity.x, velocity.z).length()
+	var moving := horizontal_speed > 0.25
+	if moving:
+		_walk_phase += delta * clampf(horizontal_speed * 1.7, 5.0, 12.0)
+	var swing := sin(_walk_phase) * (0.48 if moving else 0.025)
+	if is_instance_valid(_left_arm):
+		_left_arm.rotation.x = swing
+	if is_instance_valid(_right_arm):
+		_right_arm.rotation.x = -swing
+	if is_instance_valid(_left_leg):
+		_left_leg.rotation.x = -swing * 0.82
+	if is_instance_valid(_right_leg):
+		_right_leg.rotation.x = swing * 0.82
+	if is_instance_valid(_body_mesh):
+		_body_mesh.position.y = 1.05 + (sin(_walk_phase * 2.0) * 0.035 if moving else sin(Time.get_ticks_msec() * 0.0018) * 0.012)
 
 func _update_camera_rotation() -> void:
 	if is_instance_valid(_camera_pivot):
