@@ -35,9 +35,9 @@ func _build_controls() -> void:
 	panel.anchor_top = 1.0
 	panel.anchor_bottom = 1.0
 	panel.offset_left = 18.0
-	panel.offset_top = -178.0
-	panel.offset_right = 260.0
-	panel.offset_bottom = -18.0
+	panel.offset_top = -184.0
+	panel.offset_right = 286.0
+	panel.offset_bottom = -14.0
 	panel.modulate = Color(1.0, 1.0, 1.0, 0.82)
 	add_child(panel)
 	var grid := GridContainer.new()
@@ -52,7 +52,7 @@ func _build_controls() -> void:
 	_add_move_button(grid, "▼", "ui_down")
 	_add_move_button(grid, "▶", "ui_right")
 	var hint := Label.new()
-	hint.text = "KÉO MÀN HÌNH ĐỂ XOAY CAMERA"
+	hint.text = "KÉO VÙNG TRỐNG ĐỂ XOAY CAMERA"
 	hint.anchor_left = 0.5
 	hint.anchor_right = 0.5
 	hint.anchor_top = 1.0
