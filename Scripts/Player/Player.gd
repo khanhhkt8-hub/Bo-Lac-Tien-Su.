@@ -369,6 +369,8 @@ func get_companion_herd_summary() -> String:
 			continue
 		var animal := node as PrehistoricAnimal
 		var rarity_text := " | Hiếm" if animal.rarity == "rare" else (" | Huyền thoại" if animal.rarity == "legendary" else "")
+		if animal.is_pack_leader:
+			rarity_text += " | THÚ CHÚA"
 		var stage := "Thú con" if animal.is_baby else "%s (Cấp %d)" % [animal.get_evolution_name(), animal.companion_level]
 		stage += rarity_text
 		var riding := " | Đang cưỡi" if animal.is_mounted else ""
@@ -384,6 +386,30 @@ func get_companion_herd_summary() -> String:
 			gear
 		])
 	return "\n".join(lines)
+
+
+func appoint_pack_leader() -> String:
+	var chosen: PrehistoricAnimal
+	var chosen_distance := 180.0
+	for node in get_tree().get_nodes_in_group("tamed_animals"):
+		if not is_instance_valid(node) or not node is PrehistoricAnimal:
+			continue
+		var animal := node as PrehistoricAnimal
+		if animal.is_baby or animal.rarity != "legendary" or animal.companion_level < 4:
+			continue
+		var distance := global_position.distance_to(animal.global_position)
+		if distance <= chosen_distance:
+			chosen = animal
+			chosen_distance = distance
+	if chosen == null:
+		return "Cần Thần Thú Huyền Thoại cấp 4 ở gần để phong làm Thú Chúa"
+	for node in get_tree().get_nodes_in_group("tamed_animals"):
+		if is_instance_valid(node) and node is PrehistoricAnimal:
+			(node as PrehistoricAnimal).is_pack_leader = false
+	chosen.is_pack_leader = true
+	chosen.queue_redraw()
+	save_companions()
+	return "%s được phong làm THÚ CHÚA! Đàn thú gần đó tăng 15%% sát thương và 10%% tốc độ" % chosen.enemy_name
 
 
 func command_companions_attack() -> String:
@@ -463,6 +489,7 @@ func save_companions() -> void:
 		config.set_value(section, "order", animal.companion_order)
 		config.set_value(section, "armor", animal.companion_armor_equipped)
 		config.set_value(section, "fang", animal.companion_fang_equipped)
+		config.set_value(section, "pack_leader", animal.is_pack_leader)
 		config.set_value(section, "mounted", animal.is_mounted and animal == mounted_animal)
 		config.set_value(section, "offset", animal.global_position - global_position)
 		index += 1
@@ -505,6 +532,7 @@ func _load_companions() -> void:
 		animal.set_companion_order(str(config.get_value(section, "order", "protect")))
 		animal.companion_armor_equipped = bool(config.get_value(section, "armor", false))
 		animal.companion_fang_equipped = bool(config.get_value(section, "fang", false))
+		animal.is_pack_leader = bool(config.get_value(section, "pack_leader", false))
 		if bool(config.get_value(section, "is_baby", false)):
 			animal.set_as_baby(float(config.get_value(section, "growth_remaining", 300.0)))
 		var level := clampi(int(config.get_value(section, "level", 1)), 1, 4)
