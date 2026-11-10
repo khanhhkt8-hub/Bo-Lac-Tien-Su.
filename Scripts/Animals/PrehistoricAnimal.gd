@@ -204,6 +204,21 @@ func upgrade_companion() -> bool:
 	queue_redraw()
 	return true
 
+func get_mutation_name() -> String:
+	match mutation:
+		"ember":
+			return "Hỏa"
+		"frost":
+			return "Băng"
+		"venom":
+			return "Độc"
+		"storm":
+			return "Lôi"
+		"divine":
+			return "Thần"
+	return "Không"
+
+
 func get_evolution_name() -> String:
 	if companion_level >= 4:
 		return "Thần Thú Giáng Thế"
