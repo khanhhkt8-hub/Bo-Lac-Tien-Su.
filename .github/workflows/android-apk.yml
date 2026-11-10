@@ -19,24 +19,61 @@ permissions:
 jobs:
   export-apk:
     runs-on: ubuntu-latest
-    container:
-      image: barichello/godot-ci:4.3.0
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Prepare export templates
-        run: |
-          mkdir -p ~/.local/share/godot/export_templates
-          godot --headless --editor --path . --quit || true
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
 
-      - name: Validate project
-        run: godot --headless --path . --editor --quit
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK packages for Godot 4.3
+        run: |
+          yes | sdkmanager --sdk_root="$ANDROID_HOME" --licenses
+          sdkmanager --sdk_root="$ANDROID_HOME" --install \
+            "platform-tools" \
+            "build-tools;34.0.0" \
+            "platforms;android-34" \
+            "cmdline-tools;latest" \
+            "cmake;3.10.2.4988404" \
+            "ndk;23.2.8568313"
+
+      - name: Set up Godot 4.3 and export templates
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: '4.3.0'
+          use-dotnet: false
+          include-templates: true
+
+      - name: Configure Godot Android paths
+        run: |
+          mkdir -p "$HOME/.config/godot"
+          cat > "$HOME/.config/godot/editor_settings-4.3.tres" <<EOF
+          [gd_resource type="EditorSettings" format=3]
+
+          [resource]
+          export/android/android_sdk_path = "$ANDROID_HOME"
+          export/android/java_sdk_path = "$JAVA_HOME"
+          EOF
+
+      - name: Verify tools and validate project
+        run: |
+          godot --version
+          java -version
+          test -d "$ANDROID_HOME/platform-tools"
+          test -d "$ANDROID_HOME/ndk/23.2.8568313"
+          godot --headless --editor --path . --quit
 
       - name: Export Android APK
         run: |
           mkdir -p build
           godot --headless --path . --export-debug "Android" build/Bo-Lac-Tien-Su.apk
+          test -s build/Bo-Lac-Tien-Su.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
