@@ -32,8 +32,8 @@ func gather_for_tribe() -> bool:
 	return true
 
 func _draw() -> void:
-	# Bệ bóng và biểu tượng tài nguyên riêng, không còn là các chấm tròn giống nhau.
-	draw_ellipse_placeholder(Vector2(4, 13), 27.0, 10.0, Color(0.10, 0.14, 0.09, 0.35))
+	# Bóng tiếp xúc, viền đá và lõi màu tạo cảm giác vật phẩm nổi trên mặt đất.
+	draw_ellipse_placeholder(Vector2(4, 16), 29.0, 11.0, Color(0.07, 0.11, 0.08, 0.42))
 	var tint := Color("#8a633c")
 	var symbol := "?"
 	match resource_type:
@@ -73,13 +73,19 @@ func _draw() -> void:
 		"flint", "ore", "ice":
 			tint = Color("#6d8790") if resource_type == "ice" else Color("#858d91")
 			symbol = "◆"
-	draw_circle(Vector2.ZERO, 23.0, Color("#283b29"))
-	draw_circle(Vector2.ZERO, 19.0, tint)
-	draw_circle(Vector2(-6.0, -7.0), 6.0, tint.lightened(0.28))
-	var font := ThemeDB.fallback_font
-	draw_string(font, Vector2(-12.0, 6.0), symbol, HORIZONTAL_ALIGNMENT_CENTER, 25.0, 18, Color("#fff4d8"))
-	draw_rect(Rect2(Vector2(-18.0, 25.0), Vector2(36.0, 5.0)), Color("#292b25"))
-	draw_rect(Rect2(Vector2(-18.0, 25.0), Vector2(36.0 * float(amount_available) / 24.0, 5.0)), Color("#e5d18b"))
+	draw_circle(Vector2(0, 2), 25.0, Color("#26382b"))
+	draw_arc(Vector2.ZERO, 24.0, 0.0, TAU, 40, Color("#b7a77b"), 2.2)
+	draw_circle(Vector2.ZERO, 20.0, tint.darkened(0.24))
+	draw_circle(Vector2(-1.0, -1.0), 17.0, tint)
+	draw_arc(Vector2(-1.0, -1.0), 16.0, 3.3, 5.8, 24, tint.lightened(0.48), 2.0)
+	draw_circle(Vector2(-7.0, -8.0), 5.0, Color(1.0, 0.96, 0.78, 0.30))
+	# Vệt sáng nhỏ và chấm trang trí giúp từng điểm tài nguyên dễ nhận biết.
+	draw_circle(Vector2(13.0, -11.0), 2.0, Color("#f3e7b5"))
+	draw_circle(Vector2(-14.0, 10.0), 1.7, Color("#f3e7b5"))
+	draw_string(ThemeDB.fallback_font, Vector2(-12.0, 6.0), symbol, HORIZONTAL_ALIGNMENT_CENTER, 25.0, 18, Color("#fff4d8"))
+	draw_rect(Rect2(Vector2(-19.0, 27.0), Vector2(38.0, 6.0)), Color("#242820"))
+	draw_rect(Rect2(Vector2(-18.0, 28.0), Vector2(36.0 * clampf(float(amount_available) / 24.0, 0.0, 1.0), 4.0)), Color("#e5d18b"))
+	draw_line(Vector2(-18.0, 26.0), Vector2(18.0, 26.0), Color(0.93, 0.88, 0.68, 0.65), 1.0)
 
 func draw_ellipse_placeholder(center: Vector2, radius_x: float, radius_y: float, tint: Color) -> void:
 	var points := PackedVector2Array()
