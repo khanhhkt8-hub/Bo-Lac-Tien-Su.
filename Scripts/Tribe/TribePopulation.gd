@@ -5,22 +5,30 @@ extends Node
 signal population_changed(total: int, children: int, adults: int, elders: int)
 signal resident_died(resident_name: String)
 signal child_born(resident_name: String)
+signal leader_changed(old_leader: Dictionary, new_leader: Dictionary)
 
 const SAVE_PATH := "user://bo_lac_population.cfg"
 const SECONDS_PER_YEAR := 1200.0
 const ADULT_AGE := 18
 const ELDER_AGE := 60
 const MAX_AGE := 90
+const LEADER_RETIREMENT_AGE := 70
 
 var residents: Array[Dictionary] = []
 var _year_accumulator: float = 0.0
 var _next_id: int = 1
+var leader_id: int = -1
+var _load_leader_id: int = -1
 
 func _ready() -> void:
 	load_population()
 	if residents.is_empty():
-		add_resident("Trưởng bộ lạc", 32, "male")
+		leader_id = add_resident("Tộc trưởng đời thứ nhất", 32, "male", "chieftain")
 		add_resident("Bạn đời", 29, "female")
+	else:
+		leader_id = _load_leader_id
+	if get_leader().is_empty():
+		elect_new_leader()
 	_emit_population()
 
 func _process(delta: float) -> void:
@@ -45,6 +53,40 @@ func add_resident(resident_name: String, age: int, sex: String, role: String = "
 
 func recruit_migrant(resident_name: String, age: int, sex: String, role: String = "migrant") -> int:
 	return add_resident(resident_name, age, sex, role)
+
+func get_leader() -> Dictionary:
+	return _find_resident(leader_id)
+
+func elect_new_leader() -> Dictionary:
+	var previous := get_leader().duplicate(true)
+	var candidates: Array[Dictionary] = []
+	for person in residents:
+		if not bool(person.get("alive", true)) or int(person.get("age", 0)) < ADULT_AGE:
+			continue
+		candidates.append(person)
+	if candidates.is_empty():
+		leader_id = -1
+		if not previous.is_empty():
+			leader_changed.emit(previous, {})
+		save_population()
+		return {}
+	candidates.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return _leadership_score(a) > _leadership_score(b)
+	)
+	var chosen: Dictionary = candidates[0]
+	leader_id = int(chosen.id)
+	chosen["role"] = "chieftain"
+	for person in residents:
+		if int(person.get("id", -1)) != leader_id and str(person.get("role", "")) == "chieftain":
+			person["role"] = "villager"
+	leader_changed.emit(previous, chosen.duplicate(true))
+	save_population()
+	return chosen
+
+func _leadership_score(person: Dictionary) -> float:
+	var age := int(person.get("age", 18))
+	var prime_age_bonus := 25.0 if age >= 25 and age <= 55 else 0.0
+	return float(person.get("health", 0.0)) * 0.35 + float(person.get("strength", 0)) * 2.0 + float(person.get("stamina", 0)) * 1.5 + float(person.get("experience", 0)) * 2.5 + prime_age_bonus
 
 func pair_residents(first_id: int, second_id: int) -> bool:
 	var first := _find_resident(first_id)
@@ -97,6 +139,9 @@ func _advance_one_year() -> void:
 		if int(person.age) >= 20 and int(person.age) <= 40 and person.sex == "female" and int(person.partner_id) != -1:
 			if randf() < 0.18:
 				births.append(person)
+	var current_leader := get_leader()
+	if current_leader.is_empty() or int(current_leader.get("age", 0)) >= LEADER_RETIREMENT_AGE:
+		elect_new_leader()
 	for mother in births:
 		var baby_name := "Em bé %d" % _next_id
 		add_resident(baby_name, 0, "male" if randf() < 0.5 else "female", "child")
@@ -121,6 +166,7 @@ func save_population() -> void:
 	var config := ConfigFile.new()
 	config.set_value("tribe", "residents", residents)
 	config.set_value("tribe", "next_id", _next_id)
+	config.set_value("tribe", "leader_id", leader_id)
 	config.save(SAVE_PATH)
 
 func load_population() -> void:
@@ -132,3 +178,5 @@ func load_population() -> void:
 	for person in saved:
 		residents.append(person)
 	_next_id = int(config.get_value("tribe", "next_id", residents.size() + 1))
+	_load_leader_id = int(config.get_value("tribe", "leader_id", -1))
+	leader_id = _load_leader_id
