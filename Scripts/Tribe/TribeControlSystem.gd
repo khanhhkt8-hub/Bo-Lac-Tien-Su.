@@ -28,11 +28,23 @@ func _on_population_changed(_total: int, _children: int, _adults: int, _elders: 
 func _sync_units() -> void:
 	if TribePopulation == null:
 		return
+	for id in units.keys():
+		var resident := TribePopulation.get_resident(int(id))
+		if resident.is_empty():
+			if is_instance_valid(units[id]):
+				(units[id] as TribeUnit).queue_free()
+			units.erase(id)
+			selected_ids.erase(int(id))
 	for person in TribePopulation.residents:
 		if not bool(person.get("alive", true)):
 			continue
 		var id := int(person.get("id", -1))
-		if id < 0 or units.has(id):
+		if id < 0:
+			continue
+		if units.has(id):
+			if is_instance_valid(units[id]):
+				(units[id] as TribeUnit).role = str(person.get("job", person.get("role", "villager")))
+				(units[id] as TribeUnit).queue_redraw()
 			continue
 		var unit := UNIT_SCRIPT.new() as TribeUnit
 		add_child(unit)
@@ -100,10 +112,7 @@ func order_all_attack() -> int:
 func get_selected_count() -> int:
 	return selected_ids.size()
 
-func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.pressed:
-		if event.button_index == MOUSE_BUTTON_LEFT:
-			var world_pos := get_global_mouse_position()
+func _handle_world_tap(world_pos: Vector2) -> void:
 			var clicked: TribeUnit
 			var best := 25.0
 			for id in units:
@@ -114,13 +123,19 @@ func _unhandled_input(event: InputEvent) -> void:
 				if distance < best:
 					clicked = unit
 					best = distance
-			if clicked != null:
-				clear_selection()
-				clicked.set_selected(true)
-				selected_ids.append(clicked.resident_id)
-			elif move_mode and not selected_ids.is_empty():
-				order_selected_move(world_pos)
+	if clicked != null:
+		clear_selection()
+		clicked.set_selected(true)
+		selected_ids.append(clicked.resident_id)
+	elif move_mode and not selected_ids.is_empty():
+		order_selected_move(world_pos)
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed:
+		if event.button_index == MOUSE_BUTTON_LEFT:
+			_handle_world_tap(get_global_mouse_position())
 		elif event.button_index == MOUSE_BUTTON_RIGHT and move_mode:
 			order_selected_move(get_global_mouse_position())
-	elif event is InputEventScreenTouch and event.pressed and move_mode:
-		order_selected_move(get_global_mouse_position())
+	elif event is InputEventScreenTouch and event.pressed:
+		var world_pos: Vector2 = get_global_transform_with_canvas().affine_inverse() * event.position
+		_handle_world_tap(world_pos)
