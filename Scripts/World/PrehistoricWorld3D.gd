@@ -18,6 +18,7 @@ func _ready() -> void:
 	_build_camp()
 	_build_resources()
 	_build_wildlife()
+	_build_barbarian_camps()
 	_sync_tribe_residents()
 
 func _mat(color: Color, roughness: float = 0.9, metallic: float = 0.0) -> StandardMaterial3D:
@@ -261,3 +262,35 @@ func _build_wildlife() -> void:
 			x += 160.0
 		animal.position = Vector3(x, 0.0, z)
 		add_child(animal)
+
+func _build_barbarian_camps() -> void:
+	var camp_positions := [Vector3(105, 0, 80), Vector3(-145, 0, 120), Vector3(220, 0, -90), Vector3(-260, 0, -140), Vector3(370, 0, 190), Vector3(-390, 0, 250)]
+	for camp_index in range(camp_positions.size()):
+		var camp := Node3D.new()
+		camp.name = "BarbarianCamp_%02d" % camp_index
+		camp.position = camp_positions[camp_index]
+		add_child(camp)
+		var ground := MeshInstance3D.new()
+		var ground_mesh := CylinderMesh.new()
+		ground_mesh.top_radius = 9.0
+		ground_mesh.bottom_radius = 9.5
+		ground_mesh.height = 0.18
+		ground.mesh = ground_mesh
+		ground.position.y = 0.05
+		ground.material_override = _mat(Color("#756044"))
+		camp.add_child(ground)
+		for barricade_index in range(7):
+			var barricade := MeshInstance3D.new()
+			var log_mesh := BoxMesh.new()
+			log_mesh.size = Vector3(2.8, 1.0, 0.35)
+			barricade.mesh = log_mesh
+			var angle := TAU * float(barricade_index) / 7.0
+			barricade.position = Vector3(cos(angle) * 7.0, 0.55, sin(angle) * 7.0)
+			barricade.rotation.y = -angle
+			barricade.material_override = _mat(Color("#593a27"))
+			camp.add_child(barricade)
+		for raider_index in range(3 if camp_index % 2 == 0 else 2):
+			var raider := PrehistoricBarbarian3D.new()
+			raider.is_chief = camp_index % 3 == 0 and raider_index == 0
+			raider.position = Vector3(cos(float(raider_index) * TAU / 3.0) * 3.0, 0.0, sin(float(raider_index) * TAU / 3.0) * 3.0)
+			camp.add_child(raider)
