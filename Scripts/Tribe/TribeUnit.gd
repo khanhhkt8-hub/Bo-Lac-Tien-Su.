@@ -103,13 +103,14 @@ func _auto_hunt() -> void:
 		for candidate in get_tree().get_nodes_in_group("prehistoric_animals"):
 			if not is_instance_valid(candidate) or candidate.is_queued_for_deletion():
 				continue
-			if candidate.get("is_tamed") == true or candidate.get("is_baby") == true:
+			if candidate.get("is_tamed") == true or candidate.get("is_baby") == true or candidate.has_meta("hunter_reserved"):
 				continue
 			var distance := global_position.distance_to(candidate.global_position)
 			if distance < nearest_distance:
 				nearest_distance = distance
 				hunting_target = candidate
 		if is_instance_valid(hunting_target):
+			hunting_target.set_meta("hunter_reserved", resident_id)
 			if hunting_target.has_signal("defeated"):
 				var callback := Callable(self, "_on_hunted_animal_defeated")
 				if not hunting_target.defeated.is_connected(callback):
