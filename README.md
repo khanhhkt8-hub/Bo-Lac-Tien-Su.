@@ -1,16 +1,28 @@
 # Bộ Lạc Tiền Sử
 
-Game sinh tồn 2D offline, ưu tiên Android, phát triển bằng Godot 4.
+Game sinh tồn bộ lạc tiền sử **3D, offline, ưu tiên Android**, phát triển bằng Godot 4.3. Scene khởi động hiện tại là `Scenes/Main3D.tscn`; scene 2D cũ vẫn được giữ trong dự án để tham chiếu và tiếp tục kiểm tra.
 
-## Chạy thử
-1. Cài Godot Engine 4.x.
+## Chạy thử trên máy tính
+1. Cài Godot Engine 4.3.
 2. Chọn Import và mở thư mục chứa file `project.godot`.
-3. Mở project và nhấn F6/F5 để chạy scene chính.
+3. Chạy project bằng F6/F5. Trên máy tính dùng WASD/phím mũi tên để di chuyển, chuột phải giữ để điều khiển góc nhìn.
 
-## Prototype hiện tại
-- Nhân vật di chuyển bằng phím mũi tên hoặc WASD.
-- Camera bám theo nhân vật.
-- Bản đồ thử nghiệm có nền và các điểm tài nguyên minh họa.
+## Điều khiển trên Android
+- Cụm phím ảo bên trái: di chuyển.
+- Kéo màn hình: xoay camera.
+- Các nút bên phải: thu thập, săn bắn, thuần hóa, tập hợp bộ lạc và chiếm trại.
+- Túi đồ, máu, dân số và tộc trưởng được hiển thị trên HUD.
+
+## Bản thử nghiệm 3D hiện tại
+- Thế giới đồng cỏ tiền sử có sông, rừng, đá, tài nguyên, động vật và trại man rợ.
+- Dân làng 3D đồng bộ từ hệ thống dân số; có tộc trưởng, tuổi đời, nghề nghiệp và lệnh tập hợp.
+- Thu thập tài nguyên, chiến đấu, thuần hóa thú (có chi phí thức ăn/thịt theo loài) và chiếm trại.
+- Túi đồ, máu và vị trí người chơi được lưu offline trên thiết bị.
+- Đây vẫn là bản prototype 3D dùng mô hình dựng bằng hình khối, chưa phải đồ họa nhân vật/địa hình chất lượng thương mại; các hệ thống quản lý bộ lạc 2D chưa được tích hợp đầy đủ vào HUD 3D.
+
+## Tạo APK Android
+- GitHub Actions tự chạy khi có thay đổi mã nguồn phù hợp hoặc có thể chạy thủ công bằng workflow `Build Android APK`.
+- APK được xuất dưới dạng artifact `Bo-Lac-Tien-Su-Android-APK` trong lần chạy workflow thành công (lưu 14 ngày).
 
 ## Hệ thống bộ lạc mới
 - Nhà ở có 5 cấp, tăng sức chứa dân cư; nguyên liệu gỗ/đá và tiến độ được lưu offline.
