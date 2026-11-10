@@ -23,6 +23,11 @@ var hold_position_active := false
 var hold_anchor := Vector2.ZERO
 var hold_target: Node2D
 var hold_scan_timer := 0.0
+var patrol_active := false
+var patrol_points: Array[Vector2] = []
+var patrol_index := 0
+var patrol_target: Node2D
+var patrol_scan_timer := 0.0
 
 func _ready() -> void:
 	add_to_group("tribe_units")
@@ -39,6 +44,9 @@ func issue_move_order(destination: Vector2) -> void:
 	combat_target = null
 	hold_position_active = false
 	hold_target = null
+	patrol_active = false
+	patrol_target = null
+	patrol_points.clear()
 	move_target = destination
 	has_move_order = true
 
@@ -53,6 +61,7 @@ func _process(delta: float) -> void:
 	defense_scan_timer = maxf(0.0, defense_scan_timer - delta)
 	combat_scan_timer = maxf(0.0, combat_scan_timer - delta)
 	hold_scan_timer = maxf(0.0, hold_scan_timer - delta)
+	patrol_scan_timer = maxf(0.0, patrol_scan_timer - delta)
 	if has_move_order:
 		var offset := move_target - global_position
 		if offset.length() <= 7.0:
@@ -60,18 +69,23 @@ func _process(delta: float) -> void:
 			global_position = move_target
 		else:
 			global_position += offset.normalized() * move_speed * delta
-	if hold_position_active and resident_age >= 18 and not has_move_order:
+	if patrol_active and resident_age >= 18 and not has_move_order:
+		_update_patrol(delta)
+	elif hold_position_active and resident_age >= 18 and not has_move_order:
 		_update_hold_position(delta)
 	elif combat_order_active and resident_age >= 18 and not has_move_order:
 		_update_combat_order(delta)
 	if role == "warrior" and resident_age >= 18 and not has_move_order and not combat_order_active and not hold_position_active:
 		_auto_defend(delta)
-	if role == "gatherer" and resident_age >= 18 and not has_move_order and not combat_order_active and not hold_position_active and gather_timer <= 0.0:
+	if role == "gatherer" and resident_age >= 18 and not has_move_order and not combat_order_active and not hold_position_active and not patrol_active and gather_timer <= 0.0:
 		_auto_gather()
-	if role == "hunter" and resident_age >= 18 and not has_move_order and not combat_order_active and not hold_position_active and hunt_timer <= 0.0:
+	if role == "hunter" and resident_age >= 18 and not has_move_order and not combat_order_active and not hold_position_active and not patrol_active and hunt_timer <= 0.0:
 		_auto_hunt()
 
 func set_hold_position() -> void:
+	patrol_active = false
+	patrol_points.clear()
+	patrol_target = null
 	hold_anchor = global_position
 	hold_position_active = resident_age >= 18
 	hold_target = null
@@ -81,6 +95,73 @@ func set_hold_position() -> void:
 	gathering_target = null
 	hunting_target = null
 	hold_scan_timer = 0.0
+
+func set_patrol_route(points: Array[Vector2]) -> void:
+	if resident_age < 18 or points.size() < 2:
+		return
+	patrol_points = points.duplicate()
+	patrol_index = 0
+	patrol_active = true
+	patrol_target = null
+	combat_order_active = false
+	combat_target = null
+	hold_position_active = false
+	hold_target = null
+	has_move_order = false
+	gathering_target = null
+	hunting_target = null
+	global_position = global_position
+
+func _update_patrol(delta: float) -> void:
+	if patrol_points.size() < 2:
+		patrol_active = false
+		return
+	if patrol_scan_timer <= 0.0 or not is_instance_valid(patrol_target) or patrol_target.is_queued_for_deletion():
+		patrol_scan_timer = 0.35
+		patrol_target = null
+		var nearest := 180.0
+		for enemy in get_tree().get_nodes_in_group("enemies"):
+			if not is_instance_valid(enemy) or enemy.is_queued_for_deletion() or not enemy is Node2D:
+				continue
+			var candidate := enemy as Node2D
+			var distance := global_position.distance_to(candidate.global_position)
+			if distance < nearest and candidate.global_position.distance_to(patrol_points[patrol_index]) <= 230.0:
+				nearest = distance
+				patrol_target = candidate
+	if is_instance_valid(patrol_target):
+		var offset := patrol_target.global_position - global_position
+		var distance_to_target := offset.length()
+		var preferred_range := 28.0
+		var damage := 8.0
+		var cooldown := 1.3
+		if role == "hunter":
+			preferred_range = 135.0
+			damage = 11.0
+			cooldown = 1.8
+		elif role != "warrior":
+			preferred_range = 78.0
+			damage = 5.0
+			cooldown = 1.6
+		if global_position.distance_to(patrol_points[patrol_index]) > 205.0:
+			patrol_target = null
+		elif distance_to_target > preferred_range + 10.0:
+			global_position += offset.normalized() * move_speed * delta
+		elif distance_to_target < preferred_range - 20.0 and role == "hunter":
+			global_position -= offset.normalized() * move_speed * 0.6 * delta
+		elif attack_timer <= 0.0 and patrol_target.has_method("take_damage"):
+			patrol_target.take_damage(damage)
+			attack_timer = cooldown
+		if is_instance_valid(patrol_target) and not patrol_target.is_queued_for_deletion():
+			return
+		patrol_target = null
+	var waypoint := patrol_points[patrol_index]
+	var route_offset := waypoint - global_position
+	if route_offset.length() <= 18.0:
+		patrol_index = (patrol_index + 1) % patrol_points.size()
+		waypoint = patrol_points[patrol_index]
+		route_offset = waypoint - global_position
+	if route_offset.length() > 6.0:
+		global_position += route_offset.normalized() * move_speed * delta
 
 func _update_hold_position(delta: float) -> void:
 	if hold_scan_timer <= 0.0 or not is_instance_valid(hold_target) or hold_target.is_queued_for_deletion():
