@@ -275,3 +275,11 @@ Game sinh tồn 2D offline, ưu tiên Android, phát triển bằng Godot 4.
 - Lệnh di chuyển thủ công hủy chế độ chiến đấu để người chơi giành lại quyền điều khiển; chiến binh sẽ quay lại tự phòng thủ khi không còn lệnh chiến đấu.
 - AI đội hình dùng sát thương tầm xa mô phỏng cho thợ săn; chưa có hoạt ảnh/phóng mũi tên riêng.
 - Chưa chạy kiểm thử Godot runtime hoặc build APK.
+
+
+### Chọn và phối hợp nhiều nhóm bộ lạc
+- Chọn một vai trò bằng hàng nút nhóm để thay thế lựa chọn hiện tại.
+- Dùng `＋ CHIẾN BINH` hoặc `＋ THỢ SĂN` để thêm nhóm đó vào lựa chọn đang có.
+- `CHỌN HẬU CẦN` chọn người hái lượm, nông dân và thợ chế tác; `＋ HẬU CẦN` thêm cả nhóm này vào lựa chọn hiện tại.
+- Sau khi chọn các nhóm cần phối hợp, dùng DI CHUYỂN hoặc TẤN CÔNG. Có thể lần lượt chọn từng nhóm và ra các lệnh khác nhau; lệnh đã giao vẫn được từng đơn vị duy trì.
+- Lệnh tấn công hủy di chuyển đang dở để đơn vị lập tức tham chiến. Khi đang có lệnh chiến đấu, AI hái lượm/săn thú tự động tạm dừng để không ghi đè lệnh của người chơi.
