@@ -288,3 +288,12 @@ Game sinh tồn 2D offline, ưu tiên Android, phát triển bằng Godot 4.
 - Chọn một hoặc nhiều nhóm rồi nhấn `GIỮ VỊ TRÍ` để mỗi người trưởng thành cố thủ tại vị trí hiện tại.
 - Đơn vị sẽ chỉ đuổi theo kẻ địch ở gần khu vực cố thủ, chiến binh áp sát, thợ săn giữ khoảng cách và hậu cần hỗ trợ.
 - Khi không còn mục tiêu, đơn vị quay về điểm đã được giao giữ. Lệnh di chuyển hoặc tập hợp mới sẽ hủy trạng thái giữ vị trí.
+
+
+### Tuần tra khu vực cho tiểu đội
+- Chọn một hoặc nhiều nhóm người trưởng thành, sau đó nhấn TUẦN TRA.
+- Chạm hai điểm trên bản đồ để tạo tuyến tuần tra khép kín; các đơn vị được dàn lệch vị trí để tránh chồng lên nhau.
+- Tiểu đội tự di chuyển qua lại giữa hai điểm. Khi phát hiện kẻ địch ở gần tuyến, đơn vị tạm giao chiến theo vai trò rồi quay lại tuần tra.
+- Chiến binh áp sát, thợ săn giữ tầm đánh xa hơn; lệnh di chuyển, tấn công hoặc giữ vị trí mới sẽ thay thế tuyến tuần tra.
+- Tuyến tuần tra được vẽ bằng hai mốc vàng trong lúc đặt; đây là lệnh theo phiên chơi, chưa lưu sau khi thoát game.
+- Chưa chạy kiểm thử Godot runtime hoặc build APK.
