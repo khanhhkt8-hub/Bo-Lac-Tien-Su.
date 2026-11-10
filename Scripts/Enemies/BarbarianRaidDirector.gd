@@ -1,5 +1,8 @@
 extends Node2D
 
+signal raid_warning(seconds_left: int)
+signal raid_started(raider_count: int)
+
 const BARBARIAN_SCENE: PackedScene = preload("res://Scenes/Barbarian.tscn")
 
 @export var raiders_per_wave: int = 3
@@ -9,6 +12,8 @@ const BARBARIAN_SCENE: PackedScene = preload("res://Scenes/Barbarian.tscn")
 
 var raid_started_this_night: bool = false
 var nights_survived: int = 0
+var warning_time_left: float = -1.0
+var last_warning_second: int = -1
 
 func _process(_delta: float) -> void:
 	var cycles := get_tree().get_nodes_in_group("day_night_cycle")
@@ -19,12 +24,25 @@ func _process(_delta: float) -> void:
 		return
 	if not cycle.is_night:
 		raid_started_this_night = false
+		warning_time_left = -1.0
+		last_warning_second = -1
 		return
 	if raid_started_this_night:
 		return
-	raid_started_this_night = true
-	nights_survived += 1
-	_start_raid()
+	if warning_time_left < 0.0:
+		warning_time_left = 12.0
+		last_warning_second = 12
+		raid_warning.emit(12)
+		return
+	warning_time_left = maxf(0.0, warning_time_left - _delta)
+	var seconds_left := ceili(warning_time_left)
+	if seconds_left != last_warning_second and seconds_left > 0:
+		last_warning_second = seconds_left
+		raid_warning.emit(seconds_left)
+	if warning_time_left <= 0.0:
+		raid_started_this_night = true
+		nights_survived += 1
+		_start_raid()
 
 func _start_raid() -> void:
 	var player := get_tree().get_first_node_in_group("player") as Node2D
@@ -41,6 +59,7 @@ func _start_raid() -> void:
 		_attempt_resource_raid()
 	if chief_every_nights > 0 and nights_survived % chief_every_nights == 0:
 		_spawn_raider(player.global_position, true)
+	raid_started.emit(count + (1 if chief_every_nights > 0 and nights_survived % chief_every_nights == 0 else 0))
 
 func _spawn_raider(center: Vector2, chief: bool) -> void:
 	var angle := randf() * TAU
