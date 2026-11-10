@@ -369,6 +369,8 @@ func get_companion_herd_summary() -> String:
 			continue
 		var animal := node as PrehistoricAnimal
 		var rarity_text := " | Hiếm" if animal.rarity == "rare" else (" | Huyền thoại" if animal.rarity == "legendary" else "")
+		if animal.mutation != "none":
+			rarity_text += " | Đột biến " + animal.get_mutation_name()
 		if animal.is_pack_leader:
 			rarity_text += " | THÚ CHÚA"
 		var stage := "Thú con" if animal.is_baby else "%s (Cấp %d)" % [animal.get_evolution_name(), animal.companion_level]
@@ -649,7 +651,8 @@ func hatch_ready_egg() -> String:
 	_register_companion(baby)
 	save_companions()
 	var rarity_label := " (Huyền thoại!)" if baby.rarity == "legendary" else (" (Hiếm)" if baby.rarity == "rare" else "")
-	return "Trứng đã nở! %s%s con đã gia nhập đàn" % [baby.enemy_name, rarity_label]
+	var mutation_label := " | Đột biến " + baby.get_mutation_name() if baby.mutation != "none" else ""
+	return "Trứng đã nở! %s%s%s con đã gia nhập đàn" % [baby.enemy_name, rarity_label, mutation_label]
 
 
 func get_egg_summary() -> String:
