@@ -11,6 +11,7 @@ var _inventory: InventorySystem
 var _crafting: CraftingSystem
 var _tribe_panel: PanelContainer
 var _region_label: Label
+var _leader_label: Label
 var _tribe_control: Node
 var _rts_camera: Camera2D
 var _camera_drag_active := false
@@ -32,6 +33,13 @@ func _ready() -> void:
 	_region_label.text = "Khu vực: Đồng bằng bộ lạc"
 	_region_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	column.add_child(_region_label)
+	_leader_label = Label.new()
+	_leader_label.text = "Tộc trưởng: đang cập nhật..."
+	column.add_child(_leader_label)
+	if TribePopulation != null:
+		if not TribePopulation.leader_changed.is_connected(_on_tribe_leader_changed):
+			TribePopulation.leader_changed.connect(_on_tribe_leader_changed)
+		_refresh_leader_label()
 	_inventory_label = Label.new()
 	_inventory_label.text = "Túi đồ: trống"
 	column.add_child(_inventory_label)
@@ -248,6 +256,23 @@ func _ready() -> void:
 		if _inventory != null:
 			_inventory.inventory_changed.connect(_on_inventory_changed)
 			_on_inventory_changed(_inventory.items)
+
+func _refresh_leader_label() -> void:
+	if _leader_label == null or TribePopulation == null:
+		return
+	var leader: Dictionary = TribePopulation.get_leader()
+	if leader.is_empty():
+		_leader_label.text = "Tộc trưởng: chưa có người kế nhiệm"
+		return
+	_leader_label.text = "TỘC TRƯỞNG: %s | Tuổi %d" % [str(leader.get("name", "Ẩn danh")), int(leader.get("age", 0))]
+
+func _on_tribe_leader_changed(_old_leader: Dictionary, new_leader: Dictionary) -> void:
+	_refresh_leader_label()
+	if _craft_status != null:
+		if new_leader.is_empty():
+			_craft_status.text = "Bộ lạc chưa tìm được người kế nhiệm tộc trưởng!"
+		else:
+			_craft_status.text = "%s đã được chọn làm tộc trưởng mới." % str(new_leader.get("name", "Người kế nhiệm"))
 
 func _create_mobile_movement_pad() -> void:
 	_add_move_button("↑", "ui_up", Vector2(92, -190))
