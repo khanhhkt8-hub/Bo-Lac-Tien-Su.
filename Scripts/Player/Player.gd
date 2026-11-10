@@ -22,6 +22,7 @@ var _companion_save_timer := 0.0
 var incubating_eggs: Array[Dictionary] = []
 var walk_phase := 0.0
 var attack_flash := 0.0
+var attack_direction := Vector2.RIGHT
 @export var attack_cooldown: float = 0.55
 @export var attack_range: float = 72.0
 
@@ -141,7 +142,8 @@ func attack_nearby() -> bool:
 		damage = 22.0
 	if nearest.has_method("take_damage"):
 		nearest.take_damage(damage)
-		attack_flash = 0.18
+		attack_direction = global_position.direction_to(nearest.global_position)
+		attack_flash = 0.24
 		queue_redraw()
 		attack_cooldown_left = attack_cooldown
 		return true
@@ -344,8 +346,23 @@ func _draw() -> void:
 	draw_colored_polygon(PackedVector2Array([Vector2(15, -19), Vector2(22, -27), Vector2(23, -15), Vector2(18, -12)]), Color("#89968f"))
 	draw_line(Vector2(18, -19), Vector2(21, -22), Color("#dce3d5"), 1.2)
 	draw_arc(Vector2.ZERO, 21.0, 0.0, TAU, 36, Color(0.95, 0.84, 0.38, 0.85), 1.8)
+	if velocity.length_squared() > 100.0:
+		# Bụi nhỏ bật lên sau mỗi nhịp chân khi chạy.
+		var dust_phase := walk_phase * 0.5
+		for foot_index in range(2):
+			var dust_offset := Vector2(-8.0 if foot_index == 0 else 8.0, 17.0) + Vector2(sin(dust_phase + float(foot_index) * PI) * 5.0, 2.0)
+			draw_circle(dust_offset, 2.0 + absf(sin(dust_phase)) * 1.2, Color(0.72, 0.61, 0.43, 0.24))
 	if attack_flash > 0.0:
-		draw_arc(Vector2.ZERO, 34.0, -0.9, 1.0, 20, Color("#fff0a0"), 5.0)
+		# Vệt chém xoay theo hướng mục tiêu, kèm tia va chạm.
+		var slash_angle := attack_direction.angle()
+		draw_arc(Vector2.ZERO, 34.0, slash_angle - 0.9, slash_angle + 0.9, 22, Color("#fff0a0"), 5.0)
+		var impact_center := attack_direction * 31.0
+		draw_circle(impact_center, 4.0 + (0.24 - attack_flash) * 28.0, Color(1.0, 0.83, 0.42, clampf(attack_flash / 0.24, 0.0, 1.0)))
+		for spark_index in range(5):
+			var spark_angle := slash_angle + (float(spark_index) - 2.0) * 0.32
+			var spark_start := impact_center + Vector2.RIGHT.rotated(spark_angle) * 5.0
+			var spark_end := impact_center + Vector2.RIGHT.rotated(spark_angle) * 17.0
+			draw_line(spark_start, spark_end, Color("#ffe7a0"), 1.8)
 func toggle_mount_nearby_animal() -> String:
 	if is_instance_valid(mounted_animal):
 		mounted_animal.is_mounted = false
