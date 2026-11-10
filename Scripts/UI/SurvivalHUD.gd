@@ -73,6 +73,17 @@ func _ready() -> void:
 	focus_button.text = "VỀ TRUNG TÂM"
 	focus_button.pressed.connect(_on_camera_focus_pressed)
 	tribe_control_row.add_child(focus_button)
+	var squad_row := HBoxContainer.new()
+	column.add_child(squad_row)
+	_add_squad_button(squad_row, "CHIẾN BINH", "warrior")
+	_add_squad_button(squad_row, "THỢ SĂN", "hunter")
+	_add_squad_button(squad_row, "HÁI LƯỢM", "gatherer")
+	_add_squad_button(squad_row, "NÔNG DÂN", "farmer")
+	_add_squad_button(squad_row, "THỢ CHẾ TÁC", "crafter")
+	var clear_selection_button := Button.new()
+	clear_selection_button.text = "BỎ CHỌN"
+	clear_selection_button.pressed.connect(_on_clear_tribe_selection_pressed)
+	squad_row.add_child(clear_selection_button)
 	var combat_row := HBoxContainer.new()
 	column.add_child(combat_row)
 	var attack_button := Button.new()
@@ -232,6 +243,24 @@ func _on_move_button_down(action: String) -> void:
 
 func _on_move_button_up(action: String) -> void:
 	Input.action_release(action)
+
+func _add_squad_button(parent: HBoxContainer, label: String, role_id: String) -> void:
+	var button := Button.new()
+	button.text = label
+	button.pressed.connect(_on_select_squad_pressed.bind(role_id, label))
+	parent.add_child(button)
+
+func _on_select_squad_pressed(role_id: String, label: String) -> void:
+	if _tribe_control == null:
+		return
+	var count := int(_tribe_control.call("select_role", role_id))
+	_craft_status.text = "Đã chọn %s: %d người. Có thể ra lệnh di chuyển hoặc tấn công." % [label, count]
+
+func _on_clear_tribe_selection_pressed() -> void:
+	if _tribe_control == null:
+		return
+	_tribe_control.call("clear_selection")
+	_craft_status.text = "Đã bỏ chọn toàn bộ đơn vị."
 
 func _on_select_all_tribe_pressed() -> void:
 	if _tribe_control != null:
