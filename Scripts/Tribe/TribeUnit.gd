@@ -13,6 +13,8 @@ var move_speed := 105.0
 var attack_timer := 0.0
 var gather_timer := 0.0
 var gathering_target: ResourceNode
+var hunting_target: Node2D
+var hunt_timer := 0.0
 
 func setup(data: Dictionary) -> void:
 	resident_id = int(data.get("id", -1))
@@ -32,6 +34,7 @@ func set_selected(value: bool) -> void:
 func _process(delta: float) -> void:
 	attack_timer = maxf(0.0, attack_timer - delta)
 	gather_timer = maxf(0.0, gather_timer - delta)
+	hunt_timer = maxf(0.0, hunt_timer - delta)
 	if has_move_order:
 		var offset := move_target - global_position
 		if offset.length() <= 7.0:
@@ -41,6 +44,8 @@ func _process(delta: float) -> void:
 			global_position += offset.normalized() * move_speed * delta
 	if role == "gatherer" and resident_age >= 18 and not has_move_order and gather_timer <= 0.0:
 		_auto_gather()
+	if role == "hunter" and resident_age >= 18 and not has_move_order and hunt_timer <= 0.0:
+		_auto_hunt()
 	if combat_order_active and resident_age >= 18 and attack_timer <= 0.0:
 		var target: Node2D
 		var best_distance := 90.0
@@ -90,3 +95,50 @@ func _auto_gather() -> void:
 				gather_timer = 2.5
 			gathering_target = null
 			has_move_order = false
+
+func _auto_hunt() -> void:
+	if not is_instance_valid(hunting_target) or hunting_target.is_queued_for_deletion():
+		hunting_target = null
+		var nearest_distance := 340.0
+		for candidate in get_tree().get_nodes_in_group("prehistoric_animals"):
+			if not is_instance_valid(candidate) or candidate.is_queued_for_deletion():
+				continue
+			if candidate.get("is_tamed") == true or candidate.get("is_baby") == true:
+				continue
+			var distance := global_position.distance_to(candidate.global_position)
+			if distance < nearest_distance:
+				nearest_distance = distance
+				hunting_target = candidate
+		if is_instance_valid(hunting_target):
+			if hunting_target.has_signal("defeated"):
+				var callback := Callable(self, "_on_hunted_animal_defeated")
+				if not hunting_target.defeated.is_connected(callback):
+					hunting_target.defeated.connect(callback, CONNECT_ONE_SHOT)
+			issue_move_order(hunting_target.global_position)
+			return
+		hunt_timer = 2.0
+	if is_instance_valid(hunting_target):
+		var distance := global_position.distance_to(hunting_target.global_position)
+		if distance > 38.0:
+			issue_move_order(hunting_target.global_position)
+		else:
+			if hunting_target.has_method("take_damage"):
+				hunting_target.take_damage(7.0)
+			hunt_timer = 1.0
+			if not is_instance_valid(hunting_target) or hunting_target.is_queued_for_deletion():
+				hunting_target = null
+
+func _on_hunted_animal_defeated(animal: Node) -> void:
+	if TribeJobSystem == null:
+		return
+	var meat_reward := 4
+	match str(animal.get("species")):
+		"saber_tooth":
+			meat_reward = 7
+		"cave_bear":
+			meat_reward = 10
+		"mammoth":
+			meat_reward = 14
+	TribeJobSystem.add_to_stockpile("meat", meat_reward)
+	hunting_target = null
+	hunt_timer = 2.0
