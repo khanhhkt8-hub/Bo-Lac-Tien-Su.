@@ -78,6 +78,21 @@ func _mat(color: Color) -> StandardMaterial3D:
 	return material
 
 func _physics_process(delta: float) -> void:
+	if is_tamed:
+		var player := get_tree().get_first_node_in_group("player_3d")
+		if player != null:
+			var follow_offset := player.global_position + player.global_transform.basis.z * 2.4 - global_position
+			if follow_offset.length() > 3.0:
+				var follow_direction := follow_offset.normalized()
+				velocity.x = follow_direction.x * 3.6
+				velocity.z = follow_direction.z * 3.6
+				rotation.y = lerp_angle(rotation.y, atan2(follow_direction.x, follow_direction.z), delta * 2.0)
+			else:
+				velocity.x = move_toward(velocity.x, 0.0, 7.0 * delta)
+				velocity.z = move_toward(velocity.z, 0.0, 7.0 * delta)
+			velocity.y -= 20.0 * delta
+			move_and_slide()
+		return
 	_wander_timer -= delta
 	if _wander_timer <= 0.0:
 		_wander_timer = randf_range(5.0, 13.0)
