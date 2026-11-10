@@ -6,6 +6,8 @@ var units: Dictionary = {}
 var selected_ids: Array[int] = []
 var move_mode := false
 var rally_mode := false
+var patrol_mode := false
+var _patrol_points: Array[Vector2] = []
 var selection_area_mode := false
 var _pointer_down := false
 var _drag_selecting := false
@@ -121,12 +123,16 @@ func clear_selection() -> void:
 func set_move_mode(enabled: bool) -> void:
 	move_mode = enabled
 	rally_mode = false
+	patrol_mode = false
+	_patrol_points.clear()
 	selection_area_mode = false
 
 func set_selection_area_mode(enabled: bool) -> void:
 	selection_area_mode = enabled
 	move_mode = false
 	rally_mode = false
+	patrol_mode = false
+	_patrol_points.clear()
 	_pointer_down = false
 	_drag_selecting = false
 	queue_redraw()
@@ -135,10 +141,40 @@ func set_selection_area_mode(enabled: bool) -> void:
 func set_rally_mode(enabled: bool) -> void:
 	rally_mode = enabled
 	move_mode = false
+	patrol_mode = false
+	_patrol_points.clear()
 	selection_area_mode = false
 	_pointer_down = false
 	_drag_selecting = false
 	queue_redraw()
+
+func set_patrol_mode(enabled: bool) -> void:
+	patrol_mode = enabled
+	_patrol_points.clear()
+	move_mode = false
+	rally_mode = false
+	selection_area_mode = false
+	_pointer_down = false
+	_drag_selecting = false
+	queue_redraw()
+
+func order_selected_patrol(points: Array[Vector2]) -> int:
+	if points.size() < 2:
+		return 0
+	var count := 0
+	for id in selected_ids:
+		if not units.has(id) or not is_instance_valid(units[id]):
+			continue
+		var unit: TribeUnit = units[id]
+		if unit.resident_age < 18:
+			continue
+		var offset := Vector2(float(count % 4) * 16.0, float(int(count / 4)) * 16.0)
+		var route: Array[Vector2] = []
+		for point in points:
+			route.append(point + offset)
+		unit.set_patrol_route(route)
+		count += 1
+	return count
 
 func set_rally_point(destination: Vector2) -> void:
 	rally_point = destination
@@ -163,6 +199,13 @@ func rally_all_to_flag() -> int:
 	return count
 
 func _draw() -> void:
+	if _patrol_points.size() > 0:
+		for i in range(_patrol_points.size()):
+			var point := to_local(_patrol_points[i])
+			draw_circle(point, 13.0, Color("#f0c75e"))
+			draw_arc(point, 19.0, 0.0, TAU, 24, Color("#f0c75e"), 2.0)
+			if i > 0:
+				draw_line(to_local(_patrol_points[i - 1]), point, Color("#f0c75e"), 3.0)
 	if _drag_selecting:
 		var rect := Rect2(to_local(_selection_start_world), to_local(_selection_end_world)).abs()
 		draw_rect(rect, Color(0.25, 0.75, 1.0, 0.16), true)
@@ -261,6 +304,13 @@ func _finish_pointer_gesture(screen_pos: Vector2) -> void:
 		_handle_world_tap(_screen_to_world(screen_pos))
 
 func _handle_world_tap(world_pos: Vector2) -> void:
+	if patrol_mode:
+		_patrol_points.append(world_pos)
+		if _patrol_points.size() >= 2:
+			order_selected_patrol(_patrol_points)
+			patrol_mode = false
+		queue_redraw()
+		return
 	if rally_mode:
 		set_rally_point(world_pos)
 		rally_mode = false
