@@ -37,3 +37,12 @@ func _change_phase() -> void:
 
 func get_phase_text() -> String:
 	return "ĐÊM" if is_night else "NGÀY"
+
+func get_time_report() -> String:
+	var duration := night_duration if is_night else day_duration
+	var elapsed := maxi(0, int(duration - phase_time_left))
+	var total_minutes := 20 if not is_night else 10
+	var game_minutes := int(float(elapsed) / maxf(1.0, duration) * float(total_minutes))
+	var hour := 18 + int(float(game_minutes) / 60.0) if is_night else 6 + int(float(game_minutes) / 60.0)
+	var minute := game_minutes % 60
+	return "NGÀY %d • %s • %02d:%02d" % [day_number, get_phase_text(), hour % 24, minute]
