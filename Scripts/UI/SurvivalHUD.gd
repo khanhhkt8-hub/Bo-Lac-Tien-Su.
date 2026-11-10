@@ -80,6 +80,10 @@ func _ready() -> void:
 		_refresh_leader_label()
 	var needs_row := HBoxContainer.new()
 	column.add_child(needs_row)
+	var morale_button := Button.new()
+	morale_button.text = "TINH THẦN BỘ LẠC"
+	morale_button.pressed.connect(_on_morale_report_pressed)
+	needs_row.add_child(morale_button)
 	var needs_button := Button.new()
 	needs_button.text = "NHU CẦU BỘ LẠC"
 	needs_button.pressed.connect(_on_tribe_needs_pressed)
@@ -340,6 +344,10 @@ func _refresh_day_night_label() -> void:
 		_day_night_label.text = str(_day_night_cycle.call("get_time_report"))
 	else:
 		_day_night_label.text = "Chu kỳ ngày đêm chưa sẵn sàng"
+
+func _on_morale_report_pressed() -> void:
+	if TribePopulation != null:
+		_craft_status.text = TribePopulation.get_morale_report()
 
 func _on_tribe_needs_pressed() -> void:
 	if TribePopulation != null:
