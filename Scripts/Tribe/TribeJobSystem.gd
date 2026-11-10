@@ -15,11 +15,11 @@ const JOBS := {
 	"miner": {"name": "Thợ khai mỏ", "output": "stone", "amount": 3},
 	"farmer": {"name": "Nông dân", "output": "food", "amount": 3},
 	"crafter": {"name": "Thợ chế tác", "output": "tools", "amount": 1},
-	"warrior": {"name": "Chiến binh", "output": "warrior_power", "amount": 2}
+	"warrior": {"name": "Chiến binh", "output": "warrior_power", "amount": 2},\n\t"scout": {"name": "Trinh sát", "output": "maps", "amount": 1}
 }
 
 var assignments: Dictionary = {}
-var stockpile: Dictionary = {"wood": 0, "stone": 0, "water": 0, "herbs": 0, "hide": 0, "bone": 0, "flint": 0, "ore": 0, "reeds": 0, "ice": 0, "meat": 0, "berries": 0, "fish": 0, "fruit": 0, "chicken": 0, "duck": 0, "eggs": 0, "clay": 0, "food": 0, "tools": 0, "warrior_power": 0, "trophy_heartland": 0, "trophy_primeval_forest": 0, "trophy_grassland": 0, "trophy_swampland": 0, "trophy_cavern": 0, "trophy_frostlands": 0}
+var stockpile: Dictionary = {"wood": 0, "stone": 0, "water": 0, "herbs": 0, "hide": 0, "bone": 0, "flint": 0, "ore": 0, "reeds": 0, "ice": 0, "meat": 0, "berries": 0, "fish": 0, "fruit": 0, "chicken": 0, "duck": 0, "eggs": 0, "clay": 0, "food": 0, "tools": 0, "warrior_power": 0, "maps": 0, "trophy_heartland": 0, "trophy_primeval_forest": 0, "trophy_grassland": 0, "trophy_swampland": 0, "trophy_cavern": 0, "trophy_frostlands": 0}
 var _production_timer: float = 0.0
 
 func _ready() -> void:
