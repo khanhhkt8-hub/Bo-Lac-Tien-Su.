@@ -171,7 +171,7 @@ func _draw_tent(p: Vector2, cloth: Color) -> void:
 	draw_colored_polygon(PackedVector2Array([p + Vector2(0, -30), p + Vector2(0, 12), p + Vector2(35, 12)]), cloth.darkened(0.25))
 	draw_line(p + Vector2(0, -27), p + Vector2(0, 12), Color("#e0c69a"), 2.0)
 
-func draw_ellipse_placeholder(center: Vector2, radius_x: float, radius_y: float, tint: Color) -> void:
+func draw_ellipse_placeholder(center: Vector2, radius_x: float = 24.0, radius_y: float = 10.0, tint: Color = Color(0.1, 0.12, 0.08, 0.35)) -> void:
 	var points := PackedVector2Array()
 	for i in range(20):
 		var angle := TAU * float(i) / 20.0
