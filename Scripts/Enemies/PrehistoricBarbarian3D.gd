@@ -88,22 +88,35 @@ func _choose_patrol() -> void:
 func _physics_process(delta: float) -> void:
 	attack_timer = maxf(0.0, attack_timer - delta)
 	patrol_timer -= delta
+	var target: Node3D = null
+	var closest := detection_range
 	var player := get_tree().get_first_node_in_group("player_3d") as Node3D
+	if is_instance_valid(player):
+		var player_distance := global_position.distance_to(player.global_position)
+		if player_distance < closest:
+			closest = player_distance
+			target = player
+	for resident in get_tree().get_nodes_in_group("tribe_residents_3d"):
+		if not is_instance_valid(resident) or resident.is_queued_for_deletion():
+			continue
+		var resident_distance := global_position.distance_to(resident.global_position)
+		if resident_distance < closest:
+			closest = resident_distance
+			target = resident
 	var destination := patrol_target
 	var speed := move_speed * (1.0 if not is_chief else 1.18)
-	if is_instance_valid(player) and global_position.distance_to(player.global_position) <= detection_range:
-		var distance := global_position.distance_to(player.global_position)
-		if distance <= attack_range:
+	if is_instance_valid(target):
+		if closest <= attack_range:
 			state = State.ATTACK
 			velocity.x = move_toward(velocity.x, 0.0, 12.0 * delta)
 			velocity.z = move_toward(velocity.z, 0.0, 12.0 * delta)
 			if attack_timer <= 0.0:
 				attack_timer = 1.25
-				if player.has_method("take_damage"):
-					player.take_damage(attack_damage * (1.6 if is_chief else 1.0))
+				if target.has_method("take_damage"):
+					target.take_damage(attack_damage * (1.6 if is_chief else 1.0))
 		else:
 			state = State.CHASE
-			destination = player.global_position
+			destination = target.global_position
 	elif global_position.distance_to(home_position) > 34.0:
 		state = State.RETURN
 		destination = home_position
