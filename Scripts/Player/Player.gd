@@ -20,6 +20,8 @@ var mounted_animal: PrehistoricAnimal
 var _loading_companions := false
 var _companion_save_timer := 0.0
 var incubating_eggs: Array[Dictionary] = []
+var walk_phase := 0.0
+var attack_flash := 0.0
 @export var attack_cooldown: float = 0.55
 @export var attack_range: float = 72.0
 
@@ -43,6 +45,10 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	attack_cooldown_left = maxf(0.0, attack_cooldown_left - delta)
+	attack_flash = maxf(0.0, attack_flash - delta)
+	if velocity.length_squared() > 10.0:
+		walk_phase += delta * 13.0
+		queue_redraw()
 	relic_skill_cooldown_left = maxf(0.0, relic_skill_cooldown_left - delta)
 	for egg in incubating_eggs:
 		egg["remaining"] = maxf(0.0, float(egg.get("remaining", 0.0)) - delta)
@@ -60,6 +66,8 @@ func _physics_process(delta: float) -> void:
 			mounted_animal = null
 	velocity = direction * move_speed * speed_multiplier
 	move_and_slide()
+	if direction.length_squared() > 0.01:
+		queue_redraw()
 	if is_instance_valid(mounted_animal):
 		mounted_animal.global_position = global_position + Vector2(0.0, 18.0)
 
@@ -131,6 +139,8 @@ func attack_nearby() -> bool:
 		damage = 22.0
 	if nearest.has_method("take_damage"):
 		nearest.take_damage(damage)
+		attack_flash = 0.18
+		queue_redraw()
 		attack_cooldown_left = attack_cooldown
 		return true
 	return false
@@ -300,12 +310,12 @@ func _draw() -> void:
 	var facing := Vector2.DOWN
 	if velocity.length_squared() > 8.0:
 		facing = velocity.normalized()
-	var side := Vector2(-facing.y, facing.x)
 	# Chân và dép da.
-	draw_line(Vector2(-5, 7), Vector2(-7, 16), Color("#49352a"), 5.0)
-	draw_line(Vector2(5, 7), Vector2(7, 16), Color("#49352a"), 5.0)
-	draw_line(Vector2(-7, 16), Vector2(-10, 17), Color("#c49a66"), 4.0)
-	draw_line(Vector2(7, 16), Vector2(10, 17), Color("#c49a66"), 4.0)
+	var step := sin(walk_phase) * 5.0 if velocity.length_squared() > 10.0 else 0.0
+	draw_line(Vector2(-5, 5), Vector2(-7.0 - step, 16), Color("#49352a"), 5.0)
+	draw_line(Vector2(5, 5), Vector2(7.0 + step, 16), Color("#49352a"), 5.0)
+	draw_line(Vector2(-7.0 - step, 16), Vector2(-10.0 - step, 17), Color("#c49a66"), 4.0)
+	draw_line(Vector2(7.0 + step, 16), Vector2(10.0 + step, 17), Color("#c49a66"), 4.0)
 	# Áo da thú, viền lông và dây đeo.
 	draw_colored_polygon(PackedVector2Array([Vector2(-10, -8), Vector2(-8, 7), Vector2(0, 12), Vector2(8, 7), Vector2(10, -8), Vector2(0, -13)]), Color("#8b5838"))
 	draw_line(Vector2(-8, -5), Vector2(7, 8), Color("#d5b078"), 3.0)
@@ -321,6 +331,8 @@ func _draw() -> void:
 	draw_colored_polygon(PackedVector2Array([Vector2(14, -16), Vector2(21, -23), Vector2(21, -12)]), Color("#aeb5a7"))
 	# Vòng chọn nhân vật.
 	draw_arc(Vector2.ZERO, 21.0, 0.0, TAU, 36, Color(0.95, 0.84, 0.38, 0.85), 1.8)
+	if attack_flash > 0.0:
+		draw_arc(Vector2.ZERO, 34.0, -0.9, 1.0, 20, Color("#fff0a0"), 5.0)
 
 
 func toggle_mount_nearby_animal() -> String:
