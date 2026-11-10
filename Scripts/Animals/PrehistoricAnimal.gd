@@ -16,6 +16,7 @@ var companion_target: Node2D
 var companion_order := "protect"
 var companion_armor_equipped := false
 var companion_fang_equipped := false
+var rarity := "common"
 
 func _ready() -> void:
 	match species:
@@ -48,20 +49,32 @@ func _process(delta: float) -> void:
 		if growth_seconds_remaining <= 0.0:
 			_grow_into_adult()
 
-func set_as_baby(growth_seconds: float = 300.0) -> void:
-	is_baby = true
-	growth_seconds_remaining = maxf(1.0, growth_seconds)
-	scale = Vector2.ONE * 0.62
-	max_health *= 0.55
-	health = max_health
-	attack_damage *= 0.35
-	move_speed *= 0.8
+func set_rarity(rarity_id: String) -> void:
+	rarity = rarity_id if rarity_id in ["common", "rare", "legendary"] else "common"
+	_apply_rarity_stats()
 	queue_redraw()
 
-func _grow_into_adult() -> void:
-	is_baby = false
-	growth_seconds_remaining = 0.0
-	scale = Vector2.ONE
+
+func _apply_rarity_stats() -> void:
+	var health_multiplier := 1.0
+	var damage_multiplier := 1.0
+	var speed_multiplier := 1.0
+	match rarity:
+		"rare":
+			health_multiplier = 1.25
+			damage_multiplier = 1.2
+			speed_multiplier = 1.08
+		"legendary":
+			health_multiplier = 1.7
+			damage_multiplier = 1.55
+			speed_multiplier = 1.18
+	max_health *= health_multiplier
+	attack_damage *= damage_multiplier
+	move_speed *= speed_multiplier
+	health = minf(health, max_health)
+
+
+func _set_adult_base_stats() -> void:
 	match species:
 		"wolf":
 			max_health = 45.0
@@ -79,6 +92,28 @@ func _grow_into_adult() -> void:
 			max_health = 260.0
 			move_speed = 58.0
 			attack_damage = 28.0
+	_apply_rarity_stats()
+
+
+func set_as_baby(growth_seconds: float = 300.0) -> void:
+	is_baby = true
+	growth_seconds_remaining = maxf(1.0, growth_seconds)
+	scale = Vector2.ONE * 0.62
+	max_health *= 0.55
+	health = max_health
+	attack_damage *= 0.35
+	move_speed *= 0.8
+	queue_redraw()
+
+func _grow_into_adult() -> void:
+	is_baby = false
+	growth_seconds_remaining = 0.0
+	scale = Vector2.ONE
+	_set_adult_base_stats()
+	for _upgrade_index in range(companion_level - 1):
+		max_health *= 1.2
+		attack_damage *= 1.15
+		move_speed *= 1.08
 	health = max_health
 	queue_redraw()
 
@@ -270,5 +305,11 @@ func _draw() -> void:
 	if is_tamed:
 		var mark := "THÚ CON" if is_baby else "★%d" % companion_level
 		draw_string(ThemeDB.fallback_font, Vector2(-radius, -radius - 7.0), mark, HORIZONTAL_ALIGNMENT_LEFT, 70.0, 12, Color("#f2d16b"))
+	if rarity == "rare":
+		body_color = Color("#48c8d8")
+	elif rarity == "legendary":
+		body_color = Color("#f0bd45")
+	if is_tamed and rarity != "common":
+		draw_arc(Vector2.ZERO, radius + 5.0, 0.0, TAU, 32, body_color.lightened(0.25), 2.5)
 	if species == "mammoth":
 		draw_arc(Vector2(0.0, 8.0), radius * 0.65, 0.1, PI - 0.1, 18, Color("#e4d1aa"), 3.0)
