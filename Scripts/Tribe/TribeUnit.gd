@@ -37,6 +37,8 @@ func setup(data: Dictionary) -> void:
 	resident_name = str(data.get("name", "Dân làng"))
 	resident_age = int(data.get("age", 18))
 	role = str(data.get("job", data.get("role", "villager")))
+	if role == "scout":
+		move_speed = 132.0
 	queue_redraw()
 
 func issue_move_order(destination: Vector2) -> void:
