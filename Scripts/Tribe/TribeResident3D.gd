@@ -4,6 +4,8 @@ class_name TribeResident3D
 var resident_id: int = -1
 var resident_name := "Dân làng"
 var resident_age := 18
+var health := 100.0
+var max_health := 100.0
 var resident_role := "villager"
 var is_chieftain := false
 var _wander_target := Vector3.ZERO
@@ -190,3 +192,14 @@ func _update_walk_pose(amount: float = 1.0) -> void:
 		if node is MeshInstance3D and (node.name == "Leg" or node.name == "Arm"):
 			var side := -1.0 if node.position.x < 0.0 else 1.0
 			node.rotation.x = sin(_walk_phase + (PI if side < 0.0 else 0.0)) * 0.24 * amount
+
+func take_damage(amount: float) -> void:
+	health = maxf(0.0, health - maxf(0.0, amount))
+	var person := TribePopulation.get_resident(resident_id)
+	if not person.is_empty():
+		person["health"] = health
+		if health <= 0.0:
+			person["alive"] = false
+			TribePopulation.save_population()
+			TribePopulation._emit_population()
+			queue_free()
