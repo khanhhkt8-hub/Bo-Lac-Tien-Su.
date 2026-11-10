@@ -17,7 +17,13 @@ const RECIPES := {
 	"herbal_antidote": {"herbs": 3, "berries": 2},
 	"torch": {"wood": 3, "reeds": 2},
 	"companion_armor": {"hide": 6, "bone": 4},
-	"companion_fang": {"bone": 6, "stone": 3}
+	"companion_fang": {"bone": 6, "stone": 3},
+	"relic_mammoth_axe": {"trophy_heartland": 1, "ore": 10, "bone": 8},
+	"relic_saber_blade": {"trophy_primeval_forest": 1, "hide": 12, "bone": 8},
+	"relic_thunder_spear": {"trophy_grassland": 1, "ore": 12, "wood": 8},
+	"relic_swamp_claw": {"trophy_swampland": 1, "herbs": 10, "hide": 8},
+	"relic_cavern_hammer": {"trophy_cavern": 1, "ore": 14, "stone": 10},
+	"relic_frost_bow": {"trophy_frostlands": 1, "ice": 12, "wood": 10}
 }
 
 func setup(target_inventory: InventorySystem) -> void:
