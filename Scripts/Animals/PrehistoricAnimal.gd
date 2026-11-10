@@ -11,6 +11,7 @@ var companion_level := 1
 var is_baby := false
 var growth_seconds_remaining := 0.0
 var companion_attack_timer := 0.0
+var legendary_skill_timer := 0.0
 var companion_target_timer := 0.0
 var companion_target: Node2D
 var companion_order := "protect"
@@ -171,6 +172,16 @@ func get_evolution_name() -> String:
 
 
 func get_companion_skill_name() -> String:
+	if rarity == "legendary":
+		match species:
+			"wolf":
+				return "Bão truy kích"
+			"saber_tooth":
+				return "Song trảo chí mạng"
+			"cave_bear":
+				return "Chấn địa cuồng nộ"
+			"mammoth":
+				return "Địa chấn cổ đại"
 	match species:
 		"wolf":
 			return "Truy kích nhanh"
@@ -220,7 +231,39 @@ func _get_skill_cooldown() -> float:
 	return 1.5
 
 
+func _trigger_legendary_skill(primary_target: Node2D) -> void:
+	if rarity != "legendary" or not is_instance_valid(primary_target):
+		return
+	var skill_damage := attack_damage * 0.75
+	match species:
+		"saber_tooth":
+			if primary_target.has_method("take_damage"):
+				primary_target.take_damage(skill_damage * 1.4)
+		"wolf":
+			var secondary: Node2D
+			var nearest_distance := 125.0
+			for enemy in get_tree().get_nodes_in_group("enemies"):
+				if not is_instance_valid(enemy) or enemy == primary_target or not enemy is Node2D:
+					continue
+				var candidate := enemy as Node2D
+				var distance := primary_target.global_position.distance_to(candidate.global_position)
+				if distance < nearest_distance:
+					nearest_distance = distance
+					secondary = candidate
+			if is_instance_valid(secondary) and secondary.has_method("take_damage"):
+				secondary.take_damage(skill_damage)
+		"cave_bear", "mammoth":
+			var radius := 105.0 if species == "cave_bear" else 145.0
+			for enemy in get_tree().get_nodes_in_group("enemies"):
+				if not is_instance_valid(enemy) or enemy == self or not enemy is Node2D:
+					continue
+				var candidate := enemy as Node2D
+				if global_position.distance_to(candidate.global_position) <= radius and candidate.has_method("take_damage"):
+					candidate.take_damage(skill_damage)
+
+
 func _companion_follow_and_fight(delta: float) -> void:
+	legendary_skill_timer = maxf(0.0, legendary_skill_timer - delta)
 	companion_attack_timer = maxf(0.0, companion_attack_timer - delta)
 	companion_target_timer -= delta
 	var player := get_tree().get_first_node_in_group("player") as Node2D
@@ -247,6 +290,9 @@ func _companion_follow_and_fight(delta: float) -> void:
 			if companion_attack_timer <= 0.0 and companion_target.has_method("take_damage"):
 				companion_attack_timer = _get_skill_cooldown()
 				companion_target.take_damage(attack_damage * _get_skill_damage_multiplier())
+				if legendary_skill_timer <= 0.0 and rarity == "legendary":
+					legendary_skill_timer = 5.0
+					_trigger_legendary_skill(companion_target)
 		else:
 			velocity = global_position.direction_to(companion_target.global_position) * move_speed * 1.2
 	else:
