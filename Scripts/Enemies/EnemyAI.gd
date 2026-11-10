@@ -3,7 +3,7 @@ class_name EnemyAI
 
 signal defeated(enemy: EnemyAI)
 
- enum AIState { PATROL, CHASE, ATTACK, RETURN }
+enum AIState { PATROL, CHASE, ATTACK, RETURN }
 
 @export var enemy_name: String = "Enemy"
 @export var max_health: float = 60.0
