@@ -12,6 +12,7 @@ const JOBS := {
 	"fisher": {"name": "Ngư dân", "output": "fish", "amount": 4},
 	"water_carrier": {"name": "Người lấy nước", "output": "water", "amount": 5},
 	"herbalist": {"name": "Người hái thuốc", "output": "herbs", "amount": 3},
+	"medic": {"name": "Thầy thuốc", "output": "medical_care", "amount": 1},
 	"orchardist": {"name": "Người thu hái trái cây", "output": "fruit", "amount": 5},
 	"poultry": {"name": "Người nuôi gia cầm", "output": "eggs", "amount": 2},
 	"miner": {"name": "Thợ khai mỏ", "output": "stone", "amount": 3},
@@ -93,6 +94,9 @@ func _produce_resources() -> void:
 		if resident.is_empty() or not JOBS.has(job_id):
 			continue
 		var definition: Dictionary = JOBS[job_id]
+		if job_id == "medic":
+			_medic_treat_one_resident()
+			continue
 		var resource_id := str(definition.output)
 		var amount := int(definition.amount)
 		stockpile[resource_id] = int(stockpile.get(resource_id, 0)) + amount
@@ -185,3 +189,26 @@ func _load_state() -> void:
 			assignments.erase(key)
 		else:
 			resident["job"] = str(assignments[key])
+
+
+## Thầy thuốc dùng 1 bó thảo dược để hồi 15 máu cho một người bị thương mỗi chu kỳ.
+func _medic_treat_one_resident() -> void:
+	if int(stockpile.get("herbs", 0)) <= 0:
+		return
+	var target: Dictionary = {}
+	var lowest_health := 100.0
+	for person in TribePopulation.residents:
+		if not bool(person.get("alive", true)):
+			continue
+		var current_health := float(person.get("health", 100.0))
+		if current_health < lowest_health:
+			lowest_health = current_health
+			target = person
+	if target.is_empty() or lowest_health >= 100.0:
+		return
+	if raid_stockpile("herbs", 1) <= 0:
+		return
+	target["health"] = minf(100.0, lowest_health + 15.0)
+	TribePopulation.save_population()
+	if TribePopulation.has_method("_emit_population"):
+		TribePopulation._emit_population()
