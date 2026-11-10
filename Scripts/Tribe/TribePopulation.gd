@@ -204,6 +204,14 @@ func _advance_resident_needs() -> void:
 			changed = true
 		# Healthy, well-fed villagers slowly recover. Illness needs herbs to cure.
 		if fed and hydrated:
+			var resting_at_night := false
+			var cycles := get_tree().get_nodes_in_group("day_night_cycle")
+			if not cycles.is_empty():
+				resting_at_night = bool(cycles[0].get("is_night"))
+			if resting_at_night:
+				person["stamina"] = mini(10, int(person.get("stamina", 0)) + 2)
+			else:
+				person["stamina"] = mini(10, int(person.get("stamina", 0)) + 1)
 			if bool(person.get("illness", false)):
 				person["health"] = maxf(0.0, float(person.get("health", 100.0)) - 2.0)
 				if TribeJobSystem != null and TribeJobSystem.raid_stockpile("herbs", 1) > 0:
@@ -212,7 +220,8 @@ func _advance_resident_needs() -> void:
 				changed = true
 			else:
 				var old_health := float(person.get("health", 100.0))
-				person["health"] = minf(100.0, old_health + 1.0)
+				var recovery := 2.0 if resting_at_night else 1.0
+				person["health"] = minf(100.0, old_health + recovery)
 				if float(person["health"]) != old_health:
 					changed = true
 				if float(person.get("health", 100.0)) <= 60.0 and randf() < 0.04:
