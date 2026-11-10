@@ -180,3 +180,11 @@ Game sinh tồn 2D offline, ưu tiên Android, phát triển bằng Godot 4.
 - Mỗi đàn chỉ có một Thú Chúa; phong thú mới sẽ thay thế danh hiệu của thú cũ.
 - Thú đồng hành trong phạm vi 420 đơn vị quanh Thú Chúa được tăng 15% sát thương kỹ năng và 10% tốc độ di chuyển.
 - Thú Chúa có vòng hào quang màu hồng tím và danh hiệu riêng; trạng thái được lưu offline.
+
+
+## Di truyền trứng và đột biến cổ thú
+- Trứng lưu phẩm chất di truyền và đột biến ngay từ lúc sinh sản; dữ liệu được giữ qua lần thoát game.
+- Hai bố mẹ Huyền Thoại có 20% cơ hội truyền Huyền Thoại, nếu ít nhất một bố mẹ khác thường thì có cơ hội truyền phẩm chất Hiếm hoặc Huyền Thoại.
+- Đột biến gồm Hỏa (tăng sát thương), Băng (tăng máu), Độc (tăng sát thương và tốc độ), Lôi (tăng tốc độ) và Thần (tăng cả ba chỉ số).
+- Đột biến Thần rất hiếm và chỉ xuất hiện trên trứng có phẩm chất Huyền Thoại; thú con giữ đột biến khi trưởng thành.
+- Ngoại hình thú biến đổi màu và có vòng sáng theo loại đột biến.
