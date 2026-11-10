@@ -188,3 +188,9 @@ Game sinh tồn 2D offline, ưu tiên Android, phát triển bằng Godot 4.
 - Đột biến gồm Hỏa (tăng sát thương), Băng (tăng máu), Độc (tăng sát thương và tốc độ), Lôi (tăng tốc độ) và Thần (tăng cả ba chỉ số).
 - Đột biến Thần rất hiếm và chỉ xuất hiện trên trứng có phẩm chất Huyền Thoại; thú con giữ đột biến khi trưởng thành.
 - Ngoại hình thú biến đổi màu và có vòng sáng theo loại đột biến.
+
+
+### Boss lãnh địa – tiến hóa và cổ vật độc quyền
+- Khi boss còn 65% máu, nó triệu hồi hai thú hộ vệ lãnh địa; hộ vệ biến mất khi rời vùng hoặc boss bị hạ.
+- Khi boss còn 50% máu, nó tiến hóa một lần: tăng 35% máu tối đa, hồi thêm máu, tăng 30% sát thương và 12% tốc độ.
+- Hạ boss nhận thêm một cổ vật riêng theo vùng: `trophy_heartland`, `trophy_primeval_forest`, `trophy_grassland`, `trophy_swampland`, `trophy_cavern`, `trophy_frostlands`. Cổ vật được lưu trong kho bộ lạc để dùng cho hệ thống chế tác/nâng cấp về sau.
