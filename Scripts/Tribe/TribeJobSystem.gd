@@ -15,7 +15,7 @@ const JOBS := {
 }
 
 var assignments: Dictionary = {}
-var stockpile: Dictionary = {"meat": 0, "berries": 0, "food": 0, "tools": 0, "warrior_power": 0}
+var stockpile: Dictionary = {"meat": 0, "berries": 0, "food": 0, "tools": 0, "warrior_power": 0, "trophy_heartland": 0, "trophy_primeval_forest": 0, "trophy_grassland": 0, "trophy_swampland": 0, "trophy_cavern": 0, "trophy_frostlands": 0}
 var _production_timer: float = 0.0
 
 func _ready() -> void:
