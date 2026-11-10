@@ -26,7 +26,7 @@ func _update_tribe_status() -> void:
 	var summary: Dictionary = TribePopulation.get_population_summary()
 	var leader: Dictionary = TribePopulation.get_leader()
 	var leader_name := str(leader.get("name", "Chưa có")) if not leader.is_empty() else "Chưa có"
-	_status_label.text = "BỘ LẠC: %d  |  TRẺ: %d  NGƯỜI LỚN: %d  NGƯỜI GIÀ: %d\\nTỘC TRƯỞNG: %s" % [int(summary.get("total", 0)), int(summary.get("children", 0)), int(summary.get("adults", 0)), int(summary.get("elders", 0)), leader_name]
+	_status_label.text = "BỘ LẠC: %d  |  TRẺ: %d  NGƯỜI LỚN: %d  NGƯỜI GIÀ: %d\nTỘC TRƯỞNG: %s" % [int(summary.get("total", 0)), int(summary.get("children", 0)), int(summary.get("adults", 0)), int(summary.get("elders", 0)), leader_name]
 
 func _build_controls() -> void:
 	var panel := PanelContainer.new()
