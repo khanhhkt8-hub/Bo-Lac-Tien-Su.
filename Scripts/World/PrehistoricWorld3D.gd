@@ -5,6 +5,8 @@ class_name PrehistoricWorld3D
 @export var tree_count: int = 180
 @export var rock_count: int = 95
 var _rng := RandomNumberGenerator.new()
+var _tribe_sync_timer := 0.0
+var _resident_nodes: Dictionary = {}
 
 func _ready() -> void:
 	_rng.seed = 20261110
@@ -15,6 +17,7 @@ func _ready() -> void:
 	_build_rocks()
 	_build_camp()
 	_build_resources()
+	_sync_tribe_residents()
 
 func _mat(color: Color, roughness: float = 0.9, metallic: float = 0.0) -> StandardMaterial3D:
 	var material := StandardMaterial3D.new()
@@ -210,3 +213,38 @@ func _build_resources() -> void:
 			x += 110.0
 		resource.position = Vector3(x, 0.0, z)
 		add_child(resource)
+
+func _process(delta: float) -> void:
+	_tribe_sync_timer += delta
+	if _tribe_sync_timer >= 4.0:
+		_tribe_sync_timer = 0.0
+		_sync_tribe_residents()
+
+func _sync_tribe_residents() -> void:
+	if not is_instance_valid(TribePopulation):
+		return
+	var living_ids: Dictionary = {}
+	for person in TribePopulation.residents:
+		if not bool(person.get("alive", true)):
+			continue
+		var resident_id := int(person.get("id", -1))
+		if resident_id < 0:
+			continue
+		living_ids[resident_id] = true
+		if _resident_nodes.has(resident_id) and is_instance_valid(_resident_nodes[resident_id]):
+			continue
+		var resident := TribeResident3D.new()
+		resident.setup(person)
+		var angle := float(resident_id) * 2.399963
+		var radius := 8.0 + float(resident_id % 5) * 1.65
+		resident.position = Vector3(cos(angle) * radius, 0.0, sin(angle) * radius)
+		add_child(resident)
+		_resident_nodes[resident_id] = resident
+	var remove_ids: Array = []
+	for key in _resident_nodes:
+		if not living_ids.has(int(key)) or not is_instance_valid(_resident_nodes[key]):
+			if is_instance_valid(_resident_nodes[key]):
+				_resident_nodes[key].queue_free()
+			remove_ids.append(key)
+	for key in remove_ids:
+		_resident_nodes.erase(key)
