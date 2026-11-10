@@ -256,3 +256,12 @@ Game sinh tồn 2D offline, ưu tiên Android, phát triển bằng Godot 4.
 - Nút BỎ CHỌN xóa lựa chọn hiện tại mà không ảnh hưởng đến dân số hay phân công nghề.
 - Tiểu đội lấy trực tiếp nghề nghiệp đã phân công trong TribePopulation/TribeJobSystem; khi đổi nghề, đơn vị sẽ thuộc nhóm nghề mới sau lần đồng bộ.
 - Chưa chạy kiểm thử Godot runtime hoặc build APK.
+
+
+### Tự động phòng thủ của chiến binh
+- Chiến binh trưởng thành được phân nghề sẽ tự động tuần tra bảo vệ bộ lạc khi không có lệnh di chuyển thủ công.
+- Khi phát hiện thú hoang hoặc man rợ áp sát người chơi hay cư dân trong phạm vi 210 đơn vị, chiến binh gần nhất sẽ tiếp cận và tấn công mục tiêu.
+- Chiến binh gây 9 sát thương mỗi 1,1 giây khi áp sát; mục tiêu được quét lại định kỳ để tránh truy đuổi các mối đe dọa đã rời xa.
+- Lệnh di chuyển thủ công vẫn được ưu tiên; khi hoàn tất, chiến binh tiếp tục tự động phòng thủ.
+- Đây là AI phòng thủ tự động, không thay đổi số dân, nghề nghiệp hoặc hệ thống xây dựng.
+- Chưa chạy kiểm thử Godot runtime hoặc build APK.
