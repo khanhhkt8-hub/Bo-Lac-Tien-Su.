@@ -118,3 +118,10 @@ Game sinh tồn 2D offline, ưu tiên Android, phát triển bằng Godot 4.
 - Thú con được tạo ngay, có kích thước và sức chiến đấu thấp hơn; sau 5 phút chơi sẽ trưởng thành.
 - Tiến độ lớn lên của thú con được lưu offline cùng đội thú và tiếp tục khi mở game lại.
 - HUD có nút LAI TẠO THÚ; hiện chỉ hỗ trợ sinh sản cùng loài, chưa có lai chéo.
+
+
+## Chăm sóc và quản lý đàn thú
+- Nút CHO THÚ ĂN / HỒI MÁU chọn thú đồng hành bị thương gần nhất trong phạm vi 165 đơn vị.
+- Sói, hổ răng kiếm và gấu hang cần 2 thịt; voi ma mút cần 3 lương thực. Mỗi lần ăn hồi tối đa 40% máu tối đa.
+- Nút XEM ĐÀN THÚ hiển thị loài, máu hiện tại, giai đoạn thú con/trưởng thành, cấp nâng cấp và trạng thái cưỡi.
+- Việc cho ăn lưu lại lượng máu mới vào tệp lưu thú đồng hành. Đây là hệ thống chăm sóc qua HUD, không thêm cơ chế xây chuồng hay xây căn cứ.
