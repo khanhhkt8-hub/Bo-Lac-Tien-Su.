@@ -126,12 +126,17 @@ func _auto_assign_emergency_jobs() -> void:
 		if assignments.has(resident_id) or assignments.has(str(resident_id)):
 			continue
 		var selected_job := ""
-		if water_total < water_limit:
+		var food_ratio := float(food_total) / float(food_limit)
+		var water_ratio := float(water_total) / float(water_limit)
+		if water_total < water_limit and (food_total >= food_limit or water_ratio <= food_ratio):
 			selected_job = "water_carrier"
 			water_total += 5
 		elif food_total < food_limit:
 			selected_job = food_jobs[mini(food_jobs.size() - 1, int(food_total / 5.0) % food_jobs.size())]
 			food_total += 4
+		elif water_total < water_limit:
+			selected_job = "water_carrier"
+			water_total += 5
 		if selected_job.is_empty():
 			break
 		assignments[resident_id] = selected_job
