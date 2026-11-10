@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://Scripts/World/World.gd" id="1_world"]
 [ext_resource type="Script" path="res://Scripts/Player/Player.gd" id="2_player"]
@@ -13,6 +13,7 @@
 [ext_resource type="Script" path="res://Scripts/World/CaveSystem.gd" id="11_cave"]
 [ext_resource type="Script" path="res://Scripts/Enemies/BiomeBossDirector.gd" id="12_boss"]
 [ext_resource type="Script" path="res://Scripts/Tribe/TribeControlSystem.gd" id="13_tribe_control"]
+[ext_resource type="Script" path="res://Scripts/World/RTSCamera.gd" id="14_rts_camera"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_player"]
 radius = 14.0
@@ -48,9 +49,9 @@ script = ExtResource("2_player")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
 shape = SubResource("CircleShape2D_player")
 
-[node name="Camera2D" type="Camera2D" parent="Player"]
-position_smoothing_enabled = true
-position_smoothing_speed = 5.0
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(0, 0)
+script = ExtResource("14_rts_camera")
 
 [node name="SurvivalHUD" type="CanvasLayer" parent="."]
 script = ExtResource("3_hud")
