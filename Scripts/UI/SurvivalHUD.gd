@@ -270,7 +270,6 @@ func _on_show_leadership_pressed() -> void:
 	dialog.min_size = Vector2i(560, 520)
 	add_child(dialog)
 	dialog.confirmed.connect(dialog.queue_free)
-	dialog.canceled.connect(dialog.queue_free)
 	dialog.popup_centered()
 
 func _refresh_leader_label() -> void:
