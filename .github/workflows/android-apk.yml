@@ -81,17 +81,31 @@ jobs:
 
       - name: Verify tools and validate project
         run: |
+          mkdir -p build
+          set -o pipefail
           godot --version
           java -version
           test -d "$ANDROID_HOME/platform-tools"
           test -d "$ANDROID_HOME/ndk/23.2.8568313"
-          godot --headless --editor --path . --quit --verbose
+          godot --headless --editor --path . --quit --verbose 2>&1 | tee build/godot-validation.log
+          if grep -E "SCRIPT ERROR:|Parse Error:|Compile Error:|Failed to load script" build/godot-validation.log; then
+            echo "Godot script validation failed; refusing to export APK."
+            exit 1
+          fi
+          godot --headless --path . --quit-after 120 --verbose 2>&1 | tee build/runtime-smoke-test.log
+          if grep -E "SCRIPT ERROR:|Parse Error:|Compile Error:|Failed to load script|ERROR:" build/runtime-smoke-test.log; then
+            echo "Runtime smoke test failed; refusing to export APK."
+            exit 1
+          fi
 
       - name: Export Android APK with diagnostics
         run: |
-          mkdir -p build
           set -o pipefail
           godot --headless --path . --verbose --export-debug "Android" build/Bo-Lac-Tien-Su.apk 2>&1 | tee build/android-export.log
+          if grep -E "SCRIPT ERROR:|Parse Error:|Compile Error:|Failed to load script|ERROR:" build/android-export.log; then
+            echo "Export reported script errors; refusing to publish APK."
+            exit 1
+          fi
           test -s build/Bo-Lac-Tien-Su.apk
 
       - name: Upload APK
