@@ -346,12 +346,15 @@ func dispatch_nearest_defenders(enemy: Node2D, defender_limit: int = 3) -> int:
 	return dispatched
 
 func capture_nearest_prisoner() -> String:
+	var player := get_tree().get_first_node_in_group("player") as Node2D
+	if not is_instance_valid(player):
+		return "Không tìm thấy vị trí người chơi."
 	var nearest: Node2D
-	var nearest_distance := 100.0
+	var nearest_distance := 120.0
 	for candidate in get_tree().get_nodes_in_group("surrendered_barbarians"):
 		if not is_instance_valid(candidate) or candidate.is_queued_for_deletion() or not candidate is Node2D:
 			continue
-		var distance := global_position.distance_to((candidate as Node2D).global_position)
+		var distance := player.global_position.distance_to((candidate as Node2D).global_position)
 		if distance < nearest_distance:
 			nearest_distance = distance
 			nearest = candidate as Node2D
