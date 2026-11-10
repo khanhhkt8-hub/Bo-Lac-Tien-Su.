@@ -307,36 +307,45 @@ func gather_nearby() -> bool:
 	return nearest.gather_now(self)
 
 func _draw() -> void:
-	# Bóng đổ và cơ thể người tiền sử nhìn rõ từ góc nhìn trên xuống.
-	draw_colored_polygon(PackedVector2Array([Vector2(-12, 9), Vector2(-8, 19), Vector2(10, 19), Vector2(14, 9), Vector2(0, 5)]), Color(0.12, 0.14, 0.10, 0.38))
+	# Bóng đổ mềm, chân và bàn chân da.
+	draw_colored_polygon(PackedVector2Array([Vector2(-14, 10), Vector2(-10, 21), Vector2(11, 21), Vector2(15, 10), Vector2(0, 5)]), Color(0.08, 0.10, 0.07, 0.34))
 	var facing := Vector2.DOWN
 	if velocity.length_squared() > 8.0:
 		facing = velocity.normalized()
-	# Chân và dép da.
 	var step := sin(walk_phase) * 5.0 if velocity.length_squared() > 10.0 else 0.0
-	draw_line(Vector2(-5, 5), Vector2(-7.0 - step, 16), Color("#49352a"), 5.0)
-	draw_line(Vector2(5, 5), Vector2(7.0 + step, 16), Color("#49352a"), 5.0)
-	draw_line(Vector2(-7.0 - step, 16), Vector2(-10.0 - step, 17), Color("#c49a66"), 4.0)
-	draw_line(Vector2(7.0 + step, 16), Vector2(10.0 + step, 17), Color("#c49a66"), 4.0)
-	# Áo da thú, viền lông và dây đeo.
-	draw_colored_polygon(PackedVector2Array([Vector2(-10, -8), Vector2(-8, 7), Vector2(0, 12), Vector2(8, 7), Vector2(10, -8), Vector2(0, -13)]), Color("#8b5838"))
-	draw_line(Vector2(-8, -5), Vector2(7, 8), Color("#d5b078"), 3.0)
-	draw_line(Vector2(-10, -8), Vector2(0, -12), Color("#d9c49a"), 3.0)
-	# Đầu, tóc và gương mặt.
-	draw_circle(Vector2(0, -13), 9.5, Color("#d9a066"))
-	draw_arc(Vector2(0, -15), 9.5, PI, TAU, 18, Color("#39271e"), 5.0)
-	draw_circle(Vector2(-3.5, -13), 1.2, Color("#292018"))
-	draw_circle(Vector2(3.5, -13), 1.2, Color("#292018"))
-	draw_line(Vector2(-2, -8), Vector2(2, -8), Color("#74422f"), 1.3)
-	# Vũ khí bằng đá gắn bên hông.
-	draw_line(Vector2(10, -2), Vector2(17, -14), Color("#68462d"), 2.5)
-	draw_colored_polygon(PackedVector2Array([Vector2(14, -16), Vector2(21, -23), Vector2(21, -12)]), Color("#aeb5a7"))
-	# Vòng chọn nhân vật.
+	draw_line(Vector2(-5, 5), Vector2(-7.0 - step, 16), Color("#30251f"), 6.0)
+	draw_line(Vector2(5, 5), Vector2(7.0 + step, 16), Color("#30251f"), 6.0)
+	draw_line(Vector2(-7.0 - step, 16), Vector2(-10.0 - step, 18), Color("#c49a66"), 4.0)
+	draw_line(Vector2(7.0 + step, 16), Vector2(10.0 + step, 18), Color("#c49a66"), 4.0)
+	# Tấm áo da nhiều lớp và đường khâu.
+	draw_colored_polygon(PackedVector2Array([Vector2(-11, -8), Vector2(-9, 7), Vector2(0, 13), Vector2(9, 7), Vector2(11, -8), Vector2(0, -14)]), Color("#67412f"))
+	draw_colored_polygon(PackedVector2Array([Vector2(-9, -9), Vector2(-7, 6), Vector2(0, 10), Vector2(7, 6), Vector2(9, -9), Vector2(0, -12)]), Color("#a86b42"))
+	draw_line(Vector2(-8, -5), Vector2(7, 8), Color("#e1c18a"), 2.5)
+	draw_line(Vector2(-8, 4), Vector2(7, 4), Color("#70442f"), 1.4)
+	draw_circle(Vector2(-5, 1), 1.1, Color("#e8c995"))
+	draw_circle(Vector2(5, 6), 1.1, Color("#e8c995"))
+	# Vai lông thú và dây đeo.
+	draw_arc(Vector2(0, -8), 10.0, PI + 0.15, TAU - 0.15, 16, Color("#e1cfaa"), 3.0)
+	draw_line(Vector2(-8, -6), Vector2(7, 7), Color("#4c3024"), 3.0)
+	draw_circle(Vector2(7, 7), 2.0, Color("#d7b879"))
+	# Đầu, tóc, tai và nét mặt.
+	draw_circle(Vector2(-8.5, -13), 2.2, Color("#b9784d"))
+	draw_circle(Vector2(8.5, -13), 2.2, Color("#b9784d"))
+	draw_circle(Vector2(0, -14), 9.5, Color("#d9a066"))
+	draw_arc(Vector2(0, -16), 9.5, PI, TAU, 18, Color("#39271e"), 5.0)
+	draw_colored_polygon(PackedVector2Array([Vector2(-8, -18), Vector2(-5, -25), Vector2(1, -22), Vector2(7, -24), Vector2(9, -16)]), Color("#39271e"))
+	draw_circle(Vector2(-3.5, -14), 1.25, Color("#292018"))
+	draw_circle(Vector2(3.5, -14), 1.25, Color("#292018"))
+	draw_line(Vector2(-2, -8), Vector2(2, -8), Color("#74422f"), 1.4)
+	draw_circle(Vector2(0, -11), 1.0, Color("#f0bd8b"))
+	# Vũ khí đá có cán, lưỡi và dây buộc.
+	draw_line(Vector2(10, -1), Vector2(18, -17), Color("#503624"), 3.2)
+	draw_line(Vector2(11, -3), Vector2(19, -18), Color("#bd9664"), 1.0)
+	draw_colored_polygon(PackedVector2Array([Vector2(15, -19), Vector2(22, -27), Vector2(23, -15), Vector2(18, -12)]), Color("#89968f"))
+	draw_line(Vector2(18, -19), Vector2(21, -22), Color("#dce3d5"), 1.2)
 	draw_arc(Vector2.ZERO, 21.0, 0.0, TAU, 36, Color(0.95, 0.84, 0.38, 0.85), 1.8)
 	if attack_flash > 0.0:
 		draw_arc(Vector2.ZERO, 34.0, -0.9, 1.0, 20, Color("#fff0a0"), 5.0)
-
-
 func toggle_mount_nearby_animal() -> String:
 	if is_instance_valid(mounted_animal):
 		mounted_animal.is_mounted = false
