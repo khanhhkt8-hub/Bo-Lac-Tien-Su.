@@ -6,7 +6,7 @@ var _status: Label
 var _selected_resident_index: int = 0
 var _selected_house_id: int = -1
 var _resident_ids: Array[int] = []
-var _job_ids: Array[String] = ["hunter", "gatherer", "farmer", "crafter", "warrior"]
+var _job_ids: Array[String] = ["hunter", "gatherer", "fisher", "orchardist", "poultry", "miner", "farmer", "crafter", "warrior"]
 var _selected_job_index: int = 0
 
 func _ready() -> void:
@@ -81,6 +81,8 @@ func _refresh() -> void:
 	var stock: Dictionary = job_summary.stockpile
 	var army: Dictionary = TribeArmySystem.get_army_summary()
 	var housing: Dictionary = TribeHousingSystem.get_housing_summary()
+	var leader: Dictionary = TribePopulation.get_leader()
+	var leader_text := "Chưa có Tộc trưởng" if leader.is_empty() else "%s (%d tuổi)" % [str(leader.get("name", "Tộc trưởng")), int(leader.get("age", 0))]
 	var house_text := "Chưa có nhà"
 	var house := _find_house(_selected_house_id)
 	if not house.is_empty():
@@ -89,12 +91,12 @@ func _refresh() -> void:
 	if not _resident_ids.is_empty():
 		var person := _find_resident(_resident_ids[_selected_resident_index])
 		resident_text = "%s (#%d, %d tuổi)" % [str(person.name), int(person.id), int(person.age)]
-	_summary.text = "Dân số: %d (trẻ %d / trưởng thành %d / cao tuổi %d)\nNhà: %d | Sức chứa: %d | Chưa phân nhà: %d\nĐang chọn: %s\nDân làng: %s\nGỗ: %d | Đá: %d\nNghề: Săn %d / Hái %d / Nông %d / Chế tác %d / Lính %d\nKho: Thịt %d, Quả %d, Lương thực %d, Dụng cụ %d, Chiến lực %d\nQuân đội: %d (Giáo %d / Cung %d / Vệ binh %d)" % [
-		int(pop.total), int(pop.children), int(pop.adults), int(pop.elders),
+	_summary.text = "Dân số: %d (trẻ %d / trưởng thành %d / cao tuổi %d)\nTộc trưởng: %s\nNhà: %d | Sức chứa: %d | Chưa phân nhà: %d\nĐang chọn: %s\nDân làng: %s\nGỗ: %d | Đá: %d\nNghề: Săn %d / Hái %d / Cá %d / Trái cây %d / Gia cầm %d / Mỏ %d / Nông %d / Chế tác %d / Lính %d\nKho: Thịt %d, Cá %d, Trái cây %d, Trứng %d, Lương thực %d, Dụng cụ %d, Chiến lực %d\nQuân đội: %d (Giáo %d / Cung %d / Vệ binh %d)" % [
+		int(pop.total), int(pop.children), int(pop.adults), int(pop.elders), leader_text,
 		int(housing.houses), int(housing.capacity), int(housing.homeless),
 		house_text, resident_text, TribeHousingSystem.wood, TribeHousingSystem.stone,
-		int(job_counts.hunter), int(job_counts.gatherer), int(job_counts.farmer), int(job_counts.crafter), int(job_counts.warrior),
-		int(stock.meat), int(stock.berries), int(stock.food), int(stock.tools), int(stock.warrior_power),
+		int(job_counts.hunter), int(job_counts.gatherer), int(job_counts.fisher), int(job_counts.orchardist), int(job_counts.poultry), int(job_counts.miner), int(job_counts.farmer), int(job_counts.crafter), int(job_counts.warrior),
+		int(stock.meat), int(stock.fish), int(stock.fruit), int(stock.eggs), int(stock.food), int(stock.tools), int(stock.warrior_power),
 		int(army.total), int(army.spear), int(army.archer), int(army.guard)
 	]
 
