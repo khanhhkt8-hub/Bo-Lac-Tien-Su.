@@ -80,6 +80,18 @@ func _ready() -> void:
 	_add_squad_button(squad_row, "HÁI LƯỢM", "gatherer")
 	_add_squad_button(squad_row, "NÔNG DÂN", "farmer")
 	_add_squad_button(squad_row, "THỢ CHẾ TÁC", "crafter")
+	var add_squad_row := HBoxContainer.new()
+	column.add_child(add_squad_row)
+	_add_additive_squad_button(add_squad_row, "＋ CHIẾN BINH", "warrior")
+	_add_additive_squad_button(add_squad_row, "＋ THỢ SĂN", "hunter")
+	var support_button := Button.new()
+	support_button.text = "CHỌN HẬU CẦN"
+	support_button.pressed.connect(_on_select_support_pressed)
+	add_squad_row.add_child(support_button)
+	var add_support_button := Button.new()
+	add_support_button.text = "＋ HẬU CẦN"
+	add_support_button.pressed.connect(_on_add_support_pressed)
+	add_squad_row.add_child(add_support_button)
 	var clear_selection_button := Button.new()
 	clear_selection_button.text = "BỎ CHỌN"
 	clear_selection_button.pressed.connect(_on_clear_tribe_selection_pressed)
@@ -250,11 +262,35 @@ func _add_squad_button(parent: HBoxContainer, label: String, role_id: String) ->
 	button.pressed.connect(_on_select_squad_pressed.bind(role_id, label))
 	parent.add_child(button)
 
+func _add_additive_squad_button(parent: HBoxContainer, label: String, role_id: String) -> void:
+	var button := Button.new()
+	button.text = label
+	button.pressed.connect(_on_add_squad_pressed.bind(role_id, label))
+	parent.add_child(button)
+
 func _on_select_squad_pressed(role_id: String, label: String) -> void:
 	if _tribe_control == null:
 		return
 	var count := int(_tribe_control.call("select_role", role_id))
-	_craft_status.text = "Đã chọn %s: %d người. Có thể ra lệnh di chuyển hoặc tấn công." % [label, count]
+	_craft_status.text = "Đã chọn %s: %d người. Lệnh mới chỉ áp dụng cho nhóm đang chọn." % [label, count]
+
+func _on_add_squad_pressed(role_id: String, label: String) -> void:
+	if _tribe_control == null:
+		return
+	var count := int(_tribe_control.call("select_role_additive", role_id))
+	_craft_status.text = "Đã thêm %s vào nhóm chọn chung. Tổng: %d người." % [label, count]
+
+func _on_select_support_pressed() -> void:
+	if _tribe_control == null:
+		return
+	var count := int(_tribe_control.call("select_support_roles", false))
+	_craft_status.text = "Đã chọn hậu cần (hái lượm, nông dân, chế tác): %d người." % count
+
+func _on_add_support_pressed() -> void:
+	if _tribe_control == null:
+		return
+	var count := int(_tribe_control.call("select_support_roles", true))
+	_craft_status.text = "Đã thêm hậu cần vào nhóm chọn chung. Tổng: %d người." % count
 
 func _on_clear_tribe_selection_pressed() -> void:
 	if _tribe_control == null:
