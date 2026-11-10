@@ -8,6 +8,10 @@ func _ready() -> void:
 	add_to_group("hud_3d")
 	_build_controls()
 	_build_inventory_label()
+	var player := get_tree().get_first_node_in_group("player_3d")
+	if player != null:
+		show_inventory(player.get("inventory"))
+		show_health(float(player.get("health")), float(player.get("max_health")))
 	_update_tribe_status()
 
 func _process(delta: float) -> void:
