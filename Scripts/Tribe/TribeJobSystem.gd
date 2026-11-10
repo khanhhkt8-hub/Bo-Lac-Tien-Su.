@@ -95,6 +95,12 @@ func _produce_resources() -> void:
 		if resident.is_empty() or not JOBS.has(job_id):
 			continue
 		var definition: Dictionary = JOBS[job_id]
+		# Làm nghề lâu dài giúp dân làng tăng kinh nghiệm và tay nghề riêng.
+		var skills: Dictionary = resident.get("skills", {})
+		var current_skill := int(skills.get(job_id, 0))
+		skills[job_id] = mini(100, current_skill + 1)
+		resident["skills"] = skills
+		resident["experience"] = mini(100, int(resident.get("experience", 0)) + 1)
 		if job_id == "medic":
 			_medic_treat_one_resident()
 			continue
