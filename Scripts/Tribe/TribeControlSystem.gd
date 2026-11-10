@@ -74,6 +74,24 @@ func select_all() -> int:
 			selected_ids.append(int(id))
 	return selected_ids.size()
 
+func select_role(role_id: String) -> int:
+	clear_selection()
+	for id in units:
+		var unit: TribeUnit = units[id]
+		if is_instance_valid(unit) and unit.role == role_id:
+			unit.set_selected(true)
+			selected_ids.append(int(id))
+	return selected_ids.size()
+
+func select_adult_role(role_id: String) -> int:
+	clear_selection()
+	for id in units:
+		var unit: TribeUnit = units[id]
+		if is_instance_valid(unit) and unit.role == role_id and unit.resident_age >= 18:
+			unit.set_selected(true)
+			selected_ids.append(int(id))
+	return selected_ids.size()
+
 func clear_selection() -> void:
 	for id in selected_ids:
 		if units.has(id) and is_instance_valid(units[id]):
