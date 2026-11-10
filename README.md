@@ -223,3 +223,11 @@ Game sinh tồn 2D offline, ưu tiên Android, phát triển bằng Godot 4.
 - Cư dân mới được thêm tự động vào bản đồ; cư dân đã chết được loại khỏi đội hình. Nghề nghiệp được đồng bộ từ hệ thống phân công.
 - Đây là nền tảng RTS đầu tiên; các lệnh chuyên sâu như khai thác tài nguyên theo điểm, đội hình, chia tiểu đội và chiến dịch nhiều mũi sẽ tiếp tục được mở rộng.
 - Đã ghi thay đổi lên nhánh main; chưa chạy Godot runtime hoặc build APK.
+
+
+### Cờ tập hợp và lệnh tái tập hợp
+- Chọn ĐẶT CỜ TẬP HỢP, sau đó chạm vị trí bất kỳ trên bản đồ để cắm cờ; có thể đặt lại cờ ở vị trí mới.
+- Cờ hiển thị bằng cột cờ đỏ và vòng tròn đánh dấu khu vực tập hợp.
+- Chọn TẬP HỢP VỀ CỜ để ra lệnh toàn bộ dân làng còn sống di chuyển về đội hình quanh cờ; lệnh này hủy trạng thái tấn công cũ để ưu tiên tập hợp.
+- Đồng bộ đơn vị đã sửa để loại bỏ cả cư dân đã chết, không chỉ cư dân bị thiếu dữ liệu.
+- Đây là lệnh điều quân RTS; hệ thống nhân vật cũ vẫn được giữ để các tính năng sinh tồn hiện có tiếp tục hoạt động.
