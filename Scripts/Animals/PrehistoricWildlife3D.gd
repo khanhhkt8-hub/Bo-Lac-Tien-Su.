@@ -131,10 +131,11 @@ func receive_damage(amount: float) -> void:
 			_wander_timer = 5.0
 
 func tame() -> bool:
-	if is_tamed or species == "saber_tooth" or species == "cave_bear" or species == "wolf":
+	if is_tamed:
 		return false
 	is_tamed = true
 	remove_from_group("wildlife_3d")
 	add_to_group("tamed_mounts_3d")
 	_wander_timer = 0.0
+	velocity = Vector3.ZERO
 	return true
