@@ -14,6 +14,7 @@ func _ready() -> void:
 	_build_forest()
 	_build_rocks()
 	_build_camp()
+	_build_resources()
 
 func _mat(color: Color, roughness: float = 0.9, metallic: float = 0.0) -> StandardMaterial3D:
 	var material := StandardMaterial3D.new()
@@ -196,3 +197,16 @@ func _build_camp() -> void:
 		log.rotation_degrees = Vector3(90.0, float(i) * 60.0, 0.0)
 		log.material_override = _mat(Color("#553626"))
 		add_child(log)
+
+func _build_resources() -> void:
+	var resource_types := ["wood", "stone", "food", "fish", "fruit", "berries", "clay", "herbs", "hide", "bone", "flint", "eggs"]
+	for i in range(120):
+		var resource := PrehistoricResource3D.new()
+		resource.resource_type = resource_types[i % resource_types.size()]
+		resource.amount_available = _rng.randi_range(2, 8)
+		var x := _rng.randf_range(-world_size * 0.42, world_size * 0.42)
+		var z := _rng.randf_range(-world_size * 0.42, world_size * 0.42)
+		if Vector2(x, z).length() < 24.0 or absf(z + 0.32 * x + 270.0) < 58.0:
+			x += 110.0
+		resource.position = Vector3(x, 0.0, z)
+		add_child(resource)
