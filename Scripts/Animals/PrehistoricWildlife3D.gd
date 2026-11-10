@@ -2,6 +2,10 @@ extends CharacterBody3D
 class_name PrehistoricWildlife3D
 
 @export_enum("wolf", "saber_tooth", "cave_bear", "mammoth", "deer") var species := "wolf"
+@export var model_override: PackedScene
+var _imported_model: Node3D
+var _animation_player: AnimationPlayer
+var _active_animation := ""
 var _wander_target := Vector3.ZERO
 var _wander_timer := 0.0
 var _phase := 0.0
@@ -12,8 +16,44 @@ var _flee_target := Vector3.ZERO
 
 func _ready() -> void:
 	add_to_group("wildlife_3d")
-	_build_creature()
+	if not _try_load_external_model():
+		_build_creature()
 	_wander_target = global_position
+
+# GLB/ glTF rigs can be assigned per species in the Inspector without changing
+# gameplay code. Missing assets safely fall back to the current procedural model.
+func _try_load_external_model() -> bool:
+	if model_override == null:
+		return false
+	var instance := model_override.instantiate()
+	if not instance is Node3D:
+		instance.queue_free()
+		return false
+	_imported_model = instance as Node3D
+	_imported_model.name = "ImportedCreature"
+	add_child(_imported_model)
+	_animation_player = _imported_model.find_child("AnimationPlayer", true, false) as AnimationPlayer
+	if _animation_player != null:
+		_play_external_animation("idle")
+	return true
+
+func _play_external_animation(preferred: String) -> void:
+	if _animation_player == null:
+		return
+	var chosen := preferred
+	if not _animation_player.has_animation(chosen):
+		if _animation_player.has_animation("Idle"):
+			chosen = "Idle"
+		elif _animation_player.has_animation("RESET"):
+			return
+		else:
+			var available := _animation_player.get_animation_list()
+			if available.is_empty():
+				return
+			chosen = available[0]
+	if chosen != _active_animation:
+		_animation_player.play(chosen)
+		_active_animation = chosen
 
 func _build_creature() -> void:
 	var dimensions := Vector3(0.65, 0.62, 1.05)
@@ -110,11 +150,13 @@ func _physics_process(delta: float) -> void:
 	var offset := _wander_target - global_position
 	if offset.length() > 1.0:
 		var direction := offset.normalized()
+		_play_external_animation("walk")
 		velocity.x = direction.x * (1.8 if species == "mammoth" else 2.8)
 		velocity.z = direction.z * (1.8 if species == "mammoth" else 2.8)
 		rotation.y = lerp_angle(rotation.y, atan2(direction.x, direction.z), delta * 2.0)
 		_phase += delta * 7.0
 	else:
+		_play_external_animation("idle")
 		velocity.x = move_toward(velocity.x, 0.0, 5.0 * delta)
 		velocity.z = move_toward(velocity.z, 0.0, 5.0 * delta)
 	velocity.y -= 20.0 * delta
@@ -128,6 +170,7 @@ func receive_damage(amount: float) -> void:
 		return
 	health = maxf(0.0, health - amount)
 	if health <= 0.0:
+		_play_external_animation("dead")
 		var player := get_tree().get_first_node_in_group("player_3d")
 		if player != null and player.has_method("collect_resource"):
 			player.collect_resource("meat", 2 if species != "mammoth" else 6)
