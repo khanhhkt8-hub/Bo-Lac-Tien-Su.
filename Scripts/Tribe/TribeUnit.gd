@@ -30,6 +30,7 @@ var patrol_target: Node2D
 var patrol_scan_timer := 0.0
 var walk_phase := 0.0
 var _health_refresh_timer := 0.0
+var wounded_resting := false
 
 func _ready() -> void:
 	add_to_group("tribe_units")
@@ -74,6 +75,14 @@ func _process(delta: float) -> void:
 	if _health_refresh_timer <= 0.0:
 		_health_refresh_timer = 1.0
 		queue_redraw()
+	var resident_health := float(TribePopulation.get_resident(resident_id).get("health", 100.0)) if resident_id >= 0 else 100.0
+	if resident_health <= 25.0:
+		wounded_resting = true
+	elif resident_health >= 45.0:
+		wounded_resting = false
+	if wounded_resting:
+		velocity = Vector2.ZERO
+		return
 	gather_timer = maxf(0.0, gather_timer - delta)
 	hunt_timer = maxf(0.0, hunt_timer - delta)
 	defense_scan_timer = maxf(0.0, defense_scan_timer - delta)
@@ -383,6 +392,8 @@ func _draw() -> void:
 	if resident_health < 100.0:
 		draw_rect(Rect2(-13.0, -32.0, 26.0, 4.0), Color("#292521"))
 		draw_rect(Rect2(-12.0, -31.0, 24.0 * resident_health / 100.0, 2.0), Color("#d9534f") if resident_health < 35.0 else Color("#d6b64c"))
+	if wounded_resting:
+		draw_circle(Vector2(0.0, -37.0), 4.0, Color("#8bd3ff"))
 		draw_string(ThemeDB.fallback_font, Vector2(-4.0, -35.0), "!", HORIZONTAL_ALIGNMENT_CENTER, 8.0, 9, Color("#ffcc66"))
 
 func _auto_gather() -> void:
