@@ -93,7 +93,10 @@ func _process(delta: float) -> void:
 		_update_hold_position(delta)
 	elif combat_order_active and resident_age >= 18 and not has_move_order:
 		_update_combat_order(delta)
-	if (role == "warrior" or (role == "night_guard" and _is_night())) and resident_age >= 18 and not has_move_order and not combat_order_active and not hold_position_active and not patrol_active:
+	var wounded_retreating := false
+	if not has_move_order and not combat_order_active and not hold_position_active and not patrol_active:
+		wounded_retreating = _retreat_if_critically_wounded(delta)
+	if not wounded_retreating and (role == "warrior" or (role == "night_guard" and _is_night())) and resident_age >= 18 and not has_move_order and not combat_order_active and not hold_position_active and not patrol_active:
 		_auto_defend(delta)
 	if role == "gatherer" and resident_age >= 18 and not has_move_order and not combat_order_active and not hold_position_active and not patrol_active and gather_timer <= 0.0:
 		_auto_gather()
@@ -102,6 +105,31 @@ func _process(delta: float) -> void:
 	if global_position.distance_squared_to(previous_position) > 0.1:
 		walk_phase += delta * 12.0
 		queue_redraw()
+
+
+## Dân làng nguy kịch tự lùi khỏi kẻ địch gần nhất thay vì tiếp tục lao vào giao tranh.
+func _retreat_if_critically_wounded(delta: float) -> bool:
+	var resident := TribePopulation.get_resident(resident_id)
+	if resident.is_empty() or float(resident.get("health", 100.0)) > 30.0:
+		return false
+	var nearest_enemy: Node2D
+	var nearest_distance := 190.0
+	for enemy in get_tree().get_nodes_in_group("enemies"):
+		if not is_instance_valid(enemy) or enemy.is_queued_for_deletion() or not enemy is Node2D:
+			continue
+		var candidate := enemy as Node2D
+		var distance := global_position.distance_to(candidate.global_position)
+		if distance < nearest_distance:
+			nearest_distance = distance
+			nearest_enemy = candidate
+	if not is_instance_valid(nearest_enemy):
+		return false
+	var retreat_direction := nearest_enemy.global_position.direction_to(global_position)
+	if retreat_direction.length_squared() < 0.01:
+		retreat_direction = Vector2.UP
+		global_position += retreat_direction * move_speed * 0.85 * delta
+	walk_phase += delta * 10.0
+	return true
 
 func set_hold_position() -> void:
 	patrol_active = false
