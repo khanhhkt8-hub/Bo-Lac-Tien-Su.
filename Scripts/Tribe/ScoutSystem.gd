@@ -93,7 +93,8 @@ func _create_report(center: Vector2, resident_id: int) -> void:
 			enemies.append(str(node.get("enemy_name")) if node.get("enemy_name") != null else "Kẻ địch")
 	var region_name := "Vùng hoang dã chưa xác định"
 	if RegionSystem != null:
-		var region_data: Dictionary = RegionSystem.get_region_at_position(center)
+		var region_id := RegionSystem.get_region_id_at(center)
+		var region_data: Dictionary = RegionSystem.get_region_data(region_id)
 		if not region_data.is_empty():
 			region_name = str(region_data.get("name", region_name))
 	var report := {
