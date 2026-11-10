@@ -258,6 +258,39 @@ func upgrade_nearby_companion() -> String:
 	return "%s đã lên cấp %d" % [nearest.enemy_name, nearest.companion_level]
 
 
+
+func equip_nearby_companion_gear() -> String:
+	var nearest: PrehistoricAnimal
+	var nearest_distance := 150.0
+	for node in get_tree().get_nodes_in_group("tamed_animals"):
+		if not is_instance_valid(node) or not node is PrehistoricAnimal or node.is_baby:
+			continue
+		var animal := node as PrehistoricAnimal
+		var distance := global_position.distance_to(animal.global_position)
+		if distance <= nearest_distance:
+			nearest = animal
+			nearest_distance = distance
+	if nearest == null:
+		return "Hãy đến gần thú trưởng thành để trang bị"
+	var equipped := false
+	if not nearest.companion_armor_equipped and inventory.get_amount("companion_armor") > 0:
+		if inventory.remove_item("companion_armor", 1):
+			nearest.companion_armor_equipped = true
+			equipped = true
+	if not nearest.companion_fang_equipped and inventory.get_amount("companion_fang") > 0:
+		if inventory.remove_item("companion_fang", 1):
+			nearest.companion_fang_equipped = true
+			equipped = true
+	if not equipped:
+		return "Cần chế tạo Giáp thú và Bùa nanh trong túi đồ, hoặc thú đã mang đủ trang bị"
+	save_companions()
+	return "Đã trang bị cho %s: %s%s" % [
+		nearest.enemy_name,
+		"Giáp thú " if nearest.companion_armor_equipped else "",
+		"Bùa nanh" if nearest.companion_fang_equipped else ""
+	]
+
+
 func feed_nearby_companion() -> String:
 	var nearest: PrehistoricAnimal
 	var nearest_distance := 165.0
@@ -297,14 +330,18 @@ func get_companion_herd_summary() -> String:
 		if not is_instance_valid(node) or not node is PrehistoricAnimal:
 			continue
 		var animal := node as PrehistoricAnimal
-		var stage := "Thú con" if animal.is_baby else "Cấp %d" % animal.companion_level
+		var stage := "Thú con" if animal.is_baby else "%s (Cấp %d)" % [animal.get_evolution_name(), animal.companion_level]
 		var riding := " | Đang cưỡi" if animal.is_mounted else ""
+		var gear := " | Giáp" if animal.companion_armor_equipped else ""
+		if animal.companion_fang_equipped:
+			gear += " | Bùa nanh"
 		lines.append("%s — Máu %d/%d — %s%s" % [
 			animal.enemy_name,
 			roundi(animal.health),
 			roundi(animal.max_health),
 			stage,
-			riding
+			riding,
+			gear
 		])
 	return "\n".join(lines)
 
@@ -346,9 +383,10 @@ func get_companion_combat_summary() -> String:
 			continue
 		var animal := node as PrehistoricAnimal
 		var order_text := "Tấn công" if animal.companion_order == "attack" else "Bảo vệ"
-		lines.append("%s: %s | Lệnh: %s" % [
+		lines.append("%s: %s | %s | Lệnh: %s" % [
 			animal.enemy_name,
 			animal.get_companion_skill_name(),
+			animal.get_evolution_name(),
 			order_text
 		])
 	if lines.size() == 1:
@@ -382,6 +420,8 @@ func save_companions() -> void:
 		config.set_value(section, "growth_remaining", animal.growth_seconds_remaining)
 		config.set_value(section, "health", animal.health)
 		config.set_value(section, "order", animal.companion_order)
+		config.set_value(section, "armor", animal.companion_armor_equipped)
+		config.set_value(section, "fang", animal.companion_fang_equipped)
 		config.set_value(section, "mounted", animal.is_mounted and animal == mounted_animal)
 		config.set_value(section, "offset", animal.global_position - global_position)
 		index += 1
@@ -409,6 +449,8 @@ func _load_companions() -> void:
 		animal.global_position = global_position + config.get_value(section, "offset", Vector2(80.0 + index * 36.0, 50.0))
 		animal.tame_as_companion()
 		animal.set_companion_order(str(config.get_value(section, "order", "protect")))
+		animal.companion_armor_equipped = bool(config.get_value(section, "armor", false))
+		animal.companion_fang_equipped = bool(config.get_value(section, "fang", false))
 		if bool(config.get_value(section, "is_baby", false)):
 			animal.set_as_baby(float(config.get_value(section, "growth_remaining", 300.0)))
 		var level := clampi(int(config.get_value(section, "level", 1)), 1, 3)
