@@ -76,7 +76,9 @@ func _create_report(center: Vector2, resident_id: int) -> void:
 		if not is_instance_valid(node) or not node is Node2D:
 			continue
 		if (node as Node2D).global_position.distance_to(center) <= 280.0:
-			var species := str(node.get("species"))\n\t\t\tif not species.is_empty():\n\t\t\t\twildlife.append(species)
+			var species := str(node.get("species"))
+	\t\tif not species.is_empty():
+	\t\t\twildlife.append(species)
 	for node in get_tree().get_nodes_in_group("enemies"):
 		if not is_instance_valid(node) or not node is Node2D:
 			continue
