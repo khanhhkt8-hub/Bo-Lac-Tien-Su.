@@ -19,6 +19,11 @@ var patrol_target: Vector2
 var target: Node2D
 var attack_timer: float = 0.0
 var retarget_timer: float = 0.0
+var slow_seconds: float = 0.0
+var slow_multiplier: float = 1.0
+var poison_seconds: float = 0.0
+var poison_damage: float = 0.0
+var poison_tick_timer: float = 0.0
 
 func _ready() -> void:
 	health = max_health
@@ -28,6 +33,15 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	attack_timer = maxf(0.0, attack_timer - delta)
+	slow_seconds = maxf(0.0, slow_seconds - delta)
+	if slow_seconds <= 0.0:
+		slow_multiplier = 1.0
+	poison_seconds = maxf(0.0, poison_seconds - delta)
+	if poison_seconds > 0.0:
+		poison_tick_timer -= delta
+		if poison_tick_timer <= 0.0:
+			poison_tick_timer = 1.0
+			take_damage(poison_damage)
 	retarget_timer -= delta
 	if retarget_timer <= 0.0:
 		retarget_timer = 0.25
@@ -76,7 +90,7 @@ func _move_ai(_delta: float) -> void:
 			if global_position.distance_to(patrol_target) < 12.0:
 				_choose_patrol_point()
 	var direction := global_position.direction_to(destination)
-	velocity = direction * move_speed
+	velocity = direction * move_speed * slow_multiplier
 	if direction.length_squared() > 0.01:
 		rotation = direction.angle()
 
@@ -94,6 +108,16 @@ func _choose_patrol_point() -> void:
 
 func _on_target_detected(_new_target: Node2D) -> void:
 	pass
+
+
+func apply_slow(duration: float, multiplier: float) -> void:
+	slow_seconds = maxf(slow_seconds, duration)
+	slow_multiplier = minf(slow_multiplier, clampf(multiplier, 0.1, 1.0))
+
+func apply_poison(duration: float, damage_per_second: float) -> void:
+	poison_seconds = maxf(poison_seconds, duration)
+	poison_damage = maxf(poison_damage, damage_per_second)
+	poison_tick_timer = minf(poison_tick_timer, 1.0) if poison_tick_timer > 0.0 else 1.0
 
 func take_damage(amount: float) -> void:
 	health = maxf(0.0, health - maxf(0.0, amount))
