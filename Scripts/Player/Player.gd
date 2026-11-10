@@ -333,7 +333,9 @@ func get_companion_herd_summary() -> String:
 		if not is_instance_valid(node) or not node is PrehistoricAnimal:
 			continue
 		var animal := node as PrehistoricAnimal
+		var rarity_text := " | Hiếm" if animal.rarity == "rare" else (" | Huyền thoại" if animal.rarity == "legendary" else "")
 		var stage := "Thú con" if animal.is_baby else "%s (Cấp %d)" % [animal.get_evolution_name(), animal.companion_level]
+		stage += rarity_text
 		var riding := " | Đang cưỡi" if animal.is_mounted else ""
 		var gear := " | Giáp" if animal.companion_armor_equipped else ""
 		if animal.companion_fang_equipped:
@@ -418,6 +420,7 @@ func save_companions() -> void:
 		var animal := node as PrehistoricAnimal
 		var section := "companion_%d" % index
 		config.set_value(section, "species", animal.species)
+		config.set_value(section, "rarity", animal.rarity)
 		config.set_value(section, "level", animal.companion_level)
 		config.set_value(section, "is_baby", animal.is_baby)
 		config.set_value(section, "growth_remaining", animal.growth_seconds_remaining)
@@ -463,6 +466,7 @@ func _load_companions() -> void:
 		scene_root.add_child(animal)
 		animal.global_position = global_position + config.get_value(section, "offset", Vector2(80.0 + index * 36.0, 50.0))
 		animal.tame_as_companion()
+		animal.set_rarity(str(config.get_value(section, "rarity", "common")))
 		animal.set_companion_order(str(config.get_value(section, "order", "protect")))
 		animal.companion_armor_equipped = bool(config.get_value(section, "armor", false))
 		animal.companion_fang_equipped = bool(config.get_value(section, "fang", false))
@@ -552,10 +556,14 @@ func hatch_ready_egg() -> String:
 	scene_root.add_child(baby)
 	baby.global_position = global_position + Vector2(36.0, 32.0)
 	baby.tame_as_companion()
+	var rarity_roll := randf()
+	var baby_rarity := "legendary" if rarity_roll < 0.02 else ("rare" if rarity_roll < 0.14 else "common")
+	baby.set_rarity(baby_rarity)
 	baby.set_as_baby(300.0)
 	_register_companion(baby)
 	save_companions()
-	return "Trứng đã nở! %s con đã gia nhập đàn" % baby.enemy_name
+	var rarity_label := " (Huyền thoại!)" if baby.rarity == "legendary" else (" (Hiếm)" if baby.rarity == "rare" else "")
+	return "Trứng đã nở! %s%s con đã gia nhập đàn" % [baby.enemy_name, rarity_label]
 
 
 func get_egg_summary() -> String:
