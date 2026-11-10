@@ -107,11 +107,19 @@ func _produce_resources() -> void:
 		if job_id == "caregiver":
 			continue
 		var resource_id := str(definition.output)
-		var amount := int(definition.amount)
+		if resource_id.is_empty():
+			continue
+		var base_amount := int(definition.amount)
+		# Cứ mỗi 25 điểm tay nghề, sản lượng tăng thêm 1 đơn vị mỗi chu kỳ.
+		# Mức tăng tối đa ở kỹ năng 100 là 4 đơn vị.
+		var skill_bonus := mini(4, int(skills[job_id]) / 25)
+		var amount := base_amount + skill_bonus
 		stockpile[resource_id] = int(stockpile.get(resource_id, 0)) + amount
 		produced[resource_id] = int(produced.get(resource_id, 0)) + amount
 	for resource_id in produced:
 		production_changed.emit(resource_id, int(stockpile[resource_id]))
+	# Lưu cả kinh nghiệm và kỹ năng nghề vừa tăng trong chu kỳ này.
+	TribePopulation.save_population()
 	_save_state()
 
 ## Khi kho sinh tồn xuống thấp, tự giao việc cho người trưởng thành chưa có nghề.
