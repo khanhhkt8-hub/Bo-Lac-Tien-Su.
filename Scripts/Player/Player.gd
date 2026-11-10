@@ -17,6 +17,7 @@ var antidote_seconds := 0.0
 var mounted_animal: PrehistoricAnimal
 var _loading_companions := false
 var _companion_save_timer := 0.0
+var incubating_eggs: Array[Dictionary] = []
 @export var attack_cooldown: float = 0.55
 @export var attack_range: float = 72.0
 
@@ -40,6 +41,8 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	attack_cooldown_left = maxf(0.0, attack_cooldown_left - delta)
+	for egg in incubating_eggs:
+		egg["remaining"] = maxf(0.0, float(egg.get("remaining", 0.0)) - delta)
 	_companion_save_timer += delta
 	if _companion_save_timer >= 10.0:
 		_companion_save_timer = 0.0
@@ -426,6 +429,11 @@ func save_companions() -> void:
 		config.set_value(section, "offset", animal.global_position - global_position)
 		index += 1
 	config.set_value("companions", "count", index)
+	config.set_value("eggs", "count", incubating_eggs.size())
+	for egg_index in range(incubating_eggs.size()):
+		var egg_section := "egg_%d" % egg_index
+		config.set_value(egg_section, "species", str(incubating_eggs[egg_index].get("species", "wolf")))
+		config.set_value(egg_section, "remaining", float(incubating_eggs[egg_index].get("remaining", 0.0)))
 	config.save(COMPANION_SAVE_PATH)
 
 func _load_companions() -> void:
@@ -434,6 +442,13 @@ func _load_companions() -> void:
 	if error != OK:
 		return
 	_loading_companions = true
+	incubating_eggs.clear()
+	var egg_count := clampi(int(config.get_value("eggs", "count", 0)), 0, 3)
+	for egg_index in range(egg_count):
+		var egg_section := "egg_%d" % egg_index
+		var egg_species := str(config.get_value(egg_section, "species", "wolf"))
+		if egg_species in ["wolf", "saber_tooth", "cave_bear", "mammoth"]:
+			incubating_eggs.append({"species": egg_species, "remaining": maxf(0.0, float(config.get_value(egg_section, "remaining", 0.0)))})
 	var count := clampi(int(config.get_value("companions", "count", 0)), 0, 3)
 	for index in range(count):
 		var section := "companion_%d" % index
@@ -481,8 +496,8 @@ func breed_nearby_companions() -> String:
 				companions.append(animal)
 	if companions.size() < 2:
 		return "Cần 2 thú trưởng thành ở gần để sinh sản"
-	if get_tree().get_nodes_in_group("tamed_animals").size() >= 3:
-		return "Đội thú đã đủ 3 con, hãy có chỗ trống cho thú con"
+	if get_tree().get_nodes_in_group("tamed_animals").size() + incubating_eggs.size() >= 3:
+		return "Đội thú và trứng đã chiếm đủ 3 chỗ"
 	var parent_a: PrehistoricAnimal
 	var parent_b: PrehistoricAnimal
 	var best_distance := 190.0
@@ -506,15 +521,50 @@ func breed_nearby_companions() -> String:
 	if not inventory.remove_item("meat", 5):
 		inventory.add_item("food", 10)
 		return "Không đủ thịt"
+	incubating_eggs.append({"species": parent_a.species, "remaining": 180.0})
+	save_companions()
+	return "Đã đẻ trứng %s! Thời gian ấp: 3 phút" % parent_a.enemy_name
+
+
+
+func hatch_ready_egg() -> String:
+	if incubating_eggs.is_empty():
+		return "Chưa có trứng đang ấp"
+	if get_tree().get_nodes_in_group("tamed_animals").size() >= 3:
+		return "Đội thú đã đủ 3 con, chưa thể nở thêm"
+	var ready_index := -1
+	for index in range(incubating_eggs.size()):
+		if float(incubating_eggs[index].get("remaining", 0.0)) <= 0.0:
+			ready_index = index
+			break
+	if ready_index < 0:
+		var remaining := 180.0
+		for egg in incubating_eggs:
+			remaining = minf(remaining, float(egg.get("remaining", 180.0)))
+		return "Trứng chưa nở, còn khoảng %d giây" % ceili(remaining)
+	var species := str(incubating_eggs[ready_index].get("species", "wolf"))
+	incubating_eggs.remove_at(ready_index)
 	var baby := ANIMAL_SCENE.instantiate() as PrehistoricAnimal
-	baby.species = parent_a.species
+	baby.species = species
 	var scene_root := get_tree().current_scene
 	if scene_root == null:
 		scene_root = get_parent()
 	scene_root.add_child(baby)
-	baby.global_position = (parent_a.global_position + parent_b.global_position) * 0.5 + Vector2(24.0, 24.0)
+	baby.global_position = global_position + Vector2(36.0, 32.0)
 	baby.tame_as_companion()
 	baby.set_as_baby(300.0)
 	_register_companion(baby)
 	save_companions()
-	return "Thú con %s đã ra đời! Sẽ trưởng thành sau 5 phút" % baby.enemy_name
+	return "Trứng đã nở! %s con đã gia nhập đàn" % baby.enemy_name
+
+
+func get_egg_summary() -> String:
+	if incubating_eggs.is_empty():
+		return "Ổ trứng: chưa có trứng"
+	var lines: PackedStringArray = ["Ổ TRỨNG (%d)" % incubating_eggs.size()]
+	for egg in incubating_eggs:
+		var species := str(egg.get("species", "wolf"))
+		var remaining := float(egg.get("remaining", 0.0))
+		var state := "ĐÃ SẴN SÀNG NỞ" if remaining <= 0.0 else "Còn %d giây" % ceili(remaining)
+		lines.append("%s — %s" % [species, state])
+	return "\\n".join(lines)
