@@ -57,9 +57,9 @@ func _process(delta: float) -> void:
 		_update_combat_order(delta)
 	if role == "warrior" and resident_age >= 18 and not has_move_order and not combat_order_active:
 		_auto_defend(delta)
-	if role == "gatherer" and resident_age >= 18 and not has_move_order and gather_timer <= 0.0:
+	if role == "gatherer" and resident_age >= 18 and not has_move_order and not combat_order_active and gather_timer <= 0.0:
 		_auto_gather()
-	if role == "hunter" and resident_age >= 18 and not has_move_order and hunt_timer <= 0.0:
+	if role == "hunter" and resident_age >= 18 and not has_move_order and not combat_order_active and hunt_timer <= 0.0:
 		_auto_hunt()
 func _update_combat_order(delta: float) -> void:
 	if combat_scan_timer <= 0.0 or not is_instance_valid(combat_target) or combat_target.is_queued_for_deletion():
