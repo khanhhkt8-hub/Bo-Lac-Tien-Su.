@@ -40,10 +40,18 @@ func _build_creature() -> void:
 	_ellipsoid("Head", Vector3(0, dimensions.y + dimensions.y * 0.55, -dimensions.z * 0.72), head_size, body_material)
 	var muzzle := _mat(fur.lightened(0.16))
 	_ellipsoid("Muzzle", Vector3(0, dimensions.y + dimensions.y * 0.38, -dimensions.z * 1.0), head_size * Vector3(0.7, 0.55, 0.7), muzzle)
+	# Bốn chân đặt theo hai trục trước/sau để dáng thú đúng kiểu động vật bốn chân.
 	for side in [-1.0, 1.0]:
-		var leg := _ellipsoid("Leg", Vector3(side * dimensions.x * 0.52, dimensions.y * 0.32, dimensions.z * 0.38), Vector3(dimensions.x * 0.25, dimensions.y * 0.75, dimensions.x * 0.27), body_material)
-		leg.name = "Leg"
-		if species == "saber_tooth":
+		for fore_aft in [-1.0, 1.0]:
+			var leg := _ellipsoid("Leg", Vector3(side * dimensions.x * 0.52, dimensions.y * 0.32, fore_aft * dimensions.z * 0.38), Vector3(dimensions.x * 0.25, dimensions.y * 0.75, dimensions.x * 0.27), body_material)
+			leg.rotation.x = -0.08 if fore_aft < 0.0 else 0.08
+	# Đuôi và tai tạo đường nét dễ nhận biết hơn cho từng loài.
+	if species != "mammoth":
+		_ellipsoid("Tail", Vector3(0.0, dimensions.y * 0.88, dimensions.z * 0.95), Vector3(dimensions.x * 0.16, dimensions.y * 0.16, dimensions.z * 0.42), body_material)
+	if species in ["wolf", "saber_tooth", "deer"]:
+		for side in [-1.0, 1.0]:
+			_ellipsoid("Ear", Vector3(side * head_size.x * 0.72, dimensions.y + dimensions.y * 0.78, -dimensions.z * 0.69), Vector3(0.12, 0.2, 0.1), body_material)
+	if species == "saber_tooth":
 			_ellipsoid("Fang", Vector3(side * head_size.x * 0.55, dimensions.y + dimensions.y * 0.12, -dimensions.z * 1.05), Vector3(0.07, 0.28, 0.07), _mat(Color("#f0dfb4")))
 		if species == "mammoth":
 			_ellipsoid("Tusk", Vector3(side * dimensions.x * 0.42, dimensions.y + dimensions.y * 0.28, -dimensions.z * 0.95), Vector3(0.12, 0.58, 0.12), _mat(Color("#e5d6ad")))
