@@ -129,7 +129,7 @@ func _mat(color: Color) -> StandardMaterial3D:
 
 func _physics_process(delta: float) -> void:
 	if is_tamed:
-		var player := get_tree().get_first_node_in_group("player_3d")
+		var player: Node3D = get_tree().get_first_node_in_group("player_3d") as Node3D
 		if player != null:
 			var follow_offset := player.global_position + player.global_transform.basis.z * 2.4 - global_position
 			if follow_offset.length() > 3.0:
