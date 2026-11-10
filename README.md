@@ -150,3 +150,10 @@ Game sinh tồn 2D offline, ưu tiên Android, phát triển bằng Godot 4.
 - Nút XEM Ổ TRỨNG hiển thị loài và thời gian còn lại; nút ẤP / NỞ TRỨNG đưa thú con đã đủ thời gian vào đàn.
 - Trứng đang ấp cũng chiếm một vị trí trong giới hạn đội hình 3 thú để tránh vượt giới hạn khi nở.
 - Thú con sau khi nở tiếp tục cần 5 phút chơi để trưởng thành.
+
+
+## Đột biến hiếm và thú huyền thoại
+- Mỗi lần trứng nở có 12% cơ hội sinh thú Hiếm và 2% cơ hội sinh thú Huyền thoại; các trường hợp còn lại là thú thường.
+- Thú Hiếm có +25% máu tối đa, +20% sát thương và +8% tốc độ.
+- Thú Huyền thoại có +70% máu tối đa, +55% sát thương và +18% tốc độ.
+- Thú hiếm có viền sáng xanh; thú huyền thoại có viền vàng. HUD đàn thú hiển thị phẩm chất và dữ liệu phẩm chất được lưu offline.
