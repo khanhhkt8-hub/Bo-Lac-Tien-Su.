@@ -297,3 +297,13 @@ Game sinh tồn 2D offline, ưu tiên Android, phát triển bằng Godot 4.
 - Chiến binh áp sát, thợ săn giữ tầm đánh xa hơn; lệnh di chuyển, tấn công hoặc giữ vị trí mới sẽ thay thế tuyến tuần tra.
 - Tuyến tuần tra được vẽ bằng hai mốc vàng trong lúc đặt; đây là lệnh theo phiên chơi, chưa lưu sau khi thoát game.
 - Chưa chạy kiểm thử Godot runtime hoặc build APK.
+
+
+### Sương mù chiến tranh – khám phá bản đồ theo tầm nhìn bộ lạc
+- Bản đồ bắt đầu bị che phủ: khu vực chưa có người bộ lạc đi tới sẽ không hiển thị địa hình, tài nguyên, thú hoang hoặc doanh trại bên trong.
+- Nhân vật chính và từng cư dân đều tạo tầm nhìn riêng; thợ săn có tầm quan sát 330, chiến binh 290, các vai trò khác 240 đơn vị; nhân vật chính có 440 đơn vị.
+- Khu vực vừa được nhìn thấy sẽ được ghi nhớ. Khi người rời đi, địa hình đã khám phá vẫn còn hiện mờ, còn vùng chưa từng khám phá tiếp tục bị che kín.
+- Khi bất kỳ thành viên bộ lạc nào tiến vào một quần xã mới, vùng đó được đánh dấu đã khám phá trong RegionSystem.
+- Dữ liệu vùng đã khám phá được lưu offline trong `user://bo_lac_fog_of_war.cfg`; tiến trình khám phá tiếp tục sau khi mở game lại.
+- Lớp sương mù được đặt trên các đối tượng thế giới để che cả tài nguyên, thú và kẻ địch ở vùng chưa được nhìn thấy.
+- Chưa chạy kiểm thử Godot runtime hoặc build APK.
