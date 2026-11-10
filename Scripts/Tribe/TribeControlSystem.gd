@@ -270,6 +270,9 @@ func order_all_attack() -> int:
 		unit.combat_order_active = unit.resident_age >= 18
 		unit.hold_position_active = false
 		unit.hold_target = null
+		unit.patrol_active = false
+		unit.patrol_points.clear()
+		unit.patrol_target = null
 		unit.has_move_order = false
 		unit.combat_target = null
 		if unit.combat_order_active:
