@@ -401,8 +401,6 @@ func take_damage(amount: float) -> void:
 
 func _draw() -> void:
 	var body_color := Color("#8a7254")
-	if is_tamed:
-		body_color = Color("#78b88a")
 	var radius := 16.0
 	match species:
 		"wolf":
@@ -417,6 +415,8 @@ func _draw() -> void:
 		"mammoth":
 			body_color = Color("#8a7964")
 			radius = 27.0
+	if is_tamed:
+		body_color = body_color.lerp(Color("#78b88a"), 0.18)
 	if rarity == "rare":
 		body_color = body_color.lerp(Color("#48c8d8"), 0.5)
 	elif rarity == "legendary":
@@ -432,31 +432,44 @@ func _draw() -> void:
 			body_color = body_color.lerp(Color("#b58cff"), 0.55)
 		"divine":
 			body_color = body_color.lerp(Color("#fff4b0"), 0.72)
-	# Bốn chân chuyển động luân phiên, thân thuôn và đầu hướng về phía trước.
+	# Bóng đổ và bốn chân có nhịp bước so le.
+	draw_colored_polygon(PackedVector2Array([Vector2(-radius, radius * 0.55), Vector2(-radius * 0.75, radius * 1.12), Vector2(radius * 0.8, radius * 1.12), Vector2(radius, radius * 0.55), Vector2(0, radius * 0.3)]), Color(0.06, 0.07, 0.05, 0.34))
 	var gait := sin(walk_phase) * 4.5 if velocity.length_squared() > 1.0 else 0.0
-	var leg_color := body_color.darkened(0.28)
+	var leg_color := body_color.darkened(0.32)
 	for leg_x in [-radius * 0.48, radius * 0.48]:
-		draw_line(Vector2(leg_x, radius * 0.12), Vector2(leg_x + gait, radius * 0.88), leg_color, maxf(4.0, radius * 0.28))
-		draw_circle(Vector2(leg_x + gait, radius * 0.88), maxf(3.0, radius * 0.15), leg_color.darkened(0.1))
+		draw_line(Vector2(leg_x, radius * 0.08), Vector2(leg_x + gait, radius * 0.88), leg_color, maxf(4.0, radius * 0.28))
+		draw_line(Vector2(leg_x + gait, radius * 0.82), Vector2(leg_x + gait + 2.0, radius * 0.94), body_color.darkened(0.45), maxf(2.0, radius * 0.12))
+	# Thân có lớp bóng dưới và vùng sáng lưng.
 	var torso := PackedVector2Array()
-	for point_index in range(24):
-		var angle := TAU * float(point_index) / 24.0
+	for point_index in range(28):
+		var angle := TAU * float(point_index) / 28.0
 		torso.append(Vector2(cos(angle) * radius * 1.12, sin(angle) * radius * 0.78))
-	draw_colored_polygon(torso, body_color)
-	draw_arc(Vector2.ZERO, radius * 0.88, 0.0, TAU, 28, body_color.lightened(0.18), 2.0)
+	draw_colored_polygon(torso, body_color.darkened(0.18))
+	draw_colored_polygon(PackedVector2Array([Vector2(-radius * 0.82, -radius * 0.18), Vector2(-radius * 0.45, -radius * 0.72), Vector2(radius * 0.5, -radius * 0.68), Vector2(radius * 0.88, -radius * 0.08), Vector2(radius * 0.3, radius * 0.22), Vector2(-radius * 0.48, radius * 0.2)]), body_color.lightened(0.12))
+	draw_arc(Vector2.ZERO, radius * 0.88, 0.0, TAU, 30, body_color.lightened(0.22), 2.0)
+	# Tai nhọn cho thú họ mèo và sói.
 	if species == "wolf" or species == "saber_tooth":
 		draw_colored_polygon(PackedVector2Array([Vector2(-radius * 0.55, -radius * 0.45), Vector2(-radius * 0.8, -radius * 1.12), Vector2(-radius * 0.12, -radius * 0.68)]), body_color.darkened(0.12))
 		draw_colored_polygon(PackedVector2Array([Vector2(radius * 0.55, -radius * 0.45), Vector2(radius * 0.8, -radius * 1.12), Vector2(radius * 0.12, -radius * 0.68)]), body_color.darkened(0.12))
-	# Đầu nhô về phía trước, mắt và mõm rõ hơn.
-	draw_circle(Vector2(0, -radius * 0.62), radius * 0.52, body_color.lightened(0.12))
+	# Đầu, mõm, mắt có điểm sáng.
+	draw_circle(Vector2(0, -radius * 0.62), radius * 0.52, body_color.lightened(0.16))
 	draw_circle(Vector2(-radius * 0.22, -radius * 0.68), maxf(2.0, radius * 0.1), Color("#211b17"))
 	draw_circle(Vector2(radius * 0.22, -radius * 0.68), maxf(2.0, radius * 0.1), Color("#211b17"))
+	draw_circle(Vector2(-radius * 0.25, -radius * 0.74), maxf(0.8, radius * 0.035), Color("#fff0c8"))
+	draw_circle(Vector2(radius * 0.19, -radius * 0.74), maxf(0.8, radius * 0.035), Color("#fff0c8"))
 	draw_circle(Vector2(0, -radius * 0.38), radius * 0.16, Color("#30241e"))
-	# Đuôi vẫy nhẹ khi di chuyển.
-	draw_line(Vector2(0, radius * 0.52), Vector2(sin(walk_phase * 0.7) * 5.0, radius * 1.35), body_color.darkened(0.15), maxf(3.0, radius * 0.2))
 	if species == "saber_tooth":
-		draw_line(Vector2(-5.0, 6.0), Vector2(-3.0, 14.0), Color("#eee1c5"), 2.0)
-		draw_line(Vector2(5.0, 6.0), Vector2(3.0, 14.0), Color("#eee1c5"), 2.0)
+		draw_line(Vector2(-5.0, 5.0), Vector2(-3.0, 15.0), Color("#eee1c5"), 2.6)
+		draw_line(Vector2(5.0, 5.0), Vector2(3.0, 15.0), Color("#eee1c5"), 2.6)
+	elif species == "mammoth":
+		draw_arc(Vector2(-radius * 0.48, -radius * 0.18), radius * 0.62, -0.4, 1.7, 18, Color("#e9d8b8"), 4.0)
+		draw_arc(Vector2(radius * 0.48, -radius * 0.18), radius * 0.62, 1.4, 3.5, 18, Color("#e9d8b8"), 4.0)
+		draw_line(Vector2(0, -radius * 0.2), Vector2(0, radius * 0.5), body_color.darkened(0.25), 4.0)
+	elif species == "cave_bear":
+		draw_circle(Vector2(-radius * 0.38, -radius * 0.94), radius * 0.16, body_color.darkened(0.1))
+		draw_circle(Vector2(radius * 0.38, -radius * 0.94), radius * 0.16, body_color.darkened(0.1))
+	# Đuôi và dấu hiệu thú đồng hành.
+	draw_line(Vector2(0, radius * 0.52), Vector2(sin(walk_phase * 0.7) * 5.0, radius * 1.35), body_color.darkened(0.15), maxf(3.0, radius * 0.2))
 	if is_tamed:
 		var mark := "THÚ CON" if is_baby else "★%d" % companion_level
 		draw_string(ThemeDB.fallback_font, Vector2(-radius, -radius - 7.0), mark, HORIZONTAL_ALIGNMENT_LEFT, 70.0, 12, Color("#f2d16b"))
@@ -469,5 +482,3 @@ func _draw() -> void:
 		draw_string(ThemeDB.fallback_font, Vector2(-radius, radius + 18.0), "THÚ CHÚA", HORIZONTAL_ALIGNMENT_LEFT, 90.0, 11, Color("#ffb6ee"))
 	if is_tamed and rarity != "common":
 		draw_arc(Vector2.ZERO, radius + 5.0, 0.0, TAU, 32, body_color.lightened(0.25), 2.5)
-	if species == "mammoth":
-		draw_arc(Vector2(0.0, 8.0), radius * 0.65, 0.1, PI - 0.1, 18, Color("#e4d1aa"), 3.0)
