@@ -159,8 +159,8 @@ func tame_nearby_animal() -> String:
 			nearest_distance = distance
 	if nearest == null:
 		return "Không có thú hoang trong tầm thuần hóa"
-	if get_tree().get_nodes_in_group("tamed_animals").size() >= 3:
-		return "Đội thú đồng hành đã đủ 3 con"
+	if get_tree().get_nodes_in_group("tamed_animals").size() + incubating_eggs.size() >= 3:
+		return "Đội thú và trứng đã chiếm đủ 3 chỗ"
 	var food_item := "meat"
 	var food_cost := 2
 	match nearest.species:
@@ -567,4 +567,4 @@ func get_egg_summary() -> String:
 		var remaining := float(egg.get("remaining", 0.0))
 		var state := "ĐÃ SẴN SÀNG NỞ" if remaining <= 0.0 else "Còn %d giây" % ceili(remaining)
 		lines.append("%s — %s" % [species, state])
-	return "\\n".join(lines)
+	return "\n".join(lines)
