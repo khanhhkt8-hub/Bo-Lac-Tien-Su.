@@ -1,7 +1,9 @@
 extends CharacterBody2D
 class_name EnemyAI
 
-enum AIState { PATROL, CHASE, ATTACK, RETURN }
+signal defeated(enemy: EnemyAI)
+
+ enum AIState { PATROL, CHASE, ATTACK, RETURN }
 
 @export var enemy_name: String = "Enemy"
 @export var max_health: float = 60.0
@@ -121,7 +123,8 @@ func apply_poison(duration: float, damage_per_second: float) -> void:
 
 func take_damage(amount: float) -> void:
 	health = maxf(0.0, health - maxf(0.0, amount))
-	if health <= 0.0:
+	if health <= 0.0 and not is_queued_for_deletion():
+		defeated.emit(self)
 		queue_free()
 
 func _draw() -> void:
