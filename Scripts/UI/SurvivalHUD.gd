@@ -21,11 +21,28 @@ func _ready() -> void:
 	_tribe_control = get_node_or_null("../TribeControlSystem")
 	_rts_camera = get_node_or_null("../Camera2D") as Camera2D
 	var panel := PanelContainer.new()
-	panel.position = Vector2(16, 16)
-	panel.custom_minimum_size = Vector2(350, 178)
+	panel.position = Vector2(12, 54)
+	panel.custom_minimum_size = Vector2(350, 270)
+	panel.size = Vector2(350, 270)
+	panel.visible = false
 	add_child(panel)
+	var scroll := ScrollContainer.new()
+	scroll.custom_minimum_size = Vector2(338, 258)
+	scroll.size = Vector2(338, 258)
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	panel.add_child(scroll)
 	var column := VBoxContainer.new()
-	panel.add_child(column)
+	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(column)
+	var menu_button := Button.new()
+	menu_button.text = "☰ BỘ LẠC"
+	menu_button.position = Vector2(12, 12)
+	menu_button.custom_minimum_size = Vector2(132, 38)
+	menu_button.pressed.connect(func() -> void:
+		panel.visible = not panel.visible
+		menu_button.text = "ĐÓNG MENU" if panel.visible else "☰ BỘ LẠC"
+	)
+	add_child(menu_button)
 	_stats_label = Label.new()
 	_stats_label.text = "Máu: -- | Đói: -- | Khát: --"
 	column.add_child(_stats_label)
@@ -242,6 +259,7 @@ func _ready() -> void:
 	_add_craft_button(survival_gear_row, "Thuốc giải", "herbal_antidote")
 	_add_craft_button(survival_gear_row, "Đuốc", "torch")
 	_create_mobile_movement_pad()
+	_create_quick_action_buttons()
 	_create_tribe_management_button()
 	if ScoutSystem != null and not ScoutSystem.status_changed.is_connected(_on_scout_status_changed):
 		ScoutSystem.status_changed.connect(_on_scout_status_changed)
@@ -288,6 +306,27 @@ func _on_tribe_leader_changed(_old_leader: Dictionary, new_leader: Dictionary) -
 			_craft_status.text = "Bộ lạc chưa tìm được người kế nhiệm tộc trưởng!"
 		else:
 			_craft_status.text = "%s đã được chọn làm tộc trưởng mới." % str(new_leader.get("name", "Người kế nhiệm"))
+
+func _create_quick_action_buttons() -> void:
+	_add_quick_action("ĐÁNH", Vector2(-150, -138), _on_attack_pressed)
+	_add_quick_action("NHẶT", Vector2(-78, -138), _on_gather_pressed)
+	_add_quick_action("THUẦN", Vector2(-150, -76), _on_tame_pressed)
+	_add_quick_action("BẮN", Vector2(-78, -76), _on_shoot_pressed)
+
+func _add_quick_action(label: String, offset: Vector2, callback: Callable) -> void:
+	var button := Button.new()
+	button.text = label
+	button.custom_minimum_size = Vector2(68, 54)
+	button.anchor_left = 1.0
+	button.anchor_right = 1.0
+	button.anchor_top = 1.0
+	button.anchor_bottom = 1.0
+	button.offset_left = offset.x
+	button.offset_top = offset.y
+	button.offset_right = offset.x + 68.0
+	button.offset_bottom = offset.y + 54.0
+	button.pressed.connect(callback)
+	add_child(button)
 
 func _create_mobile_movement_pad() -> void:
 	_add_move_button("↑", "ui_up", Vector2(92, -190))
