@@ -11,6 +11,8 @@ var survival_stats: SurvivalStats
 var inventory: InventorySystem
 var crafting: CraftingSystem
 var attack_cooldown_left: float = 0.0
+var relic_skill_cooldown_left: float = 0.0
+const RELIC_SKILL_COOLDOWN := 8.0
 var current_region_id := ""
 var hazard_damage_timer := 0.0
 var antidote_seconds := 0.0
@@ -41,6 +43,7 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	attack_cooldown_left = maxf(0.0, attack_cooldown_left - delta)
+	relic_skill_cooldown_left = maxf(0.0, relic_skill_cooldown_left - delta)
 	for egg in incubating_eggs:
 		egg["remaining"] = maxf(0.0, float(egg.get("remaining", 0.0)) - delta)
 	_companion_save_timer += delta
@@ -131,6 +134,86 @@ func attack_nearby() -> bool:
 		attack_cooldown_left = attack_cooldown
 		return true
 	return false
+
+func use_relic_weapon_skill() -> String:
+	if relic_skill_cooldown_left > 0.0:
+		return "Kỹ năng di vật đang hồi chiêu: %d giây" % ceili(relic_skill_cooldown_left)
+	var weapon_id := ""
+	for candidate in ["relic_cavern_hammer", "relic_mammoth_axe", "relic_saber_blade", "relic_thunder_spear", "relic_swamp_claw", "relic_frost_bow"]:
+		if inventory.get_amount(candidate) > 0:
+			weapon_id = candidate
+			break
+	if weapon_id.is_empty():
+		return "Cần chế tạo một vũ khí di vật từ cổ vật Boss trước"
+	var enemies: Array[Node2D] = []
+	for node in get_tree().get_nodes_in_group("enemies"):
+		if is_instance_valid(node) and node is Node2D and node.has_method("take_damage"):
+			enemies.append(node as Node2D)
+	if enemies.is_empty():
+		return "Không có kẻ địch để dùng kỹ năng"
+	var hit_count := 0
+	var nearest: Node2D
+	var nearest_distance := INF
+	for enemy in enemies:
+		var distance := global_position.distance_to(enemy.global_position)
+		if distance < nearest_distance:
+			nearest = enemy
+			nearest_distance = distance
+	match weapon_id:
+		"relic_cavern_hammer":
+			for enemy in enemies:
+				if global_position.distance_to(enemy.global_position) <= 190.0:
+					enemy.take_damage(58.0)
+					hit_count += 1
+			if hit_count == 0:
+				return "Đến gần kẻ địch hơn để tạo Chấn Địa"
+			relic_skill_cooldown_left = RELIC_SKILL_COOLDOWN
+			return "CHẤN ĐỊA HANG ĐỘNG! Gây 58 sát thương trong vùng rộng (%d mục tiêu)" % hit_count
+		"relic_mammoth_axe":
+			for enemy in enemies:
+				if global_position.distance_to(enemy.global_position) <= 145.0:
+					enemy.take_damage(48.0)
+					hit_count += 1
+			if hit_count == 0:
+				return "Đến gần kẻ địch hơn để dùng Rìu Quét"
+			relic_skill_cooldown_left = RELIC_SKILL_COOLDOWN
+			return "RÌU QUÉT MA MÚT! Chém lan 48 sát thương (%d mục tiêu)" % hit_count
+		"relic_saber_blade":
+			if nearest_distance > 150.0:
+				return "Mục tiêu phải ở trong 150 đơn vị"
+			nearest.take_damage(82.0)
+			relic_skill_cooldown_left = RELIC_SKILL_COOLDOWN
+			return "SONG TRẢO CHÍ MẠNG! Hai nhát chém tổng 82 sát thương"
+		"relic_thunder_spear":
+			enemies.sort_custom(func(a: Node2D, b: Node2D) -> bool:
+				return global_position.distance_squared_to(a.global_position) < global_position.distance_squared_to(b.global_position)
+			)
+			for index in range(mini(3, enemies.size())):
+				if global_position.distance_to(enemies[index].global_position) > 420.0:
+					continue
+				enemies[index].take_damage(45.0)
+				hit_count += 1
+			if hit_count == 0:
+				return "Không có mục tiêu trong tầm sét 420 đơn vị"
+			relic_skill_cooldown_left = RELIC_SKILL_COOLDOWN
+			return "SẤM SÉT LIÊN KÍCH! Đánh trúng %d mục tiêu" % hit_count
+		"relic_swamp_claw":
+			if nearest_distance > 150.0:
+				return "Mục tiêu phải ở trong 150 đơn vị"
+			nearest.take_damage(35.0)
+			if nearest.has_method("apply_poison"):
+				nearest.apply_poison(6.0, 8.0)
+			relic_skill_cooldown_left = RELIC_SKILL_COOLDOWN
+			return "NỌC ĐỘC ĐẦM LẦY! 35 sát thương và độc 8/giây trong 6 giây"
+		"relic_frost_bow":
+			if nearest_distance > 520.0:
+				return "Mục tiêu phải ở trong tầm 520 đơn vị"
+			nearest.take_damage(32.0)
+			if nearest.has_method("apply_slow"):
+				nearest.apply_slow(4.0, 0.35)
+			relic_skill_cooldown_left = RELIC_SKILL_COOLDOWN
+			return "BĂNG PHONG TIỄN! 32 sát thương, làm chậm 65% trong 4 giây"
+	return "Không thể kích hoạt kỹ năng di vật"
 
 func shoot_arrow() -> bool:
 	if inventory.get_amount("bow") <= 0 or inventory.get_amount("arrows") <= 0:
