@@ -6,7 +6,8 @@ var units: Dictionary = {}
 var selected_ids: Array[int] = []
 var move_mode := false
 var rally_mode := false
-var patrol_mode := false\nvar scout_mode := false
+var patrol_mode := false
+var scout_mode := false
 var _patrol_points: Array[Vector2] = []
 var selection_area_mode := false
 var _pointer_down := false
