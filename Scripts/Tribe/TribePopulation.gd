@@ -161,7 +161,10 @@ func elect_new_leader() -> Dictionary:
 func _leadership_score(person: Dictionary) -> float:
 	var age := int(person.get("age", 18))
 	var prime_age_bonus := 25.0 if age >= 25 and age <= 55 else 0.0
-	return float(person.get("health", 0.0)) * 0.35 + float(person.get("strength", 0)) * 2.0 + float(person.get("stamina", 0)) * 1.5 + float(person.get("experience", 0)) * 2.5 + prime_age_bonus
+	var traits: Dictionary = person.get("traits", {})
+	var wisdom_bonus := float(traits.get("intelligence", 5)) * 1.5
+	var awareness_bonus := float(traits.get("perception", 5)) * 1.0
+	return float(person.get("health", 0.0)) * 0.35 + float(person.get("strength", 0)) * 2.0 + float(person.get("stamina", 0)) * 1.5 + float(person.get("experience", 0)) * 2.5 + prime_age_bonus + wisdom_bonus + awareness_bonus
 
 func get_leadership_report() -> String:
 	var lines := PackedStringArray()
