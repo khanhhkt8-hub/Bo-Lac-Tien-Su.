@@ -19,6 +19,10 @@ var defense_target: Node2D
 var defense_scan_timer := 0.0
 var combat_target: Node2D
 var combat_scan_timer := 0.0
+var hold_position_active := false
+var hold_anchor := Vector2.ZERO
+var hold_target: Node2D
+var hold_scan_timer := 0.0
 
 func _ready() -> void:
 	add_to_group("tribe_units")
@@ -33,6 +37,8 @@ func setup(data: Dictionary) -> void:
 func issue_move_order(destination: Vector2) -> void:
 	combat_order_active = false
 	combat_target = null
+	hold_position_active = false
+	hold_target = null
 	move_target = destination
 	has_move_order = true
 
@@ -46,6 +52,7 @@ func _process(delta: float) -> void:
 	hunt_timer = maxf(0.0, hunt_timer - delta)
 	defense_scan_timer = maxf(0.0, defense_scan_timer - delta)
 	combat_scan_timer = maxf(0.0, combat_scan_timer - delta)
+	hold_scan_timer = maxf(0.0, hold_scan_timer - delta)
 	if has_move_order:
 		var offset := move_target - global_position
 		if offset.length() <= 7.0:
@@ -53,14 +60,72 @@ func _process(delta: float) -> void:
 			global_position = move_target
 		else:
 			global_position += offset.normalized() * move_speed * delta
-	if combat_order_active and resident_age >= 18 and not has_move_order:
+	if hold_position_active and resident_age >= 18 and not has_move_order:
+		_update_hold_position(delta)
+	elif combat_order_active and resident_age >= 18 and not has_move_order:
 		_update_combat_order(delta)
-	if role == "warrior" and resident_age >= 18 and not has_move_order and not combat_order_active:
+	if role == "warrior" and resident_age >= 18 and not has_move_order and not combat_order_active and not hold_position_active:
 		_auto_defend(delta)
-	if role == "gatherer" and resident_age >= 18 and not has_move_order and not combat_order_active and gather_timer <= 0.0:
+	if role == "gatherer" and resident_age >= 18 and not has_move_order and not combat_order_active and not hold_position_active and gather_timer <= 0.0:
 		_auto_gather()
-	if role == "hunter" and resident_age >= 18 and not has_move_order and not combat_order_active and hunt_timer <= 0.0:
+	if role == "hunter" and resident_age >= 18 and not has_move_order and not combat_order_active and not hold_position_active and hunt_timer <= 0.0:
 		_auto_hunt()
+
+func set_hold_position() -> void:
+	hold_anchor = global_position
+	hold_position_active = resident_age >= 18
+	hold_target = null
+	combat_order_active = false
+	combat_target = null
+	has_move_order = false
+	gathering_target = null
+	hunting_target = null
+	hold_scan_timer = 0.0
+
+func _update_hold_position(delta: float) -> void:
+	if hold_scan_timer <= 0.0 or not is_instance_valid(hold_target) or hold_target.is_queued_for_deletion():
+		hold_scan_timer = 0.35
+		hold_target = null
+		var nearest := 230.0
+		for enemy in get_tree().get_nodes_in_group("enemies"):
+			if not is_instance_valid(enemy) or enemy.is_queued_for_deletion() or not enemy is Node2D:
+				continue
+			var candidate := enemy as Node2D
+			if candidate.global_position.distance_to(hold_anchor) > 245.0:
+				continue
+			var distance := global_position.distance_to(candidate.global_position)
+			if distance < nearest:
+				nearest = distance
+				hold_target = candidate
+	if not is_instance_valid(hold_target):
+		var return_offset := hold_anchor - global_position
+		if return_offset.length() > 16.0:
+			global_position += return_offset.normalized() * move_speed * delta
+		return
+	var target_offset := hold_target.global_position - global_position
+	var distance_to_target := target_offset.length()
+	var preferred_range := 30.0
+	var damage := 8.0
+	var cooldown := 1.3
+	if role == "hunter":
+		preferred_range = 140.0
+		damage = 10.0
+		cooldown = 1.8
+	elif role != "warrior":
+		preferred_range = 82.0
+		damage = 5.0
+		cooldown = 1.6
+	if global_position.distance_to(hold_anchor) > 205.0:
+		hold_target = null
+		return
+	if distance_to_target > preferred_range + 10.0:
+		global_position += target_offset.normalized() * move_speed * delta
+	elif distance_to_target < preferred_range - 22.0 and role == "hunter":
+		global_position -= target_offset.normalized() * move_speed * 0.6 * delta
+	elif attack_timer <= 0.0 and hold_target.has_method("take_damage"):
+		hold_target.take_damage(damage)
+		attack_timer = cooldown
+
 func _update_combat_order(delta: float) -> void:
 	if combat_scan_timer <= 0.0 or not is_instance_valid(combat_target) or combat_target.is_queued_for_deletion():
 		combat_scan_timer = 0.35
