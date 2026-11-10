@@ -72,6 +72,12 @@ jobs:
           export/android/debug_keystore_user = "androiddebugkey"
           export/android/debug_keystore_pass = "android"
           EOF
+          echo "---- Godot Android settings ----"
+          cat "$HOME/.config/godot/editor_settings-4.3.tres"
+          echo "---- Android SDK packages ----"
+          ls -la "$ANDROID_HOME/build-tools"
+          ls -la "$ANDROID_HOME/platforms"
+          ls -la "$ANDROID_HOME/ndk"
 
       - name: Verify tools and validate project
         run: |
@@ -79,15 +85,17 @@ jobs:
           java -version
           test -d "$ANDROID_HOME/platform-tools"
           test -d "$ANDROID_HOME/ndk/23.2.8568313"
-          godot --headless --editor --path . --quit
+          godot --headless --editor --path . --quit --verbose
 
-      - name: Export Android APK
+      - name: Export Android APK with diagnostics
         run: |
           mkdir -p build
-          godot --headless --path . --export-debug "Android" build/Bo-Lac-Tien-Su.apk
+          set -o pipefail
+          godot --headless --path . --verbose --export-debug "Android" build/Bo-Lac-Tien-Su.apk 2>&1 | tee build/android-export.log
           test -s build/Bo-Lac-Tien-Su.apk
 
       - name: Upload APK
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: Bo-Lac-Tien-Su-Android-APK
