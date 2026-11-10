@@ -231,3 +231,11 @@ Game sinh tồn 2D offline, ưu tiên Android, phát triển bằng Godot 4.
 - Chọn TẬP HỢP VỀ CỜ để ra lệnh toàn bộ dân làng còn sống di chuyển về đội hình quanh cờ; lệnh này hủy trạng thái tấn công cũ để ưu tiên tập hợp.
 - Đồng bộ đơn vị đã sửa để loại bỏ cả cư dân đã chết, không chỉ cư dân bị thiếu dữ liệu.
 - Đây là lệnh điều quân RTS; hệ thống nhân vật cũ vẫn được giữ để các tính năng sinh tồn hiện có tiếp tục hoạt động.
+
+
+### Camera chiến thuật RTS
+- Camera được tách khỏi nhân vật Player và đặt trực tiếp dưới Main để không tự động khóa theo nhân vật.
+- PC: giữ chuột giữa và kéo để lia bản đồ; lăn bánh xe để phóng to/thu nhỏ.
+- Android: bật KÉO BẢN ĐỒ rồi vuốt màn hình để lia camera; tắt chế độ này để chạm chọn đơn vị hoặc ra lệnh.
+- Nút VỀ TRUNG TÂM đưa camera về vị trí Player hiện tại.
+- Giới hạn zoom hiện tại: 0.55x đến 1.65x.
