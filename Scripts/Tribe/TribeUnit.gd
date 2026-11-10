@@ -287,17 +287,39 @@ func _auto_defend(delta: float) -> void:
 
 func _draw() -> void:
 	var tint := Color("#d7b16a")
+	var role_mark := "D"
 	if role == "warrior":
 		tint = Color("#b84b3f")
+		role_mark = "⚔"
 	elif role == "hunter":
 		tint = Color("#668fbd")
+		role_mark = "➤"
 	elif role == "gatherer":
 		tint = Color("#6caa62")
+		role_mark = "✦"
 	elif role == "farmer":
 		tint = Color("#b4a64d")
-	draw_circle(Vector2.ZERO, 10.0, tint)
-	draw_arc(Vector2.ZERO, 13.0 if selected else 11.0, 0.0, TAU, 24, Color("#fff2a6") if selected else Color("#342b20"), 2.5 if selected else 1.2)
-	draw_string(ThemeDB.fallback_font, Vector2(-24.0, -17.0), resident_name, HORIZONTAL_ALIGNMENT_CENTER, 48.0, 10, Color.WHITE)
+		role_mark = "✿"
+	elif role == "scout":
+		tint = Color("#55a99b")
+		role_mark = "!"
+	elif role == "crafter":
+		tint = Color("#a18ac0")
+		role_mark = "◆"
+	# Bóng, thân người, đầu tóc và trang phục theo nghề.
+	draw_colored_polygon(PackedVector2Array([Vector2(-9, 7), Vector2(-6, 15), Vector2(7, 15), Vector2(10, 7)]), Color(0.10, 0.13, 0.09, 0.35))
+	draw_line(Vector2(-4, 5), Vector2(-5, 12), Color("#49352a"), 4.0)
+	draw_line(Vector2(4, 5), Vector2(5, 12), Color("#49352a"), 4.0)
+	draw_colored_polygon(PackedVector2Array([Vector2(-8, -5), Vector2(-7, 7), Vector2(0, 10), Vector2(7, 7), Vector2(8, -5), Vector2(0, -9)]), tint)
+	draw_line(Vector2(-7, -2), Vector2(7, 6), Color("#e0c89b"), 2.0)
+	draw_circle(Vector2(0, -10), 7.0, Color("#d9a066"))
+	draw_arc(Vector2(0, -12), 7.0, PI, TAU, 16, Color("#3a2a20"), 3.5)
+	draw_circle(Vector2(-2.5, -10), 1.0, Color("#292018"))
+	draw_circle(Vector2(2.5, -10), 1.0, Color("#292018"))
+	draw_arc(Vector2.ZERO, 15.0 if selected else 12.0, 0.0, TAU, 28, Color("#fff2a6") if selected else Color("#342b20"), 2.5 if selected else 1.0)
+	draw_circle(Vector2(10, -11), 5.0, Color("#27372d"))
+	draw_string(ThemeDB.fallback_font, Vector2(6, -8), role_mark, HORIZONTAL_ALIGNMENT_CENTER, 9.0, 9, Color("#fff1c8"))
+	draw_string(ThemeDB.fallback_font, Vector2(-34.0, -24.0), resident_name, HORIZONTAL_ALIGNMENT_CENTER, 68.0, 10, Color.WHITE)
 
 func _auto_gather() -> void:
 	if not is_instance_valid(gathering_target) or gathering_target.amount_available <= 0:
