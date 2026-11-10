@@ -113,16 +113,16 @@ func get_selected_count() -> int:
 	return selected_ids.size()
 
 func _handle_world_tap(world_pos: Vector2) -> void:
-			var clicked: TribeUnit
-			var best := 25.0
-			for id in units:
-				var unit: TribeUnit = units[id]
-				if not is_instance_valid(unit):
-					continue
-				var distance := unit.global_position.distance_to(world_pos)
-				if distance < best:
-					clicked = unit
-					best = distance
+	var clicked: TribeUnit
+	var best := 25.0
+	for id in units:
+		var unit: TribeUnit = units[id]
+		if not is_instance_valid(unit):
+			continue
+		var distance := unit.global_position.distance_to(world_pos)
+		if distance < best:
+			clicked = unit
+			best = distance
 	if clicked != null:
 		clear_selection()
 		clicked.set_selected(true)
