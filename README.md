@@ -247,3 +247,12 @@ Game sinh tồn 2D offline, ưu tiên Android, phát triển bằng Godot 4.
 - Khung chọn có viền xanh trong suốt; các đơn vị được chọn vẫn giữ vòng sáng nhận diện.
 - Chế độ chọn vùng, di chuyển và đặt cờ tập hợp được tách biệt để tránh một thao tác kích hoạt nhiều lệnh cùng lúc.
 - Chưa chạy kiểm thử Godot runtime hoặc build APK.
+
+
+### Chia tiểu đội theo nghề nghiệp
+- HUD có lệnh chọn riêng Chiến binh, Thợ săn, Người hái lượm, Nông dân và Thợ chế tác.
+- Chọn tiểu đội theo nghề sẽ tự bỏ chọn nhóm trước đó; số lượng đơn vị được chọn hiển thị trong thông báo trạng thái.
+- Sau khi chọn tiểu đội, có thể dùng các lệnh RTS hiện có như di chuyển, theo thủ lĩnh, tấn công hoặc tập hợp về cờ.
+- Nút BỎ CHỌN xóa lựa chọn hiện tại mà không ảnh hưởng đến dân số hay phân công nghề.
+- Tiểu đội lấy trực tiếp nghề nghiệp đã phân công trong TribePopulation/TribeJobSystem; khi đổi nghề, đơn vị sẽ thuộc nhóm nghề mới sau lần đồng bộ.
+- Chưa chạy kiểm thử Godot runtime hoặc build APK.
