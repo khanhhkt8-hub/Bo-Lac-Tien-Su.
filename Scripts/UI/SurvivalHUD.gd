@@ -11,9 +11,11 @@ var _inventory: InventorySystem
 var _crafting: CraftingSystem
 var _tribe_panel: PanelContainer
 var _region_label: Label
+var _tribe_control: Node
 
 func _ready() -> void:
 	_player = get_node_or_null(player_path)
+	_tribe_control = get_node_or_null("../TribeControlSystem")
 	var panel := PanelContainer.new()
 	panel.position = Vector2(16, 16)
 	panel.custom_minimum_size = Vector2(350, 178)
@@ -30,6 +32,24 @@ func _ready() -> void:
 	_inventory_label = Label.new()
 	_inventory_label.text = "Túi đồ: trống"
 	column.add_child(_inventory_label)
+	var tribe_control_row := HBoxContainer.new()
+	column.add_child(tribe_control_row)
+	var select_all_button := Button.new()
+	select_all_button.text = "CHỌN CẢ BỘ LẠC"
+	select_all_button.pressed.connect(_on_select_all_tribe_pressed)
+	tribe_control_row.add_child(select_all_button)
+	var move_order_button := Button.new()
+	move_order_button.text = "DI CHUYỂN"
+	move_order_button.pressed.connect(_on_move_order_pressed)
+	tribe_control_row.add_child(move_order_button)
+	var follow_button := Button.new()
+	follow_button.text = "THEO TÔI"
+	follow_button.pressed.connect(_on_follow_tribe_pressed)
+	tribe_control_row.add_child(follow_button)
+	var tribe_attack_button := Button.new()
+	tribe_attack_button.text = "BỘ LẠC TẤN CÔNG"
+	tribe_attack_button.pressed.connect(_on_tribe_attack_pressed)
+	tribe_control_row.add_child(tribe_attack_button)
 	var combat_row := HBoxContainer.new()
 	column.add_child(combat_row)
 	var attack_button := Button.new()
@@ -189,6 +209,26 @@ func _on_move_button_down(action: String) -> void:
 
 func _on_move_button_up(action: String) -> void:
 	Input.action_release(action)
+
+func _on_select_all_tribe_pressed() -> void:
+	if _tribe_control != null:
+		var count: int = _tribe_control.select_all()
+		_craft_status.text = "Đã chọn %d thành viên bộ lạc" % count
+
+func _on_move_order_pressed() -> void:
+	if _tribe_control != null:
+		_tribe_control.set_move_mode(true)
+		_craft_status.text = "Chạm vị trí trên bản đồ để ra lệnh di chuyển cho nhóm đã chọn"
+
+func _on_follow_tribe_pressed() -> void:
+	if _tribe_control != null:
+		var count: int = _tribe_control.order_all_follow_player()
+		_craft_status.text = "%d thành viên đang tập hợp theo bạn" % count
+
+func _on_tribe_attack_pressed() -> void:
+	if _tribe_control != null:
+		var count: int = _tribe_control.order_all_attack()
+		_craft_status.text = "%d thành viên chuyển sang đội hình chiến đấu" % count
 
 func _on_attack_pressed() -> void:
 	if _player != null and _player.has_method("attack_nearby"):
