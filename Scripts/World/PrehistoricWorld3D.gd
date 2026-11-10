@@ -16,6 +16,7 @@ func _ready() -> void:
 	_build_forest()
 	_build_rocks()
 	_build_camp()
+	_build_rally_flag()
 	_build_resources()
 	_build_wildlife()
 	_build_barbarian_camps()
@@ -294,3 +295,41 @@ func _build_barbarian_camps() -> void:
 			raider.is_chief = camp_index % 3 == 0 and raider_index == 0
 			raider.position = Vector3(cos(float(raider_index) * TAU / 3.0) * 3.0, 0.0, sin(float(raider_index) * TAU / 3.0) * 3.0)
 			camp.add_child(raider)
+
+func _build_rally_flag() -> void:
+	var pole := MeshInstance3D.new()
+	var pole_mesh := CylinderMesh.new()
+	pole_mesh.top_radius = 0.045
+	pole_mesh.bottom_radius = 0.07
+	pole_mesh.height = 4.2
+	pole.mesh = pole_mesh
+	pole.position = Vector3(5.0, 2.1, 5.0)
+	pole.material_override = _mat(Color("#60432b"))
+	add_child(pole)
+	var flag := MeshInstance3D.new()
+	var flag_mesh := BoxMesh.new()
+	flag_mesh.size = Vector3(1.35, 0.82, 0.06)
+	flag.mesh = flag_mesh
+	flag.position = Vector3(5.7, 3.55, 5.0)
+	var flag_material := _mat(Color("#b63d32"))
+	flag_material.emission_enabled = true
+	flag_material.emission = Color("#42100c")
+	flag.material_override = flag_material
+	add_child(flag)
+	var marker := OmniLight3D.new()
+	marker.position = Vector3(5.0, 3.0, 5.0)
+	marker.light_color = Color("#f1bd62")
+	marker.light_energy = 0.7
+	marker.omni_range = 7.0
+	add_child(marker)
+
+func order_tribe_rally() -> int:
+	var rally_point := Vector3(5.0, 0.0, 5.0)
+	var ordered := 0
+	for resident in get_tree().get_nodes_in_group("tribe_residents_3d"):
+		if not is_instance_valid(resident) or int(resident.get("resident_age")) < 18:
+			continue
+		if resident.has_method("issue_rally_order"):
+			resident.issue_rally_order(rally_point)
+			ordered += 1
+	return ordered
