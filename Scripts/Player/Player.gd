@@ -248,7 +248,7 @@ func upgrade_nearby_companion() -> String:
 	if nearest == null:
 		return "Hãy đến gần thú trưởng thành để nâng cấp"
 	if nearest.companion_level >= 3:
-		return "Thú đã đạt cấp tối đa 3"
+		return "Thú đã đạt cấp 3; cần thức tỉnh Thần Thú riêng"
 	if inventory.get_amount("bone") < 5 or inventory.get_amount("hide") < 3:
 		return "Cần 5 xương và 3 da thú để nâng cấp"
 	if not inventory.remove_item("bone", 5):
@@ -260,6 +260,41 @@ func upgrade_nearby_companion() -> String:
 	save_companions()
 	return "%s đã lên cấp %d" % [nearest.enemy_name, nearest.companion_level]
 
+
+
+func awaken_nearby_god_beast() -> String:
+	var nearest: PrehistoricAnimal
+	var nearest_distance := 160.0
+	for node in get_tree().get_nodes_in_group("tamed_animals"):
+		if not is_instance_valid(node) or not node is PrehistoricAnimal:
+			continue
+		var animal := node as PrehistoricAnimal
+		if animal.is_baby or animal.rarity != "legendary" or animal.companion_level != 3:
+			continue
+		var distance := global_position.distance_to(animal.global_position)
+		if distance <= nearest_distance:
+			nearest = animal
+			nearest_distance = distance
+	if nearest == null:
+		return "Cần thú Huyền Thoại trưởng thành cấp 3 ở gần để thức tỉnh"
+	if inventory.get_amount("bone") < 12 or inventory.get_amount("ore") < 8 or inventory.get_amount("hide") < 5:
+		return "Thức tỉnh cần 12 xương, 8 quặng và 5 da thú"
+	if not inventory.remove_item("bone", 12):
+		return "Không đủ xương"
+	if not inventory.remove_item("ore", 8):
+		inventory.add_item("bone", 12)
+		return "Không đủ quặng"
+	if not inventory.remove_item("hide", 5):
+		inventory.add_item("bone", 12)
+		inventory.add_item("ore", 8)
+		return "Không đủ da thú"
+	if not nearest.upgrade_companion():
+		inventory.add_item("bone", 12)
+		inventory.add_item("ore", 8)
+		inventory.add_item("hide", 5)
+		return "Thức tỉnh thất bại, nguyên liệu đã hoàn lại"
+	save_companions()
+	return "%s đã thức tỉnh thành THẦN THÚ!" % nearest.enemy_name
 
 
 func equip_nearby_companion_gear() -> String:
@@ -472,7 +507,7 @@ func _load_companions() -> void:
 		animal.companion_fang_equipped = bool(config.get_value(section, "fang", false))
 		if bool(config.get_value(section, "is_baby", false)):
 			animal.set_as_baby(float(config.get_value(section, "growth_remaining", 300.0)))
-		var level := clampi(int(config.get_value(section, "level", 1)), 1, 3)
+		var level := clampi(int(config.get_value(section, "level", 1)), 1, 4)
 		for _upgrade_index in range(level - 1):
 			animal.upgrade_companion()
 		animal.health = clampf(float(config.get_value(section, "health", animal.max_health)), 1.0, animal.max_health)
