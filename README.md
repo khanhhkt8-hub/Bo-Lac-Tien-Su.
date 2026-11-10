@@ -125,3 +125,11 @@ Game sinh tồn 2D offline, ưu tiên Android, phát triển bằng Godot 4.
 - Sói, hổ răng kiếm và gấu hang cần 2 thịt; voi ma mút cần 3 lương thực. Mỗi lần ăn hồi tối đa 40% máu tối đa.
 - Nút XEM ĐÀN THÚ hiển thị loài, máu hiện tại, giai đoạn thú con/trưởng thành, cấp nâng cấp và trạng thái cưỡi.
 - Việc cho ăn lưu lại lượng máu mới vào tệp lưu thú đồng hành. Đây là hệ thống chăm sóc qua HUD, không thêm cơ chế xây chuồng hay xây căn cứ.
+
+
+## Kỹ năng chiến đấu và mệnh lệnh thú đồng hành
+- Sói có kỹ năng Truy kích nhanh; hổ răng kiếm có Vồ xé; gấu hang có Gấu cuồng nộ; voi ma mút có Dậm nghiền. Mỗi loài có sát thương và nhịp ra đòn riêng.
+- Nút THÚ TẤN CÔNG ra lệnh cho thú trưởng thành không cưỡi truy đuổi kẻ địch trong phạm vi phát hiện rộng.
+- Nút THÚ BẢO VỆ chuyển cả đội về chế độ hộ vệ, chỉ chủ động đánh kẻ địch áp sát người chơi.
+- Nút KỸ NĂNG ĐÀN THÚ xem kỹ năng và mệnh lệnh hiện tại của từng con.
+- Mệnh lệnh được lưu offline và khôi phục khi tải đội thú. Thú con không tham chiến; thú đang cưỡi không nhận lệnh tấn công cho đến khi xuống thú.
