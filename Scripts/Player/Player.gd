@@ -295,10 +295,32 @@ func gather_nearby() -> bool:
 	return nearest.gather_now(self)
 
 func _draw() -> void:
-	draw_circle(Vector2.ZERO, 14.0, Color("#d9a066"))
-	draw_circle(Vector2(-4.0, -3.0), 2.0, Color("#292018"))
-	draw_circle(Vector2(4.0, -3.0), 2.0, Color("#292018"))
-	draw_arc(Vector2(0.0, 1.0), 6.0, 0.25, PI - 0.25, 12, Color("#292018"), 1.5)
+	# Bóng đổ và cơ thể người tiền sử nhìn rõ từ góc nhìn trên xuống.
+	draw_colored_polygon(PackedVector2Array([Vector2(-12, 9), Vector2(-8, 19), Vector2(10, 19), Vector2(14, 9), Vector2(0, 5)]), Color(0.12, 0.14, 0.10, 0.38))
+	var facing := Vector2.DOWN
+	if velocity.length_squared() > 8.0:
+		facing = velocity.normalized()
+	var side := Vector2(-facing.y, facing.x)
+	# Chân và dép da.
+	draw_line(Vector2(-5, 7), Vector2(-7, 16), Color("#49352a"), 5.0)
+	draw_line(Vector2(5, 7), Vector2(7, 16), Color("#49352a"), 5.0)
+	draw_line(Vector2(-7, 16), Vector2(-10, 17), Color("#c49a66"), 4.0)
+	draw_line(Vector2(7, 16), Vector2(10, 17), Color("#c49a66"), 4.0)
+	# Áo da thú, viền lông và dây đeo.
+	draw_colored_polygon(PackedVector2Array([Vector2(-10, -8), Vector2(-8, 7), Vector2(0, 12), Vector2(8, 7), Vector2(10, -8), Vector2(0, -13)]), Color("#8b5838"))
+	draw_line(Vector2(-8, -5), Vector2(7, 8), Color("#d5b078"), 3.0)
+	draw_line(Vector2(-10, -8), Vector2(0, -12), Color("#d9c49a"), 3.0)
+	# Đầu, tóc và gương mặt.
+	draw_circle(Vector2(0, -13), 9.5, Color("#d9a066"))
+	draw_arc(Vector2(0, -15), 9.5, PI, TAU, 18, Color("#39271e"), 5.0)
+	draw_circle(Vector2(-3.5, -13), 1.2, Color("#292018"))
+	draw_circle(Vector2(3.5, -13), 1.2, Color("#292018"))
+	draw_line(Vector2(-2, -8), Vector2(2, -8), Color("#74422f"), 1.3)
+	# Vũ khí bằng đá gắn bên hông.
+	draw_line(Vector2(10, -2), Vector2(17, -14), Color("#68462d"), 2.5)
+	draw_colored_polygon(PackedVector2Array([Vector2(14, -16), Vector2(21, -23), Vector2(21, -12)]), Color("#aeb5a7"))
+	# Vòng chọn nhân vật.
+	draw_arc(Vector2.ZERO, 21.0, 0.0, TAU, 36, Color(0.95, 0.84, 0.38, 0.85), 1.8)
 
 
 func toggle_mount_nearby_animal() -> String:
