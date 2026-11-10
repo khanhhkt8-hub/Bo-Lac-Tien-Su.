@@ -10,6 +10,7 @@ const JOBS := {
 	"hunter": {"name": "Thợ săn", "output": "meat", "amount": 3},
 	"gatherer": {"name": "Người hái lượm", "output": "fruit", "amount": 4},
 	"fisher": {"name": "Ngư dân", "output": "fish", "amount": 4},
+	"water_carrier": {"name": "Người lấy nước", "output": "water", "amount": 5},
 	"orchardist": {"name": "Người thu hái trái cây", "output": "fruit", "amount": 5},
 	"poultry": {"name": "Người nuôi gia cầm", "output": "eggs", "amount": 2},
 	"miner": {"name": "Thợ khai mỏ", "output": "stone", "amount": 3},
