@@ -13,6 +13,7 @@ const JOBS := {
 	"water_carrier": {"name": "Người lấy nước", "output": "water", "amount": 5},
 	"herbalist": {"name": "Người hái thuốc", "output": "herbs", "amount": 3},
 	"medic": {"name": "Thầy thuốc", "output": "medical_care", "amount": 1},
+	"caregiver": {"name": "Người chăm sóc trẻ", "output": "", "amount": 0},
 	"orchardist": {"name": "Người thu hái trái cây", "output": "fruit", "amount": 5},
 	"poultry": {"name": "Người nuôi gia cầm", "output": "eggs", "amount": 2},
 	"miner": {"name": "Thợ khai mỏ", "output": "stone", "amount": 3},
@@ -97,6 +98,8 @@ func _produce_resources() -> void:
 		if job_id == "medic":
 			_medic_treat_one_resident()
 			continue
+		if job_id == "caregiver":
+			continue
 		var resource_id := str(definition.output)
 		var amount := int(definition.amount)
 		stockpile[resource_id] = int(stockpile.get(resource_id, 0)) + amount
@@ -135,9 +138,16 @@ func _auto_assign_emergency_jobs() -> void:
 		if float(person.get("health", 100.0)) < 85.0:
 			wounded_count += 1
 	var medic_count := 0
+	var caregiver_count := 0
+	var young_children := 0
+	for person in TribePopulation.residents:
+		if bool(person.get("alive", true)) and int(person.get("age", 18)) < 6:
+			young_children += 1
 	for assigned_key in assignments:
 		if str(assignments[assigned_key]) == "medic":
 			medic_count += 1
+		elif str(assignments[assigned_key]) == "caregiver":
+			caregiver_count += 1
 	var food_jobs := ["farmer", "gatherer", "fisher", "hunter", "orchardist", "poultry"]
 	var assigned_any := false
 	var emergency_slots := 2
@@ -154,7 +164,10 @@ func _auto_assign_emergency_jobs() -> void:
 		var selected_job := ""
 		var food_ratio := float(food_total) / float(food_limit)
 		var water_ratio := float(water_total) / float(water_limit)
-		if wounded_count > 0 and int(stockpile.get("herbs", 0)) > 0 and medic_count == 0:
+		if young_children > 0 and caregiver_count == 0:
+			selected_job = "caregiver"
+			caregiver_count += 1
+		elif wounded_count > 0 and int(stockpile.get("herbs", 0)) > 0 and medic_count == 0:
 			selected_job = "medic"
 			medic_count += 1
 		elif sick_count > 0 and int(stockpile.get("herbs", 0)) < sick_count * 2:
