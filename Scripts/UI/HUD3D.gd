@@ -66,6 +66,7 @@ func _exit_tree() -> void:
 		Input.action_release(str(action))
 
 var _inventory_label: Label
+var _health_label: Label
 
 func _build_inventory_label() -> void:
 	_inventory_label = Label.new()
@@ -78,6 +79,16 @@ func _build_inventory_label() -> void:
 	_inventory_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_inventory_label.add_theme_font_size_override("font_size", 17)
 	_inventory_label.text = "TÚI ĐỒ: trống"
+	_health_label = Label.new()
+	_health_label.anchor_left = 0.0
+	_health_label.anchor_top = 0.0
+	_health_label.offset_left = 18.0
+	_health_label.offset_top = 16.0
+	_health_label.offset_right = 260.0
+	_health_label.offset_bottom = 54.0
+	_health_label.add_theme_font_size_override("font_size", 22)
+	_health_label.text = "SINH LỰC: 100 / 100"
+	add_child(_health_label)
 	add_child(_inventory_label)
 	var gather_button := Button.new()
 	gather_button.text = "THU THẬP"
@@ -138,3 +149,7 @@ func show_inventory(items: Dictionary) -> void:
 	for key in items:
 		lines.append("%s: %d" % [str(key).to_upper(), int(items[key])])
 	_inventory_label.text = "TÚI ĐỒ\n" + "\n".join(lines)
+
+func show_health(current: float, maximum: float) -> void:
+	if is_instance_valid(_health_label):
+		_health_label.text = "SINH LỰC: %d / %d" % [roundi(current), roundi(maximum)]
