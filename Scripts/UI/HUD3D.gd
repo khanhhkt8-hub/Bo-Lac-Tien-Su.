@@ -159,6 +159,23 @@ func _build_inventory_label() -> void:
 			_health_label.text = "ĐÃ TẬP HỢP: %d NGƯỜI" % count
 	)
 	add_child(rally_button)
+	var capture_button := Button.new()
+	capture_button.text = "CHIẾM TRẠI"
+	capture_button.anchor_left = 1.0
+	capture_button.anchor_top = 1.0
+	capture_button.anchor_right = 1.0
+	capture_button.anchor_bottom = 1.0
+	capture_button.offset_left = -174.0
+	capture_button.offset_top = -472.0
+	capture_button.offset_right = -18.0
+	capture_button.offset_bottom = -390.0
+	capture_button.add_theme_font_size_override("font_size", 18)
+	capture_button.pressed.connect(func():
+		var world := get_tree().current_scene
+		if world != null and world.has_method("capture_nearest_camp"):
+			_health_label.text = world.capture_nearest_camp()
+	)
+	add_child(capture_button)
 
 func show_inventory(items: Dictionary) -> void:
 	if not is_instance_valid(_inventory_label):
