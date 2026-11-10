@@ -52,7 +52,7 @@ func add_resident(resident_name: String, age: int, sex: String, role: String = "
 	residents.append({
 		"id": resident_id, "name": resident_name, "age": age,
 		"sex": sex, "role": role, "partner_id": -1,
-		"health": 100.0, "food": 20, "water": 20, "strength": 10, "stamina": 10, "alive": true, "in_daycare": false, "illness": false
+		"health": 100.0, "food": 20, "water": 20, "strength": 10, "stamina": 10, "morale": 70.0, "alive": true, "in_daycare": false, "illness": false
 	})
 	_emit_population()
 	save_population()
@@ -184,6 +184,7 @@ func _advance_resident_needs() -> void:
 		var water := int(person.get("water", 0))
 		var fed := false
 		var hydrated := false
+		var morale := float(person.get("morale", 70.0))
 		if food > 0:
 			person["food"] = food - 1
 			fed = true
@@ -202,6 +203,15 @@ func _advance_resident_needs() -> void:
 		else:
 			person["health"] = maxf(0.0, float(person.get("health", 100.0)) - 5.0)
 			changed = true
+		if not fed:
+			morale -= 4.0
+		if not hydrated:
+			morale -= 5.0
+		if fed and hydrated:
+			morale += 1.5
+		if bool(person.get("illness", false)):
+			morale -= 1.0
+		person["morale"] = clampf(morale, 0.0, 100.0)
 		# Healthy, well-fed villagers slowly recover. Illness needs herbs to cure.
 		if fed and hydrated:
 			var resting_at_night := false
@@ -325,6 +335,7 @@ func apply_combat_damage(resident_id: int, damage: float) -> float:
 	var old_health := float(person.get("health", 100.0))
 	var new_health := maxf(0.0, old_health - maxf(0.0, damage))
 	person["health"] = new_health
+	person["morale"] = clampf(float(person.get("morale", 70.0)) - maxf(2.0, damage * 0.45), 0.0, 100.0)
 	if new_health <= 0.0:
 		person["alive"] = false
 		resident_died.emit(str(person.get("name", "Dân làng")))
@@ -355,6 +366,33 @@ func treat_wounded_residents() -> String:
 	if treated == 0:
 		return "Không có người cần chữa hoặc kho đã hết thảo dược."
 	return "Đã chữa %d người, dùng %d bó thảo dược." % [treated, herbs_used]
+
+func get_morale_report() -> String:
+	var total := 0
+	var sum_morale := 0.0
+	var low := 0
+	var very_low := 0
+	for person in residents:
+		if not bool(person.get("alive", true)):
+			continue
+		total += 1
+		var morale := float(person.get("morale", 70.0))
+		sum_morale += morale
+		if morale < 50.0:
+			low += 1
+		if morale < 25.0:
+			very_low += 1
+	if total == 0:
+		return "Bộ lạc hiện không còn cư dân."
+	var average := sum_morale / float(total)
+	var status := "Ổn định"
+	if average < 35.0:
+		status = "Khủng hoảng tinh thần"
+	elif average < 55.0:
+		status = "Tinh thần suy giảm"
+	elif average >= 80.0:
+		status = "Tinh thần rất tốt"
+	return "TINH THẦN BỘ LẠC: %s\nTrung bình: %.0f/100\nTinh thần thấp: %d người\nNguy cơ suy sụp: %d người\n\nĐảm bảo thức ăn, nước uống và bảo vệ dân làng để duy trì tinh thần." % [status, average, low, very_low]
 
 func get_wounded_count() -> int:
 	var count := 0
