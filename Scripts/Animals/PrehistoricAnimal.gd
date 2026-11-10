@@ -153,17 +153,26 @@ func get_mount_speed_multiplier() -> float:
 	return 1.0
 
 func upgrade_companion() -> bool:
-	if not is_tamed or companion_level >= 3:
+	if not is_tamed or companion_level >= 4:
 		return false
 	companion_level += 1
-	max_health *= 1.2
-	health = minf(max_health, health + max_health * 0.2)
-	attack_damage *= 1.15
-	move_speed *= 1.08
+	var health_gain := 1.2
+	var damage_gain := 1.15
+	var speed_gain := 1.08
+	if companion_level == 4:
+		health_gain = 1.45
+		damage_gain = 1.3
+		speed_gain = 1.1
+	max_health *= health_gain
+	health = minf(max_health, health + max_health * (health_gain - 1.0))
+	attack_damage *= damage_gain
+	move_speed *= speed_gain
 	queue_redraw()
 	return true
 
 func get_evolution_name() -> String:
+	if companion_level >= 4:
+		return "Thần Thú Giáng Thế"
 	if companion_level >= 3:
 		return "Cổ Thú Thức Tỉnh"
 	if companion_level == 2:
@@ -214,6 +223,8 @@ func _get_skill_damage_multiplier() -> float:
 		"mammoth":
 			base_multiplier = 2.1
 	var evolution_bonus := 1.0 + float(companion_level - 1) * 0.25
+	if companion_level >= 4:
+		evolution_bonus *= 1.35
 	var gear_bonus := 1.15 if companion_fang_equipped else 1.0
 	return base_multiplier * evolution_bonus * gear_bonus
 
@@ -234,7 +245,7 @@ func _get_skill_cooldown() -> float:
 func _trigger_legendary_skill(primary_target: Node2D) -> void:
 	if rarity != "legendary" or not is_instance_valid(primary_target):
 		return
-	var skill_damage := attack_damage * 0.75
+	var skill_damage := attack_damage * (1.15 if companion_level >= 4 else 0.75)
 	match species:
 		"saber_tooth":
 			if primary_target.has_method("take_damage"):
@@ -291,7 +302,7 @@ func _companion_follow_and_fight(delta: float) -> void:
 				companion_attack_timer = _get_skill_cooldown()
 				companion_target.take_damage(attack_damage * _get_skill_damage_multiplier())
 				if legendary_skill_timer <= 0.0 and rarity == "legendary":
-					legendary_skill_timer = 5.0
+					legendary_skill_timer = 3.5 if companion_level >= 4 else 5.0
 					_trigger_legendary_skill(companion_target)
 		else:
 			velocity = global_position.direction_to(companion_target.global_position) * move_speed * 1.2
@@ -355,6 +366,8 @@ func _draw() -> void:
 	if is_tamed:
 		var mark := "THÚ CON" if is_baby else "★%d" % companion_level
 		draw_string(ThemeDB.fallback_font, Vector2(-radius, -radius - 7.0), mark, HORIZONTAL_ALIGNMENT_LEFT, 70.0, 12, Color("#f2d16b"))
+	if is_tamed and companion_level >= 4:
+		draw_arc(Vector2.ZERO, radius + 10.0, 0.0, TAU, 40, Color("#fff0a0"), 4.0)
 	if is_tamed and rarity != "common":
 		draw_arc(Vector2.ZERO, radius + 5.0, 0.0, TAU, 32, body_color.lightened(0.25), 2.5)
 	if species == "mammoth":
