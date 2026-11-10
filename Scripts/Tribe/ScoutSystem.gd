@@ -79,17 +79,17 @@ func _create_report(center: Vector2, resident_id: int) -> void:
 			continue
 		if (node as Node2D).global_position.distance_to(center) <= 280.0:
 			resources.append("%s (%d)" % [str(node.get("resource_type")), int(node.get("amount_available"))])
-	for node in get_tree().get_nodes_in_group("animals"):
-		if not is_instance_valid(node) or not node is Node2D:
-			continue
-		if (node as Node2D).global_position.distance_to(center) <= 280.0:
-			var species := str(node.get("species"))
-	\t\tif not species.is_empty():
-	\t\t\twildlife.append(species)
 	for node in get_tree().get_nodes_in_group("enemies"):
 		if not is_instance_valid(node) or not node is Node2D:
 			continue
-		if (node as Node2D).global_position.distance_to(center) <= 320.0:
+		var distance := (node as Node2D).global_position.distance_to(center)
+		if distance > 320.0:
+			continue
+		var species := str(node.get("species"))
+		if not species.is_empty():
+			if distance <= 280.0:
+				wildlife.append(species)
+		else:
 			enemies.append(str(node.get("enemy_name")) if node.get("enemy_name") != null else "Kẻ địch")
 	var region_name := "Vùng hoang dã chưa xác định"
 	if RegionSystem != null:
