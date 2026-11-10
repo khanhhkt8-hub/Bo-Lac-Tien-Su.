@@ -33,8 +33,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			_apply_zoom(1.0 - zoom_step)
 			get_viewport().set_input_as_handled()
 	elif event is InputEventMouseMotion and _mouse_dragging:
-		var delta := event.position - _last_pointer
-		global_position -= delta / zoom.x
+		var pointer_delta: Vector2 = event.position - _last_pointer
+		global_position -= pointer_delta / zoom.x
 		_last_pointer = event.position
 		get_viewport().set_input_as_handled()
 	elif event is InputEventScreenTouch and drag_enabled:
