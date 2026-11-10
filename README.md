@@ -265,3 +265,13 @@ Game sinh tồn 2D offline, ưu tiên Android, phát triển bằng Godot 4.
 - Lệnh di chuyển thủ công vẫn được ưu tiên; khi hoàn tất, chiến binh tiếp tục tự động phòng thủ.
 - Đây là AI phòng thủ tự động, không thay đổi số dân, nghề nghiệp hoặc hệ thống xây dựng.
 - Chưa chạy kiểm thử Godot runtime hoặc build APK.
+
+
+### Đội hình chiến đấu theo vai trò
+- Khi ra lệnh BỘ LẠC TẤN CÔNG, các cư dân trưởng thành được chọn tự tìm mục tiêu địch trong phạm vi 520 đơn vị và phối hợp tiếp cận.
+- Chiến binh áp sát tuyến đầu, gây 8 sát thương mỗi 1,3 giây.
+- Thợ săn giữ khoảng cách chiến đấu khoảng 145 đơn vị, lùi ra nếu bị áp sát và gây 12 sát thương mỗi 1,8 giây.
+- Các nghề khác tham gia hỗ trợ ở khoảng cách trung bình với sát thương 5 mỗi 1,6 giây.
+- Lệnh di chuyển thủ công hủy chế độ chiến đấu để người chơi giành lại quyền điều khiển; chiến binh sẽ quay lại tự phòng thủ khi không còn lệnh chiến đấu.
+- AI đội hình dùng sát thương tầm xa mô phỏng cho thợ săn; chưa có hoạt ảnh/phóng mũi tên riêng.
+- Chưa chạy kiểm thử Godot runtime hoặc build APK.
