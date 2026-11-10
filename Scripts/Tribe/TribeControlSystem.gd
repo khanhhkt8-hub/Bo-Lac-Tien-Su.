@@ -131,6 +131,7 @@ func set_move_mode(enabled: bool) -> void:
 
 func set_selection_area_mode(enabled: bool) -> void:
 	selection_area_mode = enabled
+	scout_mode = false
 	move_mode = false
 	rally_mode = false
 	patrol_mode = false
@@ -142,6 +143,7 @@ func set_selection_area_mode(enabled: bool) -> void:
 
 func set_rally_mode(enabled: bool) -> void:
 	rally_mode = enabled
+	scout_mode = false
 	move_mode = false
 	patrol_mode = false
 	_patrol_points.clear()
@@ -161,6 +163,7 @@ func set_scout_mode(enabled: bool) -> void:
 
 func set_patrol_mode(enabled: bool) -> void:
 	patrol_mode = enabled
+	scout_mode = false
 	_patrol_points.clear()
 	move_mode = false
 	rally_mode = false
