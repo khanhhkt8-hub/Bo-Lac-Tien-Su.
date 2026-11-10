@@ -157,3 +157,11 @@ Game sinh tồn 2D offline, ưu tiên Android, phát triển bằng Godot 4.
 - Thú Hiếm có +25% máu tối đa, +20% sát thương và +8% tốc độ.
 - Thú Huyền thoại có +70% máu tối đa, +55% sát thương và +18% tốc độ.
 - Thú hiếm có viền sáng xanh; thú huyền thoại có viền vàng. HUD đàn thú hiển thị phẩm chất và dữ liệu phẩm chất được lưu offline.
+
+
+## Kỹ năng tối thượng của thú huyền thoại
+- Sói Huyền Thoại dùng Bão Truy Kích, đánh lan sang một kẻ địch gần mục tiêu.
+- Hổ Răng Kiếm Huyền Thoại dùng Song Trảo Chí Mạng, gây thêm một đòn dồn sát thương lên mục tiêu.
+- Gấu Hang Huyền Thoại dùng Chấn Địa Cuồng Nộ, gây sát thương diện rộng quanh bản thân.
+- Voi Ma Mút Huyền Thoại dùng Địa Chấn Cổ Đại, gây sát thương diện rộng với bán kính lớn hơn.
+- Kỹ năng đặc biệt tự kích hoạt khi chiến đấu, có thời gian hồi riêng 5 giây; bảng KỸ NĂNG ĐÀN THÚ hiển thị tên kỹ năng theo phẩm chất.
