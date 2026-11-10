@@ -225,6 +225,89 @@ func _auto_assign_emergency_jobs() -> void:
 		TribePopulation.save_population()
 		_save_state()
 
+
+## Tính sức phòng thủ thực tế từ dân quân, trang bị và đặc tính từng người.
+func get_defense_strength() -> int:
+	var total := int(stockpile.get("warrior_power", 0)) + int(stockpile.get("tools", 0)) * 2
+	for key in assignments:
+		var job_id := str(assignments[key])
+		if job_id not in ["warrior", "night_guard"]:
+			continue
+		var person := TribePopulation.get_resident(int(key))
+		if person.is_empty() or not bool(person.get("alive", true)):
+			continue
+		var traits: Dictionary = person.get("traits", {})
+		var skills: Dictionary = person.get("skills", {})
+		var strength := int(traits.get("strength", 5))
+		var endurance := int(traits.get("endurance", 5))
+		var experience := int(person.get("experience", 0))
+		var combat_skill := int(skills.get(job_id, 0))
+		var health_ratio := clampf(float(person.get("health", 100.0)) / 100.0, 0.0, 1.0)
+		var stamina_ratio := clampf(float(person.get("stamina", 10)) / 10.0, 0.0, 1.0)
+		var contribution := 3.0 + strength * 0.8 + endurance * 0.4
+		contribution += float(experience) * 0.08 + float(combat_skill) * 0.12
+		if job_id == "night_guard":
+			contribution *= 0.8
+		total += roundi(contribution * health_ratio * stamina_ratio)
+	var leader := TribePopulation.get_leader()
+	if not leader.is_empty():
+		var leader_traits: Dictionary = leader.get("traits", {})
+		total += roundi(float(leader_traits.get("perception", 5)) * 0.5)
+	return maxi(0, total)
+
+
+## Xử lý một đợt tập kích. enemy_power là sức mạnh do hệ thống sự kiện truyền vào.
+## Kết quả trả về để giao diện sự kiện hiển thị thắng/thua, thương vong và thiệt hại kho.
+func resolve_tribe_attack(enemy_power: int, attack_type: String = "barbarian") -> Dictionary:
+	if enemy_power <= 0:
+		return {"success": false, "reason": "Sức tấn công của kẻ địch phải lớn hơn 0."}
+	var defense := get_defense_strength()
+	var won := defense >= enemy_power
+	var pressure := maxi(1, enemy_power - int(defense * 0.65))
+	var injury_budget := maxi(1, roundi(float(pressure) / 8.0))
+	var injured := 0
+	var candidates: Array[Dictionary] = []
+	for key in assignments:
+		if str(assignments[key]) not in ["warrior", "night_guard"]:
+			continue
+		var person := TribePopulation.get_resident(int(key))
+		if not person.is_empty() and bool(person.get("alive", true)):
+			candidates.append(person)
+	candidates.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return float(a.get("health", 100.0)) < float(b.get("health", 100.0))
+	)
+	for person in candidates:
+		if injured >= injury_budget:
+			break
+		var traits: Dictionary = person.get("traits", {})
+		var endurance := int(traits.get("endurance", 5))
+		var damage := maxi(3, 16 - endurance + (4 if won else 10))
+		person["health"] = maxf(1.0, float(person.get("health", 100.0)) - float(damage))
+		person["morale"] = maxf(0.0, float(person.get("morale", 70.0)) - (2.0 if won else 8.0))
+		injured += 1
+	if not won:
+		for person in TribePopulation.residents:
+			if bool(person.get("alive", true)) and int(person.get("age", 0)) >= 18:
+				person["morale"] = maxf(0.0, float(person.get("morale", 70.0)) - 3.0)
+		var food_loss := mini(int(stockpile.get("food", 0)), maxi(1, enemy_power / 10))
+		var wood_loss := mini(int(stockpile.get("wood", 0)), maxi(1, enemy_power / 15))
+		raid_stockpile("food", food_loss)
+		raid_stockpile("wood", wood_loss)
+	TribePopulation.save_population()
+	if TribePopulation.has_method("_emit_population"):
+		TribePopulation._emit_population()
+	_save_state()
+	return {
+		"success": true,
+		"victory": won,
+		"attack_type": attack_type,
+		"defense_power": defense,
+		"enemy_power": enemy_power,
+		"injured": injured,
+		"food_lost": 0 if won else mini(enemy_power / 10, int(stockpile.get("food", 0)) + maxi(1, enemy_power / 10)),
+		"message": "Bộ lạc đẩy lùi được cuộc tập kích!" if won else "Bộ lạc bị đánh bại, kho lương thực và gỗ bị cướp!"
+	}
+
 func _save_state() -> void:
 	var config := ConfigFile.new()
 	config.set_value("jobs", "assignments", assignments)
