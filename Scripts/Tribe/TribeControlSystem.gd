@@ -361,7 +361,7 @@ func capture_nearest_prisoner() -> String:
 	if not is_instance_valid(nearest):
 		return "Không có tù binh đầu hàng trong phạm vi 100."
 	var prisoner_name := "Tù binh man rợ %d" % randi_range(10, 99)
-	var new_id := TribePopulation.recruit_migrant(prisoner_name, 20, "male", "villager")
+	var new_id := TribePopulation.recruit_captive(prisoner_name, 20, "male")
 	if new_id < 0:
 		return "Không thể tiếp nhận tù binh."
 	nearest.remove_from_group("surrendered_barbarians")
