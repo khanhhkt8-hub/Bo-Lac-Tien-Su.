@@ -97,6 +97,10 @@ func set_selection_area_mode(enabled: bool) -> void:
 func set_rally_mode(enabled: bool) -> void:
 	rally_mode = enabled
 	move_mode = false
+	selection_area_mode = false
+	_pointer_down = false
+	_drag_selecting = false
+	queue_redraw()
 
 func set_rally_point(destination: Vector2) -> void:
 	rally_point = destination
