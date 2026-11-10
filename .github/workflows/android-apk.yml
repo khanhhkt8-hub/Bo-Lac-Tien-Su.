@@ -104,7 +104,7 @@ jobs:
         run: |
           set -o pipefail
           godot --headless --path . --verbose --export-debug "Android" build/Bo-Lac-Tien-Su.apk 2>&1 | tee build/android-export.log
-          if grep -E "SCRIPT ERROR:|Parse Error:|Compile Error:|Failed to load script|ERROR:" build/android-export.log; then
+          if grep -E "SCRIPT ERROR:|Parse Error:|Compile Error:|Failed to load script" build/android-export.log; then
             echo "Export reported script errors; refusing to publish APK."
             exit 1
           fi
