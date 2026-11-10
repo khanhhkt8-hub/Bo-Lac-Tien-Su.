@@ -106,6 +106,10 @@ func _ready() -> void:
 	relic_skill_button.text = "KỸ NĂNG DI VẬT"
 	relic_skill_button.pressed.connect(_on_relic_skill_pressed)
 	combat_row.add_child(relic_skill_button)
+	var patrol_button := Button.new()
+	patrol_button.text = "TUẦN TRA"
+	patrol_button.pressed.connect(_on_patrol_pressed.bind(patrol_button))
+	combat_row.add_child(patrol_button)
 	var hold_position_button := Button.new()
 	hold_position_button.text = "GIỮ VỊ TRÍ"
 	hold_position_button.pressed.connect(_on_hold_position_pressed)
@@ -329,6 +333,17 @@ func _on_tribe_attack_pressed() -> void:
 	if _tribe_control != null:
 		var count: int = _tribe_control.order_all_attack()
 		_craft_status.text = "%d thành viên chuyển sang đội hình chiến đấu" % count
+
+func _on_patrol_pressed(button: Button) -> void:
+	if _tribe_control == null:
+		return
+	var enabled := not bool(_tribe_control.get("patrol_mode"))
+	if enabled and int(_tribe_control.call("get_selected_count")) == 0:
+		_craft_status.text = "Hãy chọn một nhóm người trưởng thành trước khi vẽ tuyến tuần tra."
+		return
+	_tribe_control.call("set_patrol_mode", enabled)
+	button.text = "ĐANG VẼ TUYẾN" if enabled else "TUẦN TRA"
+	_craft_status.text = "Chạm 2 điểm trên bản đồ để tạo tuyến tuần tra khép kín." if enabled else "Đã hủy vẽ tuyến tuần tra."
 
 func _on_hold_position_pressed() -> void:
 	if _tribe_control == null:
