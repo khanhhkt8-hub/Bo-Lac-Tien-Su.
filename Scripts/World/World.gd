@@ -97,21 +97,43 @@ func _draw_region(center: Vector2, radius: float, tint: Color, label: String) ->
 	draw_string(ThemeDB.fallback_font, center + Vector2(-62, -radius + 42), label, HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Color("#f4edcf"))
 
 func _draw_tree(p: Vector2, size: float, variant: int) -> void:
-	draw_ellipse_placeholder(p + Vector2(7, 12), 15.0 * size, 7.0 * size, Color(0.12, 0.18, 0.10, 0.35))
-	draw_rect(Rect2(p + Vector2(-5.0 * size, -4.0 * size), Vector2(10.0 * size, 31.0 * size)), Color("#765039"))
-	# Tán cây nghiêng nhẹ theo gió, thân cây vẫn đứng yên.
+	# Bóng đổ và rễ nổi giúp cây có khối, không còn giống các hình tròn phẳng.
+	draw_ellipse_placeholder(p + Vector2(9, 15) * size, 25.0 * size, 9.0 * size, Color(0.08, 0.13, 0.07, 0.38))
+	var trunk := PackedVector2Array([
+		p + Vector2(-7, 7) * size, p + Vector2(-5, -23) * size,
+		p + Vector2(-3, -42) * size, p + Vector2(5, -42) * size,
+		p + Vector2(7, 7) * size, p + Vector2(17, 13) * size,
+		p + Vector2(3, 10) * size, p + Vector2(-2, 15) * size,
+		p + Vector2(-8, 9) * size, p + Vector2(-19, 13) * size
+	])
+	draw_colored_polygon(trunk, Color("#69452f"))
+	draw_line(p + Vector2(-2, -30) * size, p + Vector2(-3, 5) * size, Color("#a77a4c"), 2.0 * size, true)
+	draw_line(p + Vector2(4, -20) * size, p + Vector2(5, 3) * size, Color("#4e3528"), 1.5 * size, true)
+	draw_arc(p + Vector2(0, -13) * size, 3.5 * size, 0.0, TAU, 16, Color("#4b3024"), 1.4 * size)
+	# Tán nhiều tầng, có vùng sáng và cụm lá nhỏ chuyển động theo gió.
 	var sway := sin(_ambient_time * 1.15 + p.x * 0.004 + p.y * 0.006) * 3.2 * size
 	var canopy := Vector2(sway, 0.0)
-	draw_circle(p + canopy + Vector2(0, -19.0 * size), 27.0 * size, Color("#315b32") if variant == 0 else (Color("#3d6a36") if variant == 1 else Color("#476f39")))
-	draw_circle(p + canopy + Vector2(-13.0 * size, -26.0 * size), 17.0 * size, Color("#548447"))
-	draw_circle(p + canopy + Vector2(12.0 * size, -29.0 * size), 18.0 * size, Color("#648f48"))
-	draw_circle(p + canopy + Vector2(-5.0 * size, -38.0 * size), 12.0 * size, Color("#789c50"))
-	draw_circle(p + canopy + Vector2(-8.0 * size, -34.0 * size), 4.0 * size, Color(0.82, 0.88, 0.55, 0.42))
+	var base_color := Color("#294d2d") if variant == 0 else (Color("#365d32") if variant == 1 else Color("#466b36"))
+	draw_circle(p + canopy + Vector2(1, -22) * size, 34.0 * size, Color("#203f28"))
+	draw_circle(p + canopy + Vector2(0, -27) * size, 29.0 * size, base_color)
+	draw_circle(p + canopy + Vector2(-17, -31) * size, 19.0 * size, Color("#416d38"))
+	draw_circle(p + canopy + Vector2(16, -35) * size, 21.0 * size, Color("#527d3d"))
+	draw_circle(p + canopy + Vector2(-4, -46) * size, 17.0 * size, Color("#648b45"))
+	draw_circle(p + canopy + Vector2(-15, -43) * size, 8.0 * size, Color("#7b9d50"))
+	draw_circle(p + canopy + Vector2(7, -51) * size, 9.0 * size, Color("#89a957"))
+	draw_circle(p + canopy + Vector2(20, -27) * size, 7.0 * size, Color("#73964a"))
+	draw_circle(p + canopy + Vector2(-7, -47) * size, 3.0 * size, Color(0.91, 0.91, 0.60, 0.48))
+	draw_circle(p + canopy + Vector2(12, -38) * size, 2.5 * size, Color(0.91, 0.91, 0.60, 0.38))
 
 func _draw_rock_cluster(p: Vector2, size: float) -> void:
-	draw_ellipse_placeholder(p + Vector2(5, 10), 38.0 * size, 13.0 * size, Color(0.12, 0.16, 0.12, 0.35))
-	draw_colored_polygon(PackedVector2Array([p + Vector2(-36, 4) * size, p + Vector2(-22, -25) * size, p + Vector2(4, -33) * size, p + Vector2(30, -8) * size, p + Vector2(24, 13) * size, p + Vector2(-24, 16) * size]), Color("#858d85"))
-	draw_line(p + Vector2(-19, -18) * size, p + Vector2(3, -27) * size, Color("#c0c7b5"), 3.0 * size)
+	draw_ellipse_placeholder(p + Vector2(5, 11) * size, 42.0 * size, 14.0 * size, Color(0.10, 0.13, 0.11, 0.40))
+	# Ba phiến đá chồng lớp với mặt sáng, cạnh tối và vết nứt.
+	draw_colored_polygon(PackedVector2Array([p + Vector2(-38, 8) * size, p + Vector2(-27, -12) * size, p + Vector2(-8, -17) * size, p + Vector2(2, 7) * size, p + Vector2(-8, 17) * size, p + Vector2(-31, 17) * size]), Color("#626d69"))
+	draw_colored_polygon(PackedVector2Array([p + Vector2(-25, 5) * size, p + Vector2(-15, -29) * size, p + Vector2(7, -38) * size, p + Vector2(29, -13) * size, p + Vector2(23, 13) * size, p + Vector2(-18, 17) * size]), Color("#858f88"))
+	draw_colored_polygon(PackedVector2Array([p + Vector2(-15, -27) * size, p + Vector2(7, -38) * size, p + Vector2(29, -13) * size, p + Vector2(4, -17) * size]), Color("#b5beb0"))
+	draw_colored_polygon(PackedVector2Array([p + Vector2(8, 2) * size, p + Vector2(29, -13) * size, p + Vector2(23, 13) * size, p + Vector2(-18, 17) * size]), Color("#59645f"))
+	draw_line(p + Vector2(-15, -24) * size, p + Vector2(5, -31) * size, Color("#d0d4c4"), 2.2 * size, true)
+	draw_line(p + Vector2(12, -10) * size, p + Vector2(7, 2) * size, Color("#46534f"), 1.5 * size, true)
 
 func _draw_campfire(p: Vector2) -> void:
 	draw_ellipse_placeholder(p + Vector2(0, 12), 31, 12, Color(0.12, 0.12, 0.08, 0.45))
