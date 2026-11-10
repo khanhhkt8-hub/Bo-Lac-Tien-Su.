@@ -36,6 +36,10 @@ func _ready() -> void:
 	attack_button.text = "TẤN CÔNG"
 	attack_button.pressed.connect(_on_attack_pressed)
 	combat_row.add_child(attack_button)
+	var relic_skill_button := Button.new()
+	relic_skill_button.text = "KỸ NĂNG DI VẬT"
+	relic_skill_button.pressed.connect(_on_relic_skill_pressed)
+	combat_row.add_child(relic_skill_button)
 	var mount_row := HBoxContainer.new()
 	column.add_child(mount_row)
 	var mount_button := Button.new()
@@ -190,6 +194,10 @@ func _on_attack_pressed() -> void:
 	if _player != null and _player.has_method("attack_nearby"):
 		if not _player.attack_nearby():
 			_craft_status.text = "Không có kẻ địch trong tầm hoặc đang hồi chiêu"
+
+func _on_relic_skill_pressed() -> void:
+	if _player != null and _player.has_method("use_relic_weapon_skill"):
+		_craft_status.text = _player.use_relic_weapon_skill()
 
 func _on_shoot_pressed() -> void:
 	if _player != null and _player.has_method("shoot_arrow"):
