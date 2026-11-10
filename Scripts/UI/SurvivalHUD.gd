@@ -46,6 +46,10 @@ func _ready() -> void:
 	upgrade_button.text = "NÂNG CẤP THÚ"
 	upgrade_button.pressed.connect(_on_upgrade_companion_pressed)
 	mount_row.add_child(upgrade_button)
+	var awaken_button := Button.new()
+	awaken_button.text = "THỨC TỈNH THẦN THÚ"
+	awaken_button.pressed.connect(_on_awaken_god_beast_pressed)
+	column.add_child(awaken_button)
 	var command_row := HBoxContainer.new()
 	column.add_child(command_row)
 	var attack_order_button := Button.new()
@@ -267,6 +271,10 @@ func _on_region_changed(region_id: String, data: Dictionary) -> void:
 func _on_mount_pressed() -> void:
 	if _player != null and _player.has_method("toggle_mount_nearby_animal"):
 		_craft_status.text = _player.toggle_mount_nearby_animal()
+
+func _on_awaken_god_beast_pressed() -> void:
+	if _player != null and _player.has_method("awaken_nearby_god_beast"):
+		_craft_status.text = _player.awaken_nearby_god_beast()
 
 func _on_upgrade_companion_pressed() -> void:
 	if _player != null and _player.has_method("upgrade_nearby_companion"):
