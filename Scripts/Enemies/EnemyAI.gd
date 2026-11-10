@@ -15,6 +15,7 @@ enum AIState { PATROL, CHASE, ATTACK, RETURN }
 @export var patrol_radius: float = 110.0
 
 var health: float
+var surrendered := false
 var state: AIState = AIState.PATROL
 var home_position: Vector2
 var patrol_target: Vector2
@@ -35,6 +36,12 @@ func _ready() -> void:
 	add_to_group("enemies")
 
 func _physics_process(delta: float) -> void:
+	if surrendered:
+		var escape_direction := global_position.direction_to(home_position)
+		velocity = escape_direction * move_speed * 0.7
+		move_and_slide()
+		queue_redraw()
+		return
 	attack_timer = maxf(0.0, attack_timer - delta)
 	hit_flash = maxf(0.0, hit_flash - delta)
 	slow_seconds = maxf(0.0, slow_seconds - delta)
@@ -140,6 +147,10 @@ func apply_poison(duration: float, damage_per_second: float) -> void:
 func take_damage(amount: float) -> void:
 	health = maxf(0.0, health - maxf(0.0, amount))
 	hit_flash = 0.16
+	if not surrendered and health > 0.0 and health <= max_health * 0.25 and not bool(get("is_chief")):
+		surrendered = true
+		target = null
+		add_to_group("surrendered_barbarians")
 	queue_redraw()
 	if health <= 0.0 and not is_queued_for_deletion():
 		defeated.emit(self)
