@@ -59,6 +59,8 @@ func _vision_radius(source: Node2D) -> float:
 	if source.is_in_group("player"):
 		return 440.0
 	var role := str(source.get("role"))
+	if role == "scout":
+		return 520.0
 	if role == "hunter":
 		return 330.0
 	if role == "warrior":
