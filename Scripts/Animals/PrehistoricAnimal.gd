@@ -20,6 +20,7 @@ var companion_fang_equipped := false
 var rarity := "common"
 var mutation := "none"
 var is_pack_leader := false
+var walk_phase := 0.0
 
 func _ready() -> void:
 	match species:
@@ -162,6 +163,9 @@ func _physics_process(delta: float) -> void:
 		super._physics_process(delta)
 		return
 	_companion_follow_and_fight(delta)
+	if velocity.length_squared() > 1.0:
+		walk_phase += delta * 10.0
+		queue_redraw()
 
 func tame_as_companion() -> void:
 	is_tamed = true
@@ -428,9 +432,28 @@ func _draw() -> void:
 			body_color = body_color.lerp(Color("#b58cff"), 0.55)
 		"divine":
 			body_color = body_color.lerp(Color("#fff4b0"), 0.72)
-	draw_circle(Vector2.ZERO, radius, body_color)
-	draw_circle(Vector2(-radius * 0.25, -radius * 0.15), 2.5, Color("#211b17"))
-	draw_circle(Vector2(radius * 0.25, -radius * 0.15), 2.5, Color("#211b17"))
+	# Bốn chân chuyển động luân phiên, thân thuôn và đầu hướng về phía trước.
+	var gait := sin(walk_phase) * 4.5 if velocity.length_squared() > 1.0 else 0.0
+	var leg_color := body_color.darkened(0.28)
+	for leg_x in [-radius * 0.48, radius * 0.48]:
+		draw_line(Vector2(leg_x, radius * 0.12), Vector2(leg_x + gait, radius * 0.88), leg_color, maxf(4.0, radius * 0.28))
+		draw_circle(Vector2(leg_x + gait, radius * 0.88), maxf(3.0, radius * 0.15), leg_color.darkened(0.1))
+	var torso := PackedVector2Array()
+	for point_index in range(24):
+		var angle := TAU * float(point_index) / 24.0
+		torso.append(Vector2(cos(angle) * radius * 1.12, sin(angle) * radius * 0.78))
+	draw_colored_polygon(torso, body_color)
+	draw_arc(Vector2.ZERO, radius * 0.88, 0.0, TAU, 28, body_color.lightened(0.18), 2.0)
+	if species == "wolf" or species == "saber_tooth":
+		draw_colored_polygon(PackedVector2Array([Vector2(-radius * 0.55, -radius * 0.45), Vector2(-radius * 0.8, -radius * 1.12), Vector2(-radius * 0.12, -radius * 0.68)]), body_color.darkened(0.12))
+		draw_colored_polygon(PackedVector2Array([Vector2(radius * 0.55, -radius * 0.45), Vector2(radius * 0.8, -radius * 1.12), Vector2(radius * 0.12, -radius * 0.68)]), body_color.darkened(0.12))
+	# Đầu nhô về phía trước, mắt và mõm rõ hơn.
+	draw_circle(Vector2(0, -radius * 0.62), radius * 0.52, body_color.lightened(0.12))
+	draw_circle(Vector2(-radius * 0.22, -radius * 0.68), maxf(2.0, radius * 0.1), Color("#211b17"))
+	draw_circle(Vector2(radius * 0.22, -radius * 0.68), maxf(2.0, radius * 0.1), Color("#211b17"))
+	draw_circle(Vector2(0, -radius * 0.38), radius * 0.16, Color("#30241e"))
+	# Đuôi vẫy nhẹ khi di chuyển.
+	draw_line(Vector2(0, radius * 0.52), Vector2(sin(walk_phase * 0.7) * 5.0, radius * 1.35), body_color.darkened(0.15), maxf(3.0, radius * 0.2))
 	if species == "saber_tooth":
 		draw_line(Vector2(-5.0, 6.0), Vector2(-3.0, 14.0), Color("#eee1c5"), 2.0)
 		draw_line(Vector2(5.0, 6.0), Vector2(3.0, 14.0), Color("#eee1c5"), 2.0)
