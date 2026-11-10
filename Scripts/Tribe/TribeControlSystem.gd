@@ -122,6 +122,7 @@ func clear_selection() -> void:
 
 func set_move_mode(enabled: bool) -> void:
 	move_mode = enabled
+	scout_mode = false
 	rally_mode = false
 	patrol_mode = false
 	_patrol_points.clear()
@@ -155,7 +156,9 @@ func set_scout_mode(enabled: bool) -> void:
 	patrol_mode = false
 	selection_area_mode = false
 	_pointer_down = false
-	_drag_selecting = false\n\nfunc set_patrol_mode(enabled: bool) -> void:
+	_drag_selecting = false
+
+func set_patrol_mode(enabled: bool) -> void:
 	patrol_mode = enabled
 	_patrol_points.clear()
 	move_mode = false
@@ -314,6 +317,10 @@ func _finish_pointer_gesture(screen_pos: Vector2) -> void:
 		_handle_world_tap(_screen_to_world(screen_pos))
 
 func _handle_world_tap(world_pos: Vector2) -> void:
+	if scout_mode:
+		ScoutSystem.dispatch_scouts(selected_ids, world_pos, units)
+		scout_mode = false
+		return
 	if patrol_mode:
 		_patrol_points.append(world_pos)
 		if _patrol_points.size() >= 2:
