@@ -91,6 +91,7 @@ func _process(delta: float) -> void:
 	var player := get_tree().get_first_node_in_group("player") as Node2D
 	if not is_instance_valid(player):
 		return
+	_discover_regions_near_tribe(player)
 	var region_id := get_region_id_at(player.global_position)
 	if region_id == current_region_id:
 		return
@@ -104,6 +105,19 @@ func _process(delta: float) -> void:
 		save_discoveries()
 		region_discovered.emit(region_id, data)
 	region_changed.emit(region_id, data)
+
+func _discover_regions_near_tribe(player: Node2D) -> void:
+	var explorers: Array[Node2D] = [player]
+	for unit in get_tree().get_nodes_in_group("tribe_units"):
+		if is_instance_valid(unit) and unit is Node2D:
+			explorers.append(unit as Node2D)
+	for explorer in explorers:
+		var region_id := get_region_id_at(explorer.global_position)
+		if region_id.is_empty() or bool(discovered.get(region_id, false)):
+			continue
+		discovered[region_id] = true
+		save_discoveries()
+		region_discovered.emit(region_id, REGIONS[region_id].duplicate(true))
 
 func get_region_id_at(world_position: Vector2) -> String:
 	var closest_id := ""
