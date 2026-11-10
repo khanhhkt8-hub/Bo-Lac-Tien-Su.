@@ -141,6 +141,24 @@ func _build_inventory_label() -> void:
 			player.tame_nearest_wildlife()
 	)
 	add_child(tame_button)
+	var rally_button := Button.new()
+	rally_button.text = "TẬP HỢP"
+	rally_button.anchor_left = 1.0
+	rally_button.anchor_top = 1.0
+	rally_button.anchor_right = 1.0
+	rally_button.anchor_bottom = 1.0
+	rally_button.offset_left = -174.0
+	rally_button.offset_top = -382.0
+	rally_button.offset_right = -18.0
+	rally_button.offset_bottom = -300.0
+	rally_button.add_theme_font_size_override("font_size", 18)
+	rally_button.pressed.connect(func():
+		var world := get_tree().current_scene
+		if world != null and world.has_method("order_tribe_rally"):
+			var count: int = world.order_tribe_rally()
+			_health_label.text = "ĐÃ TẬP HỢP: %d NGƯỜI" % count
+	)
+	add_child(rally_button)
 
 func show_inventory(items: Dictionary) -> void:
 	if not is_instance_valid(_inventory_label):
