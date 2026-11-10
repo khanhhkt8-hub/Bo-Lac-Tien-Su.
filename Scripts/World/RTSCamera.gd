@@ -46,6 +46,7 @@ func _unhandled_input(event: InputEvent) -> void:
 				_last_pinch_distance = _get_pinch_distance()
 			else:
 				_last_pointer = event.position
+			get_viewport().set_input_as_handled()
 		else:
 			_touch_points.erase(event.index)
 			if _touch_points.size() < 2:
