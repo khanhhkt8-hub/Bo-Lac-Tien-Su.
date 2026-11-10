@@ -83,6 +83,7 @@ func _auto_gather() -> void:
 		if is_instance_valid(gathering_target):
 			issue_move_order(gathering_target.global_position)
 			return
+		gather_timer = 1.5
 	if is_instance_valid(gathering_target):
 		if global_position.distance_to(gathering_target.global_position) <= 28.0:
 			if gathering_target.gather_for_tribe():
