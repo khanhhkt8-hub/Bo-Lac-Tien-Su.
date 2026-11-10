@@ -18,6 +18,7 @@ var companion_order := "protect"
 var companion_armor_equipped := false
 var companion_fang_equipped := false
 var rarity := "common"
+var is_pack_leader := false
 
 func _ready() -> void:
 	match species:
@@ -211,6 +212,16 @@ func set_companion_order(order: String) -> void:
 	companion_target_timer = 0.0
 
 
+func _has_pack_leader_aura() -> bool:
+	for node in get_tree().get_nodes_in_group("tamed_animals"):
+		if not is_instance_valid(node) or node == self or not node is PrehistoricAnimal:
+			continue
+		var leader := node as PrehistoricAnimal
+		if leader.is_pack_leader and global_position.distance_to(leader.global_position) <= 420.0:
+			return true
+	return false
+
+
 func _get_skill_damage_multiplier() -> float:
 	var base_multiplier := 1.0
 	match species:
@@ -226,7 +237,8 @@ func _get_skill_damage_multiplier() -> float:
 	if companion_level >= 4:
 		evolution_bonus *= 1.35
 	var gear_bonus := 1.15 if companion_fang_equipped else 1.0
-	return base_multiplier * evolution_bonus * gear_bonus
+	var pack_bonus := 1.15 if _has_pack_leader_aura() else 1.0
+	return base_multiplier * evolution_bonus * gear_bonus * pack_bonus
 
 
 func _get_skill_cooldown() -> float:
@@ -305,14 +317,14 @@ func _companion_follow_and_fight(delta: float) -> void:
 					legendary_skill_timer = 3.5 if companion_level >= 4 else 5.0
 					_trigger_legendary_skill(companion_target)
 		else:
-			velocity = global_position.direction_to(companion_target.global_position) * move_speed * 1.2
+			velocity = global_position.direction_to(companion_target.global_position) * move_speed * 1.2 * (1.1 if _has_pack_leader_aura() else 1.0)
 	else:
 		if not is_instance_valid(player):
 			velocity = Vector2.ZERO
 		else:
 			var player_distance := global_position.distance_to(player.global_position)
 			if player_distance > 72.0:
-				velocity = global_position.direction_to(player.global_position) * move_speed * 1.25
+				velocity = global_position.direction_to(player.global_position) * move_speed * 1.25 * (1.1 if _has_pack_leader_aura() else 1.0)
 			else:
 				velocity = Vector2.ZERO
 	if velocity.length_squared() > 1.0:
@@ -368,6 +380,9 @@ func _draw() -> void:
 		draw_string(ThemeDB.fallback_font, Vector2(-radius, -radius - 7.0), mark, HORIZONTAL_ALIGNMENT_LEFT, 70.0, 12, Color("#f2d16b"))
 	if is_tamed and companion_level >= 4:
 		draw_arc(Vector2.ZERO, radius + 10.0, 0.0, TAU, 40, Color("#fff0a0"), 4.0)
+	if is_tamed and is_pack_leader:
+		draw_arc(Vector2.ZERO, radius + 16.0, 0.0, TAU, 48, Color("#ff7de2"), 3.5)
+		draw_string(ThemeDB.fallback_font, Vector2(-radius, radius + 18.0), "THÚ CHÚA", HORIZONTAL_ALIGNMENT_LEFT, 90.0, 11, Color("#ffb6ee"))
 	if is_tamed and rarity != "common":
 		draw_arc(Vector2.ZERO, radius + 5.0, 0.0, TAU, 32, body_color.lightened(0.25), 2.5)
 	if species == "mammoth":
