@@ -188,6 +188,12 @@ func get_population_summary() -> Dictionary:
 
 func _advance_resident_needs() -> void:
 	var changed := false
+	var has_childcare_worker := false
+	if TribeJobSystem != null:
+		for assigned_job in TribeJobSystem.assignments.values():
+			if str(assigned_job) == "caregiver":
+				has_childcare_worker = true
+				break
 	# Trẻ em được xét nhu cầu trước để ưu tiên nguồn lương thực và nước khi khan hiếm.
 	var needs_order: Array[Dictionary] = []
 	for resident in residents:
@@ -234,6 +240,8 @@ func _advance_resident_needs() -> void:
 			morale -= 5.0
 		if fed and hydrated:
 			morale += 1.5
+		if int(person.get("age", 18)) < 6 and (has_childcare_worker or bool(person.get("in_daycare", false))):
+			morale += 2.0
 		if bool(person.get("illness", false)):
 			morale -= 1.0
 		person["morale"] = clampf(morale, 0.0, 100.0)
@@ -256,6 +264,8 @@ func _advance_resident_needs() -> void:
 			else:
 				var old_health := float(person.get("health", 100.0))
 				var recovery := 2.0 if resting_at_night else 1.0
+				if int(person.get("age", 18)) < 6 and (has_childcare_worker or bool(person.get("in_daycare", false))):
+					recovery += 1.0
 				person["health"] = minf(100.0, old_health + recovery)
 				if float(person["health"]) != old_health:
 					changed = true
