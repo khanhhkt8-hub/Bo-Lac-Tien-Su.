@@ -128,8 +128,18 @@ func take_damage(amount: float) -> void:
 		queue_free()
 
 func _draw() -> void:
-	draw_circle(Vector2.ZERO, 13.0, Color("#76513b"))
-	draw_circle(Vector2(-4.0, -3.0), 2.0, Color("#211b17"))
-	draw_circle(Vector2(4.0, -3.0), 2.0, Color("#211b17"))
-	draw_rect(Rect2(Vector2(-15.0, -23.0), Vector2(30.0, 4.0)), Color("#302b27"))
-	draw_rect(Rect2(Vector2(-15.0, -23.0), Vector2(30.0 * health / max_health, 4.0)), Color("#c84b3c"))
+	# Kẻ địch có dáng chiến binh, tóc, giáp da và vũ khí.
+	draw_colored_polygon(PackedVector2Array([Vector2(-13, 7), Vector2(-10, 17), Vector2(10, 17), Vector2(13, 7)]), Color(0.10, 0.10, 0.08, 0.42))
+	draw_line(Vector2(-5, 7), Vector2(-7, 14), Color("#392b22"), 5.0)
+	draw_line(Vector2(5, 7), Vector2(7, 14), Color("#392b22"), 5.0)
+	draw_colored_polygon(PackedVector2Array([Vector2(-10, -7), Vector2(-8, 8), Vector2(0, 12), Vector2(8, 8), Vector2(10, -7), Vector2(0, -12)]), Color("#704735"))
+	draw_line(Vector2(-8, -3), Vector2(8, 7), Color("#ad8b59"), 3.0)
+	draw_circle(Vector2.ZERO, 11.0, Color("#a86f4d"))
+	draw_arc(Vector2(0, -2), 11.0, PI, TAU, 18, Color("#39251e"), 4.0)
+	draw_circle(Vector2(-3.5, 0), 1.6, Color("#241a16"))
+	draw_circle(Vector2(3.5, 0), 1.6, Color("#241a16"))
+	draw_line(Vector2(11, -3), Vector2(20, -17), Color("#62452c"), 3.0)
+	draw_colored_polygon(PackedVector2Array([Vector2(17, -20), Vector2(24, -26), Vector2(24, -15)]), Color("#b9c0b4"))
+	# Thanh máu phía trên đầu mục tiêu.
+	draw_rect(Rect2(Vector2(-16.0, -29.0), Vector2(32.0, 5.0)), Color("#292521"))
+	draw_rect(Rect2(Vector2(-15.0, -28.0), Vector2(30.0 * health / maxf(1.0, max_health), 3.0)), Color("#d84e43"))
