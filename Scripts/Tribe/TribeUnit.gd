@@ -17,6 +17,8 @@ var hunting_target: Node2D
 var hunt_timer := 0.0
 var defense_target: Node2D
 var defense_scan_timer := 0.0
+var combat_target: Node2D
+var combat_scan_timer := 0.0
 
 func _ready() -> void:
 	add_to_group("tribe_units")
@@ -29,6 +31,8 @@ func setup(data: Dictionary) -> void:
 	queue_redraw()
 
 func issue_move_order(destination: Vector2) -> void:
+	combat_order_active = false
+	combat_target = null
 	move_target = destination
 	has_move_order = true
 
@@ -41,6 +45,7 @@ func _process(delta: float) -> void:
 	gather_timer = maxf(0.0, gather_timer - delta)
 	hunt_timer = maxf(0.0, hunt_timer - delta)
 	defense_scan_timer = maxf(0.0, defense_scan_timer - delta)
+	combat_scan_timer = maxf(0.0, combat_scan_timer - delta)
 	if has_move_order:
 		var offset := move_target - global_position
 		if offset.length() <= 7.0:
@@ -48,26 +53,50 @@ func _process(delta: float) -> void:
 			global_position = move_target
 		else:
 			global_position += offset.normalized() * move_speed * delta
-	if role == "warrior" and resident_age >= 18 and not has_move_order:
+	if combat_order_active and resident_age >= 18 and not has_move_order:
+		_update_combat_order(delta)
+	if role == "warrior" and resident_age >= 18 and not has_move_order and not combat_order_active:
 		_auto_defend(delta)
 	if role == "gatherer" and resident_age >= 18 and not has_move_order and gather_timer <= 0.0:
 		_auto_gather()
 	if role == "hunter" and resident_age >= 18 and not has_move_order and hunt_timer <= 0.0:
 		_auto_hunt()
-	if combat_order_active and resident_age >= 18 and attack_timer <= 0.0:
-		var target: Node2D
-		var best_distance := 90.0
+func _update_combat_order(delta: float) -> void:
+	if combat_scan_timer <= 0.0 or not is_instance_valid(combat_target) or combat_target.is_queued_for_deletion():
+		combat_scan_timer = 0.35
+		combat_target = null
+		var nearest := 520.0
 		for enemy in get_tree().get_nodes_in_group("enemies"):
-			if not is_instance_valid(enemy) or not enemy is Node2D:
+			if not is_instance_valid(enemy) or enemy.is_queued_for_deletion() or not enemy is Node2D:
 				continue
-			var distance := global_position.distance_to(enemy.global_position)
-			if distance < best_distance:
-				target = enemy
-				best_distance = distance
-		if target != null and target.has_method("take_damage"):
-			target.take_damage(8.0)
-			attack_timer = 1.4
-
+			var candidate := enemy as Node2D
+			var distance := global_position.distance_to(candidate.global_position)
+			if distance < nearest:
+				nearest = distance
+				combat_target = candidate
+	if not is_instance_valid(combat_target):
+		return
+	var distance_to_target := global_position.distance_to(combat_target.global_position)
+	var preferred_range := 30.0
+	var damage := 8.0
+	var cooldown := 1.3
+	if role == "hunter":
+		preferred_range = 145.0
+		damage = 12.0
+		cooldown = 1.8
+	elif role != "warrior":
+		preferred_range = 85.0
+		damage = 5.0
+		cooldown = 1.6
+	if distance_to_target > preferred_range + 12.0:
+		global_position += global_position.direction_to(combat_target.global_position) * move_speed * delta
+	elif distance_to_target < preferred_range - 25.0 and role == "hunter":
+		global_position += combat_target.global_position.direction_to(global_position) * move_speed * 0.65 * delta
+	elif attack_timer <= 0.0 and combat_target.has_method("take_damage"):
+		combat_target.take_damage(damage)
+		attack_timer = cooldown
+	if not is_instance_valid(combat_target) or combat_target.is_queued_for_deletion():
+		combat_target = null
 
 func _auto_defend(delta: float) -> void:
 	if defense_scan_timer <= 0.0 or not is_instance_valid(defense_target):
