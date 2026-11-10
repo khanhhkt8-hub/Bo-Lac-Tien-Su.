@@ -173,3 +173,10 @@ Game sinh tồn 2D offline, ưu tiên Android, phát triển bằng Godot 4.
 - Thần Thú nhận thêm 45% máu tối đa, 30% sát thương và 10% tốc độ ở lần tiến hóa cuối; kỹ năng huyền thoại mạnh hơn và hồi chiêu còn 3,5 giây.
 - Thần Thú có vòng hào quang vàng sáng riêng; cấp tiến hóa được lưu offline.
 - Nút THỨC TỈNH THẦN THÚ chỉ xuất hiện như thao tác trong HUD, không thêm hệ thống xây dựng căn cứ.
+
+
+## Thú Chúa và hào quang đàn thú
+- Người chơi có thể phong một Thần Thú Huyền Thoại cấp 4 trưởng thành gần mình làm Thú Chúa.
+- Mỗi đàn chỉ có một Thú Chúa; phong thú mới sẽ thay thế danh hiệu của thú cũ.
+- Thú đồng hành trong phạm vi 420 đơn vị quanh Thú Chúa được tăng 15% sát thương kỹ năng và 10% tốc độ di chuyển.
+- Thú Chúa có vòng hào quang màu hồng tím và danh hiệu riêng; trạng thái được lưu offline.
