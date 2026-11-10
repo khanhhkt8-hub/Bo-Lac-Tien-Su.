@@ -50,6 +50,10 @@ func _ready() -> void:
 	awaken_button.text = "THỨC TỈNH THẦN THÚ"
 	awaken_button.pressed.connect(_on_awaken_god_beast_pressed)
 	column.add_child(awaken_button)
+	var leader_button := Button.new()
+	leader_button.text = "PHONG THÚ CHÚA"
+	leader_button.pressed.connect(_on_appoint_pack_leader_pressed)
+	column.add_child(leader_button)
 	var command_row := HBoxContainer.new()
 	column.add_child(command_row)
 	var attack_order_button := Button.new()
@@ -271,6 +275,10 @@ func _on_region_changed(region_id: String, data: Dictionary) -> void:
 func _on_mount_pressed() -> void:
 	if _player != null and _player.has_method("toggle_mount_nearby_animal"):
 		_craft_status.text = _player.toggle_mount_nearby_animal()
+
+func _on_appoint_pack_leader_pressed() -> void:
+	if _player != null and _player.has_method("appoint_pack_leader"):
+		_craft_status.text = _player.appoint_pack_leader()
 
 func _on_awaken_god_beast_pressed() -> void:
 	if _player != null and _player.has_method("awaken_nearby_god_beast"):
