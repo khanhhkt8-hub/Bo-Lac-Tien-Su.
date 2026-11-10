@@ -375,6 +375,40 @@ func treat_wounded_residents() -> String:
 		return "Không có người cần chữa hoặc kho đã hết thảo dược."
 	return "Đã chữa %d người, dùng %d bó thảo dược." % [treated, herbs_used]
 
+
+func hold_tribe_festival() -> String:
+	if TribeJobSystem == null:
+		return "Kho lương thực chưa sẵn sàng."
+	var food_ids := ["food", "meat", "fish", "chicken", "duck", "eggs"]
+	var fruit_ids := ["fruit", "berries"]
+	var food_total := 0
+	var fruit_total := 0
+	for resource_id in food_ids:
+		food_total += int(TribeJobSystem.stockpile.get(resource_id, 0))
+	for resource_id in fruit_ids:
+		fruit_total += int(TribeJobSystem.stockpile.get(resource_id, 0))
+	if food_total < 5 or fruit_total < 3:
+		return "Chưa đủ lễ vật. Cần 5 phần thức ăn/thịt/cá và 3 trái cây/quả mọng trong kho."
+	var food_left := 5
+	for resource_id in food_ids:
+		if food_left <= 0:
+			break
+		food_left -= TribeJobSystem.raid_stockpile(resource_id, food_left)
+	var fruit_left := 3
+	for resource_id in fruit_ids:
+		if fruit_left <= 0:
+			break
+		fruit_left -= TribeJobSystem.raid_stockpile(resource_id, fruit_left)
+	var participants := 0
+	for person in residents:
+		if not bool(person.get("alive", true)):
+			continue
+		person["morale"] = clampf(float(person.get("morale", 70.0)) + 12.0, 0.0, 100.0)
+		participants += 1
+	save_population()
+	_emit_population()
+	return "LỄ HỘI BỘ LẠC THÀNH CÔNG! %d người tham gia, tinh thần mỗi người tăng 12 điểm. Đã dùng 5 phần thức ăn và 3 phần trái cây." % participants
+
 func get_morale_report() -> String:
 	var total := 0
 	var sum_morale := 0.0
