@@ -157,6 +157,11 @@ func _auto_assign_emergency_jobs() -> void:
 		elif water_total < water_limit:
 			selected_job = "water_carrier"
 			water_total += 5
+		else:
+			# Người trưởng thành chưa có nghề vẫn được đưa vào lao động,
+			# kể cả khi kho đang đủ dùng; luân phiên các nghề thiết yếu.
+			var baseline_jobs := ["farmer", "gatherer", "hunter", "fisher", "water_carrier", "miner"]
+			selected_job = baseline_jobs[assignments.size() % baseline_jobs.size()]
 		if selected_job.is_empty():
 			break
 		assignments[resident_id] = selected_job
