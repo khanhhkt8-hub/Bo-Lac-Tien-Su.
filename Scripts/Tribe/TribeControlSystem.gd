@@ -6,6 +6,12 @@ var units: Dictionary = {}
 var selected_ids: Array[int] = []
 var move_mode := false
 var rally_mode := false
+var selection_area_mode := false
+var _pointer_down := false
+var _drag_selecting := false
+var _press_screen := Vector2.ZERO
+var _selection_start_world := Vector2.ZERO
+var _selection_end_world := Vector2.ZERO
 var rally_point := Vector2.ZERO
 var has_rally_point := false
 var _sync_timer := 0.0
@@ -76,6 +82,16 @@ func clear_selection() -> void:
 
 func set_move_mode(enabled: bool) -> void:
 	move_mode = enabled
+	rally_mode = false
+	selection_area_mode = false
+
+func set_selection_area_mode(enabled: bool) -> void:
+	selection_area_mode = enabled
+	move_mode = false
+	rally_mode = false
+	_pointer_down = false
+	_drag_selecting = false
+	queue_redraw()
 
 
 func set_rally_mode(enabled: bool) -> void:
@@ -105,6 +121,10 @@ func rally_all_to_flag() -> int:
 	return count
 
 func _draw() -> void:
+	if _drag_selecting:
+		var rect := Rect2(to_local(_selection_start_world), to_local(_selection_end_world)).abs()
+		draw_rect(rect, Color(0.25, 0.75, 1.0, 0.16), true)
+		draw_rect(rect, Color(0.45, 0.85, 1.0, 0.95), false, 2.0)
 	if not has_rally_point:
 		return
 	var flag_base := to_local(rally_point)
@@ -159,6 +179,30 @@ func order_all_attack() -> int:
 func get_selected_count() -> int:
 	return selected_ids.size()
 
+func _select_units_in_rectangle(world_start: Vector2, world_end: Vector2) -> int:
+	var area := Rect2(world_start, world_end - world_start).abs()
+	clear_selection()
+	for id in units:
+		var unit: TribeUnit = units[id]
+		if is_instance_valid(unit) and area.has_point(unit.global_position):
+			unit.set_selected(true)
+			selected_ids.append(int(id))
+	return selected_ids.size()
+
+func _screen_to_world(screen_pos: Vector2) -> Vector2:
+	return get_global_transform_with_canvas().affine_inverse() * screen_pos
+
+func _finish_pointer_gesture(screen_pos: Vector2) -> void:
+	if _drag_selecting:
+		_selection_end_world = _screen_to_world(screen_pos)
+		_select_units_in_rectangle(_selection_start_world, _selection_end_world)
+		_drag_selecting = false
+		_pointer_down = false
+		queue_redraw()
+	elif _pointer_down:
+		_pointer_down = false
+		_handle_world_tap(_screen_to_world(screen_pos))
+
 func _handle_world_tap(world_pos: Vector2) -> void:
 	if rally_mode:
 		set_rally_point(world_pos)
@@ -185,11 +229,39 @@ func _unhandled_input(event: InputEvent) -> void:
 	var camera := get_parent().get_node_or_null("Camera2D")
 	if event is InputEventScreenTouch and camera != null and bool(camera.get("drag_enabled")):
 		return
-	if event is InputEventMouseButton and event.pressed:
-		if event.button_index == MOUSE_BUTTON_LEFT:
-			_handle_world_tap(get_global_mouse_position())
-		elif event.button_index == MOUSE_BUTTON_RIGHT and move_mode:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		if event.pressed:
+			_pointer_down = true
+			_drag_selecting = false
+			_press_screen = event.position
+			_selection_start_world = _screen_to_world(event.position)
+			_selection_end_world = _selection_start_world
+		else:
+			_finish_pointer_gesture(event.position)
+	elif event is InputEventMouseMotion and _pointer_down:
+		if not _drag_selecting and event.position.distance_to(_press_screen) >= 9.0:
+			_drag_selecting = true
+		if _drag_selecting:
+			_selection_end_world = _screen_to_world(event.position)
+			queue_redraw()
+	elif event is InputEventMouseButton and event.pressed:
+		if event.button_index == MOUSE_BUTTON_RIGHT and move_mode:
 			order_selected_move(get_global_mouse_position())
-	elif event is InputEventScreenTouch and event.pressed:
-		var world_pos: Vector2 = get_global_transform_with_canvas().affine_inverse() * event.position
-		_handle_world_tap(world_pos)
+	elif event is InputEventScreenTouch:
+		if selection_area_mode:
+			if event.pressed:
+				_pointer_down = true
+				_drag_selecting = false
+				_press_screen = event.position
+				_selection_start_world = _screen_to_world(event.position)
+				_selection_end_world = _selection_start_world
+			else:
+				_finish_pointer_gesture(event.position)
+		elif event.pressed:
+			_handle_world_tap(_screen_to_world(event.position))
+	elif event is InputEventScreenDrag and selection_area_mode and _pointer_down:
+		if not _drag_selecting and event.position.distance_to(_press_screen) >= 12.0:
+			_drag_selecting = true
+		if _drag_selecting:
+			_selection_end_world = _screen_to_world(event.position)
+			queue_redraw()
