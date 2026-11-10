@@ -201,3 +201,15 @@ Game sinh tồn 2D offline, ưu tiên Android, phát triển bằng Godot 4.
 - Mỗi công thức yêu cầu đúng cổ vật của vùng tương ứng cùng nguyên liệu đặc trưng; cổ vật bị tiêu hao khi chế tạo.
 - Khi cầm vũ khí di vật trong túi, đòn đánh cận chiến dùng sát thương riêng từ 46 đến 68, cao hơn vũ khí đá cơ bản.
 - HUD Android có hai hàng nút chế tạo vũ khí di vật; vũ khí và cổ vật đều được lưu trong túi đồ offline.
+
+
+## Kỹ năng chủ động của sáu vũ khí di vật
+- Nút KỸ NĂNG DI VẬT trên HUD kích hoạt kỹ năng của vũ khí di vật mạnh nhất đang có trong túi; mỗi kỹ năng hồi chiêu 8 giây.
+- Rìu Ma Mút: Rìu Quét, gây 48 sát thương diện rộng trong bán kính 145.
+- Kiếm Răng Hổ: Song Trảo Chí Mạng, dồn 82 sát thương lên một mục tiêu gần.
+- Thương Sấm: Sấm Sét Liên Kích, gây 45 sát thương lên tối đa 3 mục tiêu trong tầm 420.
+- Vuốt Đầm Lầy: Nọc Độc, gây 35 sát thương và độc 8 sát thương/giây trong 6 giây.
+- Chùy Hang: Chấn Địa, gây 58 sát thương trong bán kính 190.
+- Cung Băng: Băng Phong Tiễn, gây 32 sát thương và làm chậm 65% trong 4 giây.
+- Hiệu ứng độc và làm chậm được xử lý trực tiếp trong EnemyAI; không cần vật phẩm tiêu hao khi kích hoạt kỹ năng.
+- Các thay đổi đã được ghi lên nhánh main. Chưa chạy kiểm thử Godot runtime hoặc build APK trong môi trường hiện tại.
