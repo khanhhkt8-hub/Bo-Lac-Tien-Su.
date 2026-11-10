@@ -19,6 +19,7 @@ var _year_accumulator: float = 0.0
 var _next_id: int = 1
 var leader_id: int = -1
 var _load_leader_id: int = -1
+var leadership_history: Array[Dictionary] = []
 
 func _ready() -> void:
 	load_population()
@@ -81,6 +82,12 @@ func elect_new_leader() -> Dictionary:
 	for person in residents:
 		if int(person.get("id", -1)) != leader_id and str(person.get("role", "")) == "chieftain":
 			person["role"] = "villager"
+	if not previous.is_empty() and int(previous.get("id", -1)) != leader_id:
+		var record := previous.duplicate(true)
+		record["ended_at_age"] = int(previous.get("age", 0))
+		leadership_history.append(record)
+		if leadership_history.size() > 30:
+			leadership_history.pop_front()
 	leader_changed.emit(previous, chosen.duplicate(true))
 	save_population()
 	return chosen
@@ -89,6 +96,40 @@ func _leadership_score(person: Dictionary) -> float:
 	var age := int(person.get("age", 18))
 	var prime_age_bonus := 25.0 if age >= 25 and age <= 55 else 0.0
 	return float(person.get("health", 0.0)) * 0.35 + float(person.get("strength", 0)) * 2.0 + float(person.get("stamina", 0)) * 1.5 + float(person.get("experience", 0)) * 2.5 + prime_age_bonus
+
+func get_leadership_report() -> String:
+	var lines := PackedStringArray()
+	var current := get_leader()
+	if current.is_empty():
+		lines.append("TỘC TRƯỞNG HIỆN TẠI: Chưa có")
+	else:
+		lines.append("TỘC TRƯỞNG HIỆN TẠI")
+		lines.append("%s | %d tuổi | Sức khỏe %d" % [str(current.get("name", "Ẩn danh")), int(current.get("age", 0)), roundi(float(current.get("health", 0.0)))])
+	lines.append("")
+	lines.append("ỨNG VIÊN KẾ NHIỆM (xếp theo năng lực)")
+	var candidates: Array[Dictionary] = []
+	for person in residents:
+		if not bool(person.get("alive", true)) or int(person.get("age", 0)) < ADULT_AGE or int(person.get("id", -1)) == leader_id:
+			continue
+		candidates.append(person)
+	candidates.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return _leadership_score(a) > _leadership_score(b)
+	)
+	if candidates.is_empty():
+		lines.append("Chưa có ứng viên trưởng thành đủ điều kiện.")
+	else:
+		for index in range(mini(5, candidates.size())):
+			var person: Dictionary = candidates[index]
+			lines.append("%d. %s | %d tuổi | Điểm %.1f" % [index + 1, str(person.get("name", "Ẩn danh")), int(person.get("age", 0)), _leadership_score(person)])
+	lines.append("")
+	lines.append("LỊCH SỬ CÁC ĐỜI TỘC TRƯỞNG")
+	if leadership_history.is_empty():
+		lines.append("Chưa có lần chuyển giao quyền lãnh đạo.")
+	else:
+		for index in range(leadership_history.size() - 1, -1, -1):
+			var former: Dictionary = leadership_history[index]
+			lines.append("%d. %s | kết thúc nhiệm kỳ ở tuổi %d" % [leadership_history.size() - index, str(former.get("name", "Ẩn danh")), int(former.get("ended_at_age", former.get("age", 0)))])
+	return "\n".join(lines)
 
 func pair_residents(first_id: int, second_id: int) -> bool:
 	var first := _find_resident(first_id)
@@ -169,6 +210,7 @@ func save_population() -> void:
 	config.set_value("tribe", "residents", residents)
 	config.set_value("tribe", "next_id", _next_id)
 	config.set_value("tribe", "leader_id", leader_id)
+	config.set_value("tribe", "leadership_history", leadership_history)
 	config.save(SAVE_PATH)
 
 func load_population() -> void:
@@ -181,4 +223,9 @@ func load_population() -> void:
 		residents.append(person)
 	_next_id = int(config.get_value("tribe", "next_id", residents.size() + 1))
 	_load_leader_id = int(config.get_value("tribe", "leader_id", -1))
+	var saved_history: Array = config.get_value("tribe", "leadership_history", [])
+	leadership_history.clear()
+	for record in saved_history:
+		if record is Dictionary:
+			leadership_history.append(record)
 	leader_id = _load_leader_id
