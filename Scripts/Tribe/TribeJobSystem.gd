@@ -328,9 +328,9 @@ func resolve_wild_animal_attack(animal_power: int, animal_name: String = "Thú d
 		var traits: Dictionary = person.get("traits", {})
 		var skills: Dictionary = person.get("skills", {})
 		var relevant := int(traits.get("strength", 5)) + int(traits.get("agility", 5))
-		var score := 2 + relevant / 2 + int(skills.get(job_id, 0)) / 10
+		var score := 2 + int(relevant / 2) + int(int(skills.get(job_id, 0)) / 10)
 		if job_id == "scout":
-			score += int(traits.get("perception", 5)) / 2
+			score += int(int(traits.get("perception", 5)) / 2)
 		defenders += score
 		defender_ids.append(int(person.get("id", -1)))
 	var won := defenders >= animal_power
@@ -338,7 +338,7 @@ func resolve_wild_animal_attack(animal_power: int, animal_name: String = "Thú d
 	var livestock_lost := 0
 	defender_ids.sort()
 	for resident_id in defender_ids:
-		if injured >= maxi(1, animal_power / 12):
+		if injured >= maxi(1, int(animal_power / 12)):
 			break
 		var person := TribePopulation.get_resident(resident_id)
 		if person.is_empty():
@@ -349,8 +349,8 @@ func resolve_wild_animal_attack(animal_power: int, animal_name: String = "Thú d
 		person["morale"] = maxf(0.0, float(person.get("morale", 70.0)) - (1.0 if won else 6.0))
 		injured += 1
 	if not won:
-		livestock_lost += raid_stockpile("chicken", maxi(1, animal_power / 20))
-		livestock_lost += raid_stockpile("duck", maxi(1, animal_power / 25))
+		livestock_lost += raid_stockpile("chicken", maxi(1, int(animal_power / 20)))
+		livestock_lost += raid_stockpile("duck", maxi(1, int(animal_power / 25)))
 		for person in TribePopulation.residents:
 			if bool(person.get("alive", true)) and int(person.get("age", 0)) >= 18:
 				person["morale"] = maxf(0.0, float(person.get("morale", 70.0)) - 2.0)
