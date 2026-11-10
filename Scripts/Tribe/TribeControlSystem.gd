@@ -58,6 +58,7 @@ func _sync_units() -> void:
 		if units.has(id):
 			if is_instance_valid(units[id]):
 				(units[id] as TribeUnit).role = str(person.get("job", person.get("role", "villager")))
+				(units[id] as TribeUnit).move_speed = 132.0 if (units[id] as TribeUnit).role == "scout" else 105.0
 				(units[id] as TribeUnit).queue_redraw()
 			continue
 		var unit := UNIT_SCRIPT.new() as TribeUnit
