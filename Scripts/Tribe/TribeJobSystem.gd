@@ -82,6 +82,7 @@ func raid_stockpile(resource_id: String, requested_amount: int) -> int:
 	return stolen
 
 func _produce_resources() -> void:
+	_auto_assign_emergency_jobs()
 	var produced: Dictionary = {}
 	for key in assignments:
 		var resident_id := int(key)
@@ -97,6 +98,50 @@ func _produce_resources() -> void:
 	for resource_id in produced:
 		production_changed.emit(resource_id, int(stockpile[resource_id]))
 	_save_state()
+
+## Khi kho sinh tồn xuống thấp, tự giao việc cho người trưởng thành chưa có nghề.
+## Không thay đổi bất kỳ nghề nào người chơi đã phân công.
+func _auto_assign_emergency_jobs() -> void:
+	var summary := TribePopulation.get_population_summary()
+	var living_adults := int(summary.get("adults", 0)) + int(summary.get("elders", 0))
+	if living_adults <= 0:
+		return
+	var food_total := 0
+	for resource_id in ["food", "meat", "fish", "fruit", "berries", "chicken", "duck", "eggs"]:
+		food_total += int(stockpile.get(resource_id, 0))
+	var water_total := int(stockpile.get("water", 0))
+	var food_limit := maxi(10, living_adults * 2)
+	var water_limit := maxi(10, living_adults * 2)
+	var food_jobs := ["farmer", "gatherer", "fisher", "hunter", "orchardist", "poultry"]
+	var assigned_any := false
+	var emergency_slots := 2
+	for person in TribePopulation.residents:
+		if emergency_slots <= 0:
+			break
+		if not bool(person.get("alive", true)) or int(person.get("age", 0)) < 18:
+			continue
+		if str(person.get("role", "")) == "chieftain":
+			continue
+		var resident_id := int(person.get("id", -1))
+		if assignments.has(resident_id) or assignments.has(str(resident_id)):
+			continue
+		var selected_job := ""
+		if water_total < water_limit:
+			selected_job = "water_carrier"
+			water_total += 5
+		elif food_total < food_limit:
+			selected_job = food_jobs[mini(food_jobs.size() - 1, int(food_total / 5.0) % food_jobs.size())]
+			food_total += 4
+		if selected_job.is_empty():
+			break
+		assignments[resident_id] = selected_job
+		person["job"] = selected_job
+		job_assigned.emit(resident_id, selected_job)
+		emergency_slots -= 1
+		assigned_any = true
+	if assigned_any:
+		TribePopulation.save_population()
+		_save_state()
 
 func _save_state() -> void:
 	var config := ConfigFile.new()
