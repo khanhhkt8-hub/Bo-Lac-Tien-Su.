@@ -40,6 +40,13 @@ func _draw() -> void:
 	draw_polyline(river, Color("#b8a36b"), 174.0, true)
 	draw_polyline(river, Color("#397f9b"), 148.0, true)
 	draw_polyline(river, Color("#72b8c0"), 5.0, true)
+	# Dải bọt nước và ánh phản chiếu thay đổi theo thời gian.
+	for i in range(18):
+		var water_phase := _ambient_time * 1.25 + float(i) * 2.4
+		var water_x := -2050.0 + float(i) * 235.0
+		var water_y := -690.0 + float(i) * 82.0 + sin(float(i) * 0.7) * 90.0
+		var foam_pos := Vector2(water_x + sin(water_phase) * 22.0, water_y + cos(water_phase * 0.6) * 8.0)
+		draw_arc(foam_pos, 5.0 + sin(water_phase) * 1.8, 0.1, 2.7, 10, Color(0.84, 0.96, 0.91, 0.42), 1.4)
 	for i in range(river.size() - 1):
 		var mid := river[i].lerp(river[i + 1], 0.5)
 		draw_arc(mid + Vector2(0, -22), 18.0, 0.1, 2.8, 16, Color(0.78, 0.94, 0.91, 0.45), 2.0)
@@ -136,6 +143,10 @@ func _draw_rock_cluster(p: Vector2, size: float) -> void:
 	draw_line(p + Vector2(12, -10) * size, p + Vector2(7, 2) * size, Color("#46534f"), 1.5 * size, true)
 
 func _draw_campfire(p: Vector2) -> void:
+	# Quầng sáng ấm tỏa quanh bếp lửa, nhiều lớp trong suốt.
+	draw_circle(p, 78.0, Color(1.0, 0.48, 0.12, 0.035))
+	draw_circle(p, 52.0, Color(1.0, 0.55, 0.16, 0.055))
+	draw_circle(p, 31.0, Color(1.0, 0.72, 0.28, 0.08))
 	draw_ellipse_placeholder(p + Vector2(0, 12), 31, 12, Color(0.12, 0.12, 0.08, 0.45))
 	draw_circle(p, 22, Color("#5a4938"))
 	draw_circle(p, 15, Color("#292b29"))
@@ -143,6 +154,11 @@ func _draw_campfire(p: Vector2) -> void:
 	var flame_height := 25.0 + flicker
 	draw_colored_polygon(PackedVector2Array([p + Vector2(-11, 6), p + Vector2(0, -flame_height), p + Vector2(11, 6)]), Color("#e17c32"))
 	draw_colored_polygon(PackedVector2Array([p + Vector2(-6, 5), p + Vector2(1.5, -flame_height * 0.58), p + Vector2(7, 5)]), Color("#f5d06a"))
+	# Tia lửa bay lên, tắt dần theo quỹ đạo riêng.
+	for i in range(6):
+		var spark_phase := _ambient_time * (1.7 + float(i) * 0.11) + float(i) * 2.1
+		var spark_pos := p + Vector2(sin(spark_phase) * (8.0 + float(i) * 2.0), -fposmod(_ambient_time * (18.0 + float(i)), 31.0) - 8.0)
+		draw_circle(spark_pos, 1.0 + 0.5 * absf(sin(spark_phase)), Color(1.0, 0.72, 0.28, 0.75))
 	# Khói mỏng cuộn lên từ lửa trại.
 	for i in range(3):
 		var phase := _ambient_time * 0.9 + float(i) * 1.9
