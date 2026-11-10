@@ -3,6 +3,8 @@ class_name TribeUnit
 
 var resident_id: int = -1
 var resident_name := "Dân làng"
+var resident_age := 18
+var combat_order_active := false
 var role := "villager"
 var move_target := Vector2.ZERO
 var has_move_order := false
@@ -13,6 +15,7 @@ var attack_timer := 0.0
 func setup(data: Dictionary) -> void:
 	resident_id = int(data.get("id", -1))
 	resident_name = str(data.get("name", "Dân làng"))
+	resident_age = int(data.get("age", 18))
 	role = str(data.get("job", data.get("role", "villager")))
 	queue_redraw()
 
@@ -33,7 +36,7 @@ func _process(delta: float) -> void:
 			global_position = move_target
 		else:
 			global_position += offset.normalized() * move_speed * delta
-	if role == "warrior" and attack_timer <= 0.0:
+	if combat_order_active and resident_age >= 18 and attack_timer <= 0.0:
 		var target: Node2D
 		var best_distance := 90.0
 		for enemy in get_tree().get_nodes_in_group("enemies"):
