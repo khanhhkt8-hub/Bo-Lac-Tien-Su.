@@ -7,6 +7,8 @@ extends Camera2D
 var drag_enabled := false
 var _mouse_dragging := false
 var _last_pointer := Vector2.ZERO
+var _touch_points: Dictionary = {}
+var _last_pinch_distance := 0.0
 
 func _ready() -> void:
 	position_smoothing_enabled = true
@@ -37,13 +39,35 @@ func _unhandled_input(event: InputEvent) -> void:
 		global_position -= pointer_delta / zoom.x
 		_last_pointer = event.position
 		get_viewport().set_input_as_handled()
-	elif event is InputEventScreenTouch and drag_enabled:
-		_last_pointer = event.position
-		get_viewport().set_input_as_handled()
-	elif event is InputEventScreenDrag and drag_enabled:
-		global_position -= event.relative / zoom.x
+	elif event is InputEventScreenTouch:
+		if event.pressed:
+			_touch_points[event.index] = event.position
+			if _touch_points.size() == 2:
+				_last_pinch_distance = _get_pinch_distance()
+			else:
+				_last_pointer = event.position
+		else:
+			_touch_points.erase(event.index)
+			if _touch_points.size() < 2:
+				_last_pinch_distance = 0.0
+			get_viewport().set_input_as_handled()
+	elif event is InputEventScreenDrag:
+		_touch_points[event.index] = event.position
+		if _touch_points.size() >= 2:
+			var pinch_distance := _get_pinch_distance()
+			if _last_pinch_distance > 0.0 and pinch_distance > 0.0:
+				_apply_zoom(pinch_distance / _last_pinch_distance)
+			_last_pinch_distance = pinch_distance
+		elif drag_enabled:
+			global_position -= event.relative / zoom.x
 		get_viewport().set_input_as_handled()
 
 func _apply_zoom(multiplier: float) -> void:
 	var next_zoom := clampf(zoom.x * multiplier, min_zoom, max_zoom)
 	zoom = Vector2(next_zoom, next_zoom)
+
+func _get_pinch_distance() -> float:
+	if _touch_points.size() < 2:
+		return 0.0
+	var points: Array = _touch_points.values()
+	return (points[0] as Vector2).distance_to(points[1] as Vector2)
