@@ -74,6 +74,16 @@ func _ready() -> void:
 	breed_button.text = "LAI TẠO THÚ"
 	breed_button.pressed.connect(_on_breed_companions_pressed)
 	column.add_child(breed_button)
+	var egg_row := HBoxContainer.new()
+	column.add_child(egg_row)
+	var egg_status_button := Button.new()
+	egg_status_button.text = "XEM Ổ TRỨNG"
+	egg_status_button.pressed.connect(_on_egg_status_pressed)
+	egg_row.add_child(egg_status_button)
+	var hatch_button := Button.new()
+	hatch_button.text = "ẤP / NỞ TRỨNG"
+	hatch_button.pressed.connect(_on_hatch_egg_pressed)
+	egg_row.add_child(hatch_button)
 	var tame_button := Button.new()
 	tame_button.text = "THUẦN HÓA THÚ"
 	tame_button.pressed.connect(_on_tame_pressed)
@@ -293,3 +303,13 @@ func _on_companion_combat_summary_pressed() -> void:
 func _on_equip_companion_gear_pressed() -> void:
 	if _player != null and _player.has_method("equip_nearby_companion_gear"):
 		_craft_status.text = _player.equip_nearby_companion_gear()
+
+
+func _on_egg_status_pressed() -> void:
+	if _player != null and _player.has_method("get_egg_summary"):
+		_craft_status.text = _player.get_egg_summary()
+
+
+func _on_hatch_egg_pressed() -> void:
+	if _player != null and _player.has_method("hatch_ready_egg"):
+		_craft_status.text = _player.hatch_ready_egg()
