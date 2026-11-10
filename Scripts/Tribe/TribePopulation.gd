@@ -270,22 +270,25 @@ func _consume_stockpile_food() -> bool:
 	return false
 
 func add_tribe_supplies(food_amount: int, water_amount: int) -> int:
+	# Chia theo vòng từng đơn vị để người đứng cuối danh sách không bị bỏ đói.
 	var supplied := 0
-	for person in residents:
-		if not bool(person.get("alive", true)):
-			continue
-		if food_amount > 0:
-			var food_room := maxi(0, 20 - int(person.get("food", 0)))
-			var food_added := mini(food_room, food_amount)
-			person["food"] = int(person.get("food", 0)) + food_added
-			food_amount -= food_added
-			supplied += food_added
-		if water_amount > 0:
-			var water_room := maxi(0, 20 - int(person.get("water", 0)))
-			var water_added := mini(water_room, water_amount)
-			person["water"] = int(person.get("water", 0)) + water_added
-			water_amount -= water_added
-		if food_amount <= 0 and water_amount <= 0:
+	var remaining_food := maxi(0, food_amount)
+	var remaining_water := maxi(0, water_amount)
+	while remaining_food > 0 or remaining_water > 0:
+		var distributed_this_round := false
+		for person in residents:
+			if not bool(person.get("alive", true)):
+				continue
+			if remaining_food > 0 and int(person.get("food", 0)) < 20:
+				person["food"] = int(person.get("food", 0)) + 1
+				remaining_food -= 1
+				supplied += 1
+				distributed_this_round = true
+			if remaining_water > 0 and int(person.get("water", 0)) < 20:
+				person["water"] = int(person.get("water", 0)) + 1
+				remaining_water -= 1
+				distributed_this_round = true
+		if not distributed_this_round:
 			break
 	save_population()
 	return supplied
