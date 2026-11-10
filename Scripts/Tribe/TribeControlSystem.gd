@@ -83,6 +83,26 @@ func select_role(role_id: String) -> int:
 			selected_ids.append(int(id))
 	return selected_ids.size()
 
+func select_role_additive(role_id: String) -> int:
+	for id in units:
+		var unit: TribeUnit = units[id]
+		if is_instance_valid(unit) and unit.role == role_id and not selected_ids.has(int(id)):
+			unit.set_selected(true)
+			selected_ids.append(int(id))
+	return selected_ids.size()
+
+func select_support_roles(additive: bool = false) -> int:
+	if not additive:
+		clear_selection()
+	for id in units:
+		var unit: TribeUnit = units[id]
+		if not is_instance_valid(unit):
+			continue
+		if unit.role in ["gatherer", "farmer", "crafter"] and not selected_ids.has(int(id)):
+			unit.set_selected(true)
+			selected_ids.append(int(id))
+	return selected_ids.size()
+
 func select_adult_role(role_id: String) -> int:
 	clear_selection()
 	for id in units:
@@ -194,6 +214,8 @@ func order_all_attack() -> int:
 			continue
 		var unit: TribeUnit = units[id]
 		unit.combat_order_active = unit.resident_age >= 18
+		unit.has_move_order = false
+		unit.combat_target = null
 		if unit.combat_order_active:
 			count += 1
 	return count
