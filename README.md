@@ -283,3 +283,8 @@ Game sinh tồn 2D offline, ưu tiên Android, phát triển bằng Godot 4.
 - `CHỌN HẬU CẦN` chọn người hái lượm, nông dân và thợ chế tác; `＋ HẬU CẦN` thêm cả nhóm này vào lựa chọn hiện tại.
 - Sau khi chọn các nhóm cần phối hợp, dùng DI CHUYỂN hoặc TẤN CÔNG. Có thể lần lượt chọn từng nhóm và ra các lệnh khác nhau; lệnh đã giao vẫn được từng đơn vị duy trì.
 - Lệnh tấn công hủy di chuyển đang dở để đơn vị lập tức tham chiến. Khi đang có lệnh chiến đấu, AI hái lượm/săn thú tự động tạm dừng để không ghi đè lệnh của người chơi.
+
+### Lệnh giữ vị trí
+- Chọn một hoặc nhiều nhóm rồi nhấn `GIỮ VỊ TRÍ` để mỗi người trưởng thành cố thủ tại vị trí hiện tại.
+- Đơn vị sẽ chỉ đuổi theo kẻ địch ở gần khu vực cố thủ, chiến binh áp sát, thợ săn giữ khoảng cách và hậu cần hỗ trợ.
+- Khi không còn mục tiêu, đơn vị quay về điểm đã được giao giữ. Lệnh di chuyển hoặc tập hợp mới sẽ hủy trạng thái giữ vị trí.
