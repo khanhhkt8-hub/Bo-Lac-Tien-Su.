@@ -345,6 +345,26 @@ func dispatch_nearest_defenders(enemy: Node2D, defender_limit: int = 3) -> int:
 		dispatched += 1
 	return dispatched
 
+func capture_nearest_prisoner() -> String:
+	var nearest: Node2D
+	var nearest_distance := 100.0
+	for candidate in get_tree().get_nodes_in_group("surrendered_barbarians"):
+		if not is_instance_valid(candidate) or candidate.is_queued_for_deletion() or not candidate is Node2D:
+			continue
+		var distance := global_position.distance_to((candidate as Node2D).global_position)
+		if distance < nearest_distance:
+			nearest_distance = distance
+			nearest = candidate as Node2D
+	if not is_instance_valid(nearest):
+		return "Không có tù binh đầu hàng trong phạm vi 100."
+	var prisoner_name := "Tù binh man rợ %d" % randi_range(10, 99)
+	var new_id := TribePopulation.recruit_migrant(prisoner_name, 20, "male", "villager")
+	if new_id < 0:
+		return "Không thể tiếp nhận tù binh."
+	nearest.remove_from_group("surrendered_barbarians")
+	nearest.queue_free()
+	return "Đã thu phục %s. Hãy phân công nghề tại bảng bộ lạc."
+
 func get_selected_count() -> int:
 	return selected_ids.size()
 
