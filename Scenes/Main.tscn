@@ -77,6 +77,46 @@ position = Vector2(-160, -180)
 resource_type = "water"
 amount_available = 5
 
+[node name="FishingSpot" parent="." instance=ExtResource("4_resource")]
+position = Vector2(-360, -520)
+resource_type = "fish"
+amount_available = 12
+
+[node name="FruitGrove" parent="." instance=ExtResource("4_resource")]
+position = Vector2(520, -420)
+resource_type = "fruit"
+amount_available = 14
+
+[node name="ChickenFlock" parent="." instance=ExtResource("4_resource")]
+position = Vector2(680, 480)
+resource_type = "chicken"
+amount_available = 8
+
+[node name="DuckPond" parent="." instance=ExtResource("4_resource")]
+position = Vector2(-620, 520)
+resource_type = "duck"
+amount_available = 8
+
+[node name="EggNest" parent="." instance=ExtResource("4_resource")]
+position = Vector2(760, -560)
+resource_type = "eggs"
+amount_available = 6
+
+[node name="ClayDeposit" parent="." instance=ExtResource("4_resource")]
+position = Vector2(-760, -520)
+resource_type = "clay"
+amount_available = 10
+
+[node name="StoneQuarry" parent="." instance=ExtResource("4_resource")]
+position = Vector2(920, 120)
+resource_type = "stone"
+amount_available = 24
+
+[node name="IronOreDeposit" parent="." instance=ExtResource("4_resource")]
+position = Vector2(-920, 520)
+resource_type = "ore"
+amount_available = 12
+
 [node name="BarbarianScout" parent="." instance=ExtResource("5_barbarian")]
 position = Vector2(420, 120)
 
