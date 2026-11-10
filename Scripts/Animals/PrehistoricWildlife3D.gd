@@ -6,6 +6,9 @@ var _wander_target := Vector3.ZERO
 var _wander_timer := 0.0
 var _phase := 0.0
 var _body_mesh: MeshInstance3D
+var health := 100.0
+var is_tamed := false
+var _flee_target := Vector3.ZERO
 
 func _ready() -> void:
 	add_to_group("wildlife_3d")
@@ -94,3 +97,29 @@ func _physics_process(delta: float) -> void:
 	for node in get_children():
 		if node is MeshInstance3D and node.name == "Leg":
 			node.rotation.x = sin(_phase + (PI if node.position.x < 0.0 else 0.0)) * 0.22
+
+func receive_damage(amount: float) -> void:
+	if is_tamed:
+		return
+	health = maxf(0.0, health - amount)
+	if health <= 0.0:
+		var player := get_tree().get_first_node_in_group("player_3d")
+		if player != null and player.has_method("collect_resource"):
+			player.collect_resource("meat", 2 if species != "mammoth" else 6)
+			player.collect_resource("hide", 1 if species != "deer" else 2)
+		queue_free()
+	else:
+		var player := get_tree().get_first_node_in_group("player_3d")
+		if player != null:
+			_flee_target = global_position + (global_position - player.global_position).normalized() * 18.0
+			_wander_target = _flee_target
+			_wander_timer = 5.0
+
+func tame() -> bool:
+	if is_tamed or species == "saber_tooth" or species == "cave_bear" or species == "wolf":
+		return false
+	is_tamed = true
+	remove_from_group("wildlife_3d")
+	add_to_group("tamed_mounts_3d")
+	_wander_timer = 0.0
+	return true
