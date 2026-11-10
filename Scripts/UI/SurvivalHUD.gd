@@ -84,6 +84,10 @@ func _ready() -> void:
 	needs_button.text = "NHU CẦU BỘ LẠC"
 	needs_button.pressed.connect(_on_tribe_needs_pressed)
 	needs_row.add_child(needs_button)
+	var capture_button := Button.new()
+	capture_button.text = "THU PHỤC TÙ BINH GẦN ĐÂY"
+	capture_button.pressed.connect(_on_capture_prisoner_pressed)
+	column.add_child(capture_button)
 	var treatment_button := Button.new()
 	treatment_button.text = "CHỮA THƯƠNG BỘ LẠC"
 	treatment_button.pressed.connect(_on_treat_tribe_pressed)
@@ -340,6 +344,10 @@ func _refresh_day_night_label() -> void:
 func _on_tribe_needs_pressed() -> void:
 	if TribePopulation != null:
 		_craft_status.text = TribePopulation.get_needs_report()
+
+func _on_capture_prisoner_pressed() -> void:
+	if is_instance_valid(_tribe_control) and _tribe_control.has_method("capture_nearest_prisoner"):
+		_craft_status.text = _tribe_control.capture_nearest_prisoner()
 
 func _on_treat_tribe_pressed() -> void:
 	if TribePopulation != null:
