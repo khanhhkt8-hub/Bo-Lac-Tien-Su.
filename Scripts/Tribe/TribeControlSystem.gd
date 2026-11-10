@@ -104,9 +104,9 @@ func order_all_attack() -> int:
 		if not units.has(id) or not is_instance_valid(units[id]):
 			continue
 		var unit: TribeUnit = units[id]
-		unit.role = "warrior"
-		unit.queue_redraw()
-		count += 1
+		unit.combat_order_active = unit.resident_age >= 18
+		if unit.combat_order_active:
+			count += 1
 	return count
 
 func get_selected_count() -> int:
