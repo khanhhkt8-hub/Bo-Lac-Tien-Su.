@@ -292,7 +292,14 @@ func load_population() -> void:
 	var saved: Array = config.get_value("tribe", "residents", [])
 	residents.clear()
 	for person in saved:
-		residents.append(person)
+		if person is Dictionary:
+			if not person.has("food"):
+				person["food"] = 20
+			if not person.has("water"):
+				person["water"] = 20
+			if not person.has("health"):
+				person["health"] = 100.0
+			residents.append(person)
 	_next_id = int(config.get_value("tribe", "next_id", residents.size() + 1))
 	_load_leader_id = int(config.get_value("tribe", "leader_id", -1))
 	var saved_history: Array = config.get_value("tribe", "leadership_history", [])
