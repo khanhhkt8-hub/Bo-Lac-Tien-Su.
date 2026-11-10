@@ -61,6 +61,14 @@ func add_resident(resident_name: String, age: int, sex: String, role: String = "
 func recruit_migrant(resident_name: String, age: int, sex: String, role: String = "migrant") -> int:
 	return add_resident(resident_name, age, sex, role)
 
+func recruit_captive(resident_name: String, age: int = 20, sex: String = "male") -> int:
+	var resident_id := add_resident(resident_name, age, sex, "captive_recruit")
+	if resident_id >= 0:
+		var person := get_resident(resident_id)
+		person["morale"] = 35.0
+		save_population()
+	return resident_id
+
 func get_leader() -> Dictionary:
 	return _find_resident(leader_id)
 
