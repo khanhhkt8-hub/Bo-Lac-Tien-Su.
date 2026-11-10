@@ -12,6 +12,9 @@ var _crafting: CraftingSystem
 var _tribe_panel: PanelContainer
 var _region_label: Label
 var _leader_label: Label
+var _day_night_label: Label
+var _day_night_cycle: Node
+var _day_night_refresh: float = 0.0
 var _tribe_control: Node
 var _rts_camera: Camera2D
 var _camera_drag_active := false
@@ -53,6 +56,11 @@ func _ready() -> void:
 	_leader_label = Label.new()
 	_leader_label.text = "Tộc trưởng: đang cập nhật..."
 	column.add_child(_leader_label)
+	_day_night_cycle = get_node_or_null("../DayNightCycle")
+	_day_night_label = Label.new()
+	_day_night_label.text = "NGÀY 1 • ĐANG CẬP NHẬT"
+	column.add_child(_day_night_label)
+	_refresh_day_night_label()
 	var leadership_button := Button.new()
 	leadership_button.text = "HỘI ĐỒNG TỘC TRƯỞNG"
 	leadership_button.pressed.connect(_on_show_leadership_pressed)
@@ -289,6 +297,20 @@ func _ready() -> void:
 			_inventory.inventory_changed.connect(_on_inventory_changed)
 			_on_inventory_changed(_inventory.items)
 
+
+func _process(delta: float) -> void:
+	_day_night_refresh += delta
+	if _day_night_refresh >= 1.0:
+		_day_night_refresh = 0.0
+		_refresh_day_night_label()
+
+func _refresh_day_night_label() -> void:
+	if _day_night_label == null:
+		return
+	if _day_night_cycle != null and _day_night_cycle.has_method("get_time_report"):
+		_day_night_label.text = str(_day_night_cycle.call("get_time_report"))
+	else:
+		_day_night_label.text = "Chu kỳ ngày đêm chưa sẵn sàng"
 
 func _on_tribe_needs_pressed() -> void:
 	if TribePopulation != null:
