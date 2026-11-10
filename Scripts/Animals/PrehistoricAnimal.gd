@@ -296,6 +296,10 @@ func _draw() -> void:
 		"mammoth":
 			body_color = Color("#8a7964")
 			radius = 27.0
+	if rarity == "rare":
+		body_color = body_color.lerp(Color("#48c8d8"), 0.5)
+	elif rarity == "legendary":
+		body_color = body_color.lerp(Color("#f0bd45"), 0.62)
 	draw_circle(Vector2.ZERO, radius, body_color)
 	draw_circle(Vector2(-radius * 0.25, -radius * 0.15), 2.5, Color("#211b17"))
 	draw_circle(Vector2(radius * 0.25, -radius * 0.15), 2.5, Color("#211b17"))
@@ -305,10 +309,6 @@ func _draw() -> void:
 	if is_tamed:
 		var mark := "THÚ CON" if is_baby else "★%d" % companion_level
 		draw_string(ThemeDB.fallback_font, Vector2(-radius, -radius - 7.0), mark, HORIZONTAL_ALIGNMENT_LEFT, 70.0, 12, Color("#f2d16b"))
-	if rarity == "rare":
-		body_color = Color("#48c8d8")
-	elif rarity == "legendary":
-		body_color = Color("#f0bd45")
 	if is_tamed and rarity != "common":
 		draw_arc(Vector2.ZERO, radius + 5.0, 0.0, TAU, 32, body_color.lightened(0.25), 2.5)
 	if species == "mammoth":
