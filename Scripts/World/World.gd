@@ -2,8 +2,19 @@ extends Node2D
 
 const WORLD_EXTENT := 2400.0
 
+var _ambient_time := 0.0
+var _ambient_redraw_timer := 0.0
+
 func _ready() -> void:
 	queue_redraw()
+
+func _process(delta: float) -> void:
+	_ambient_time += delta
+	_ambient_redraw_timer += delta
+	# Giới hạn nhịp vẽ để hiệu ứng môi trường mượt mà mà không tốn pin quá mức.
+	if _ambient_redraw_timer >= 0.12:
+		_ambient_redraw_timer = 0.0
+		queue_redraw()
 
 func _draw() -> void:
 	# Nền đất nhiều lớp màu thay cho mặt phẳng xanh đơn điệu.
@@ -31,6 +42,10 @@ func _draw() -> void:
 	for i in range(river.size() - 1):
 		var mid := river[i].lerp(river[i + 1], 0.5)
 		draw_arc(mid + Vector2(0, -22), 18.0, 0.1, 2.8, 16, Color(0.78, 0.94, 0.91, 0.45), 2.0)
+		# Vệt sáng trôi theo mặt nước tạo cảm giác dòng suối đang chuyển động.
+		var ripple_phase := _ambient_time * 1.8 + float(i) * 1.7
+		var ripple_pos := mid + Vector2(cos(ripple_phase) * 34.0, sin(ripple_phase * 0.7) * 17.0)
+		draw_arc(ripple_pos, 10.0 + sin(ripple_phase) * 3.0, 0.15, 2.55, 12, Color(0.78, 0.94, 0.91, 0.38), 2.0)
 
 	# Lối mòn đất nối khu trại với các vùng kiếm ăn.
 	var trail := PackedVector2Array([Vector2(-2200, 340), Vector2(-1450, 240), Vector2(-760, 180), Vector2(-180, 80), Vector2(380, 150), Vector2(980, 80), Vector2(1680, -160), Vector2(2350, -260)])
@@ -98,8 +113,15 @@ func _draw_campfire(p: Vector2) -> void:
 	draw_ellipse_placeholder(p + Vector2(0, 12), 31, 12, Color(0.12, 0.12, 0.08, 0.45))
 	draw_circle(p, 22, Color("#5a4938"))
 	draw_circle(p, 15, Color("#292b29"))
-	draw_colored_polygon(PackedVector2Array([p + Vector2(-11, 6), p + Vector2(0, -25), p + Vector2(11, 6)]), Color("#e17c32"))
-	draw_colored_polygon(PackedVector2Array([p + Vector2(-6, 5), p + Vector2(0, -14), p + Vector2(7, 5)]), Color("#f5d06a"))
+	var flicker := sin(_ambient_time * 13.0) * 3.5 + sin(_ambient_time * 7.0) * 2.0
+	var flame_height := 25.0 + flicker
+	draw_colored_polygon(PackedVector2Array([p + Vector2(-11, 6), p + Vector2(0, -flame_height), p + Vector2(11, 6)]), Color("#e17c32"))
+	draw_colored_polygon(PackedVector2Array([p + Vector2(-6, 5), p + Vector2(1.5, -flame_height * 0.58), p + Vector2(7, 5)]), Color("#f5d06a"))
+	# Khói mỏng cuộn lên từ lửa trại.
+	for i in range(3):
+		var phase := _ambient_time * 0.9 + float(i) * 1.9
+		var smoke_pos := p + Vector2(sin(phase) * (5.0 + float(i) * 2.0), -34.0 - float(i) * 17.0 - fposmod(_ambient_time * 12.0, 17.0))
+		draw_circle(smoke_pos, 4.0 + float(i), Color(0.76, 0.78, 0.70, 0.16 - float(i) * 0.035))
 
 func _draw_tent(p: Vector2, cloth: Color) -> void:
 	draw_ellipse_placeholder(p + Vector2(5, 15), 39, 12, Color(0.12, 0.15, 0.10, 0.3))
