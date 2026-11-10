@@ -17,6 +17,7 @@ func _ready() -> void:
 	_build_rocks()
 	_build_camp()
 	_build_resources()
+	_build_wildlife()
 	_sync_tribe_residents()
 
 func _mat(color: Color, roughness: float = 0.9, metallic: float = 0.0) -> StandardMaterial3D:
@@ -248,3 +249,15 @@ func _sync_tribe_residents() -> void:
 			remove_ids.append(key)
 	for key in remove_ids:
 		_resident_nodes.erase(key)
+
+func _build_wildlife() -> void:
+	var species_list := ["wolf", "wolf", "wolf", "saber_tooth", "saber_tooth", "cave_bear", "mammoth", "deer", "deer", "deer"]
+	for i in range(30):
+		var animal := PrehistoricWildlife3D.new()
+		animal.species = species_list[i % species_list.size()]
+		var x := _rng.randf_range(-world_size * 0.42, world_size * 0.42)
+		var z := _rng.randf_range(-world_size * 0.42, world_size * 0.42)
+		if Vector2(x, z).length() < 95.0 or absf(z + 0.32 * x + 270.0) < 75.0:
+			x += 160.0
+		animal.position = Vector3(x, 0.0, z)
+		add_child(animal)
