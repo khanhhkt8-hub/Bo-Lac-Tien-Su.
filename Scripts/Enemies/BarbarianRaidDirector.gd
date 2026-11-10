@@ -111,7 +111,9 @@ func _scan_for_intruders(delta: float) -> void:
 		var distance := enemy.global_position.distance_to(center)
 		if distance <= 340.0 and not _alerted_intruders.has(enemy_id):
 			_alerted_intruders[enemy_id] = true
-			intruder_detected(roundi(distance))
+			intruder_detected.emit(roundi(distance))
+			if control != null and control.has_method("dispatch_nearest_defenders"):
+				control.call("dispatch_nearest_defenders", enemy, 3)
 	for alerted_id in _alerted_intruders.keys():
 		if not active_ids.has(alerted_id):
 			_alerted_intruders.erase(alerted_id)
