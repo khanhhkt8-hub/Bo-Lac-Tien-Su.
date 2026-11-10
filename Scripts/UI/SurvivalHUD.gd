@@ -61,6 +61,16 @@ func _ready() -> void:
 		if not TribePopulation.leader_changed.is_connected(_on_tribe_leader_changed):
 			TribePopulation.leader_changed.connect(_on_tribe_leader_changed)
 		_refresh_leader_label()
+	var needs_row := HBoxContainer.new()
+	column.add_child(needs_row)
+	var needs_button := Button.new()
+	needs_button.text = "NHU CẦU BỘ LẠC"
+	needs_button.pressed.connect(_on_tribe_needs_pressed)
+	needs_row.add_child(needs_button)
+	var supply_button := Button.new()
+	supply_button.text = "CẤP THỨC ĂN + NƯỚC"
+	supply_button.pressed.connect(_on_supply_tribe_pressed)
+	needs_row.add_child(supply_button)
 	_inventory_label = Label.new()
 	_inventory_label.text = "Túi đồ: trống"
 	column.add_child(_inventory_label)
@@ -278,6 +288,35 @@ func _ready() -> void:
 		if _inventory != null:
 			_inventory.inventory_changed.connect(_on_inventory_changed)
 			_on_inventory_changed(_inventory.items)
+
+
+func _on_tribe_needs_pressed() -> void:
+	if TribePopulation != null:
+		_craft_status.text = TribePopulation.get_needs_report()
+
+func _on_supply_tribe_pressed() -> void:
+	if _inventory == null or TribePopulation == null:
+		_craft_status.text = "Hệ thống hậu cần chưa sẵn sàng."
+		return
+	var food_items := ["food", "fish", "fruit", "chicken", "duck", "eggs", "meat"]
+	var food_given := 0
+	for item_id in food_items:
+		var available := _inventory.get_amount(item_id)
+		if available <= 0:
+			continue
+		var amount := mini(available, 5 - food_given)
+		if amount > 0 and _inventory.remove_item(item_id, amount):
+			food_given += amount
+		if food_given >= 5:
+			break
+	var water_given := mini(_inventory.get_amount("water"), 5)
+	if water_given > 0:
+		_inventory.remove_item("water", water_given)
+	TribePopulation.add_tribe_supplies(food_given, water_given)
+	if food_given == 0 and water_given == 0:
+		_craft_status.text = "Túi đồ không có thức ăn hoặc nước để tiếp tế."
+	else:
+		_craft_status.text = "Đã tiếp tế %d phần thức ăn và %d phần nước cho bộ lạc." % [food_given, water_given]
 
 func _on_show_leadership_pressed() -> void:
 	if TribePopulation == null:
