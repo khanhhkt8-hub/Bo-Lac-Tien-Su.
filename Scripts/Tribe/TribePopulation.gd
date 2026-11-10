@@ -52,14 +52,73 @@ func add_resident(resident_name: String, age: int, sex: String, role: String = "
 		return -1
 	var resident_id := _next_id
 	_next_id += 1
+	var inherited_traits: Dictionary = {}
+	if role == "child":
+		inherited_traits = _inherit_traits_from_parents()
+	else:
+		inherited_traits = _generate_resident_traits()
 	residents.append({
 		"id": resident_id, "name": resident_name, "age": age,
 		"sex": sex, "role": role, "partner_id": -1,
-		"health": 100.0, "food": 20, "water": 20, "strength": 10, "stamina": 10, "morale": 70.0, "experience": 0, "skills": {}, "alive": true, "in_daycare": false, "illness": false
+		"health": 100.0, "food": 20, "water": 20, "strength": 10, "stamina": 10, "morale": 70.0, "experience": 0, "skills": {}, "traits": inherited_traits, "alive": true, "in_daycare": false, "illness": false
 	})
 	_emit_population()
 	save_population()
 	return resident_id
+
+
+func _generate_resident_traits() -> Dictionary:
+	var traits := {
+		"strength": randi_range(1, 10),
+		"agility": randi_range(1, 10),
+		"intelligence": randi_range(1, 10),
+		"endurance": randi_range(1, 10),
+		"perception": randi_range(1, 10)
+	}
+	# Một số cá nhân có thiên hướng nổi bật hoặc điểm yếu rõ rệt.
+	var trait_names: Array = traits.keys()
+	var favored: String = str(trait_names[randi_range(0, trait_names.size() - 1)])
+	traits[favored] = mini(10, int(traits[favored]) + 2)
+	return traits
+
+
+func _inherit_traits_from_parents() -> Dictionary:
+	var parent_traits: Array[Dictionary] = []
+	for parent in residents:
+		if not bool(parent.get("alive", true)):
+			continue
+		if int(parent.get("partner_id", -1)) < 0:
+			continue
+		var partner := _find_resident(int(parent.get("partner_id", -1)))
+		if partner.is_empty() or int(parent.get("id", -1)) > int(partner.get("id", -1)):
+			continue
+		parent_traits.append(parent.get("traits", {}))
+		parent_traits.append(partner.get("traits", {}))
+		if parent_traits.size() >= 2:
+			break
+	if parent_traits.size() < 2:
+		return _generate_resident_traits()
+	var inherited := {}
+	for trait_name in ["strength", "agility", "intelligence", "endurance", "perception"]:
+		var first := int(parent_traits[0].get(trait_name, 5))
+		var second := int(parent_traits[1].get(trait_name, 5))
+		inherited[trait_name] = clampi(roundi((first + second) / 2.0) + randi_range(-1, 1), 1, 10)
+	return inherited
+
+
+func get_trait_report(resident_id: int) -> String:
+	var person := get_resident(resident_id)
+	if person.is_empty():
+		return "Không tìm thấy dân làng."
+	var traits: Dictionary = person.get("traits", {})
+	return "ĐẶC TÍNH: %s\\nSức mạnh: %d/10\\nNhanh nhẹn: %d/10\\nTrí tuệ: %d/10\\nSức bền: %d/10\\nQuan sát: %d/10" % [
+		str(person.get("name", "Dân làng")),
+		int(traits.get("strength", 5)),
+		int(traits.get("agility", 5)),
+		int(traits.get("intelligence", 5)),
+		int(traits.get("endurance", 5)),
+		int(traits.get("perception", 5))
+	]
 
 func recruit_migrant(resident_name: String, age: int, sex: String, role: String = "migrant") -> int:
 	return add_resident(resident_name, age, sex, role)
@@ -550,6 +609,8 @@ func load_population() -> void:
 				person["experience"] = 0
 			if not person.has("skills") or not (person["skills"] is Dictionary):
 				person["skills"] = {}
+			if not person.has("traits") or not (person["traits"] is Dictionary):
+				person["traits"] = _generate_resident_traits()
 			residents.append(person)
 	_next_id = int(config.get_value("tribe", "next_id", residents.size() + 1))
 	_load_leader_id = int(config.get_value("tribe", "leader_id", -1))
