@@ -205,6 +205,17 @@ func order_all_follow_player() -> int:
 			count += 1
 	return count
 
+func order_selected_hold_position() -> int:
+	var count := 0
+	for id in selected_ids:
+		if not units.has(id) or not is_instance_valid(units[id]):
+			continue
+		var unit: TribeUnit = units[id]
+		unit.set_hold_position()
+		if unit.hold_position_active:
+			count += 1
+	return count
+
 func order_all_attack() -> int:
 	if selected_ids.is_empty():
 		select_all()
@@ -214,6 +225,8 @@ func order_all_attack() -> int:
 			continue
 		var unit: TribeUnit = units[id]
 		unit.combat_order_active = unit.resident_age >= 18
+		unit.hold_position_active = false
+		unit.hold_target = null
 		unit.has_move_order = false
 		unit.combat_target = null
 		if unit.combat_order_active:
