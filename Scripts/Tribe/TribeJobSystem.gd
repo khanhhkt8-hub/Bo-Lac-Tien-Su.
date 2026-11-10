@@ -102,6 +102,13 @@ func _produce_resources() -> void:
 ## Khi kho sinh tồn xuống thấp, tự giao việc cho người trưởng thành chưa có nghề.
 ## Không thay đổi bất kỳ nghề nào người chơi đã phân công.
 func _auto_assign_emergency_jobs() -> void:
+	# Thu hồi nghề của người đã mất để vị trí lao động được dùng lại.
+	var stale_ids: Array = []
+	for key in assignments.keys():
+		if TribePopulation.get_resident(int(key)).is_empty():
+			stale_ids.append(key)
+	for key in stale_ids:
+		assignments.erase(key)
 	var summary := TribePopulation.get_population_summary()
 	var living_adults := int(summary.get("adults", 0)) + int(summary.get("elders", 0))
 	if living_adults <= 0:
