@@ -55,7 +55,7 @@ func add_resident(resident_name: String, age: int, sex: String, role: String = "
 	residents.append({
 		"id": resident_id, "name": resident_name, "age": age,
 		"sex": sex, "role": role, "partner_id": -1,
-		"health": 100.0, "food": 20, "water": 20, "strength": 10, "stamina": 10, "morale": 70.0, "alive": true, "in_daycare": false, "illness": false
+		"health": 100.0, "food": 20, "water": 20, "strength": 10, "stamina": 10, "morale": 70.0, "experience": 0, "alive": true, "in_daycare": false, "illness": false
 	})
 	_emit_population()
 	save_population()
@@ -369,6 +369,28 @@ func _advance_one_year() -> void:
 		if current_age >= 20 and current_age <= 40 and str(person.get("sex", "")) == "female" and int(person.get("partner_id", -1)) != -1:
 			if randf() < 0.18:
 				births.append(person)
+	# Người cao tuổi truyền kinh nghiệm cho tối đa hai thành viên trẻ mỗi năm.
+	var elders: Array[Dictionary] = []
+	var learners: Array[Dictionary] = []
+	for person in residents:
+		if not bool(person.get("alive", true)):
+			continue
+		if int(person.get("age", 0)) >= ELDER_AGE:
+			elders.append(person)
+		elif int(person.get("age", 0)) >= 6 and int(person.get("age", 0)) < ELDER_AGE:
+			learners.append(person)
+	learners.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return int(a.get("experience", 0)) < int(b.get("experience", 0))
+	)
+	var learner_index := 0
+	for elder in elders:
+		for lesson in range(2):
+			if learner_index >= learners.size():
+				break
+			var learner: Dictionary = learners[learner_index]
+			learner["experience"] = mini(100, int(learner.get("experience", 0)) + 2)
+			learner["morale"] = clampf(float(learner.get("morale", 70.0)) + 1.0, 0.0, 100.0)
+			learner_index += 1
 	var current_leader := get_leader()
 	if current_leader.is_empty() or int(current_leader.get("age", 0)) >= LEADER_RETIREMENT_AGE:
 		elect_new_leader()
@@ -524,6 +546,8 @@ func load_population() -> void:
 				person["health"] = 100.0
 			if not person.has("illness"):
 				person["illness"] = false
+			if not person.has("experience"):
+				person["experience"] = 0
 			residents.append(person)
 	_next_id = int(config.get_value("tribe", "next_id", residents.size() + 1))
 	_load_leader_id = int(config.get_value("tribe", "leader_id", -1))
