@@ -307,3 +307,16 @@ Game sinh tồn 2D offline, ưu tiên Android, phát triển bằng Godot 4.
 - Dữ liệu vùng đã khám phá được lưu offline trong `user://bo_lac_fog_of_war.cfg`; tiến trình khám phá tiếp tục sau khi mở game lại.
 - Lớp sương mù được đặt trên các đối tượng thế giới để che cả tài nguyên, thú và kẻ địch ở vùng chưa được nhìn thấy.
 - Chưa chạy kiểm thử Godot runtime hoặc build APK.
+
+
+## Tộc trưởng và kế vị tự động
+- Bộ lạc không có nhân vật chính cố định; Tộc trưởng là một cư dân trong hệ thống dân số.
+- Khi Tộc trưởng qua đời hoặc đạt 70 tuổi, hệ thống tự chọn người kế nhiệm trong số cư dân trưởng thành còn sống; người đã đến tuổi nghỉ lãnh đạo không được tự tái đắc cử.
+- Điểm kế vị dựa trên sức khỏe, sức mạnh, thể lực, kinh nghiệm và lợi thế độ tuổi 25–55.
+- Mã cư dân Tộc trưởng được lưu offline; nếu chưa có ứng viên trưởng thành, hệ thống sẽ bầu lại khi có người đủ điều kiện.
+
+## Nguồn thực phẩm và điểm khai thác mới
+- Bản đồ mẫu bổ sung điểm đánh cá, vườn trái cây, đàn gà, ao vịt, ổ trứng, mỏ đất sét, mỏ đá và mỏ quặng.
+- Các điểm tài nguyên dùng chung ResourceNode; cư dân có thể thu thập vào kho bộ lạc, người chơi có thể thu thập theo cơ chế hiện có.
+- Kho bộ lạc bổ sung cá, trái cây, gà, vịt, trứng và đất sét; nghề mới gồm ngư dân, người thu hái trái cây, người chăm gia cầm và thợ khai mỏ.
+- Phân công nghề tạo sản lượng theo chu kỳ 30 giây; tài nguyên và nghề được lưu offline.
