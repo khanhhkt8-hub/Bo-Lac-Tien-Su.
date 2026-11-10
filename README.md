@@ -133,3 +133,12 @@ Game sinh tồn 2D offline, ưu tiên Android, phát triển bằng Godot 4.
 - Nút THÚ BẢO VỆ chuyển cả đội về chế độ hộ vệ, chỉ chủ động đánh kẻ địch áp sát người chơi.
 - Nút KỸ NĂNG ĐÀN THÚ xem kỹ năng và mệnh lệnh hiện tại của từng con.
 - Mệnh lệnh được lưu offline và khôi phục khi tải đội thú. Thú con không tham chiến; thú đang cưỡi không nhận lệnh tấn công cho đến khi xuống thú.
+
+
+## Tiến hóa và trang bị thú đồng hành
+- Thú trưởng thành có 3 bậc: Thú Đồng Hành (cấp 1), Thú Chiến Tinh Nhuệ (cấp 2), Cổ Thú Thức Tỉnh (cấp 3).
+- Cấp 2 và 3 tăng hệ số sát thương kỹ năng; chỉ số máu, sát thương cơ bản và tốc độ tiếp tục tăng theo nâng cấp hiện có.
+- Giáp thú chế tạo bằng 6 da + 4 xương, giảm 30% sát thương nhận vào cho thú đã trang bị.
+- Bùa nanh chế tạo bằng 6 xương + 3 đá, tăng 15% sát thương kỹ năng.
+- Nút TRANG BỊ THÚ tự trang bị các món đang có trong túi cho thú trưởng thành gần nhất. Trang bị và cấp tiến hóa được lưu offline.
+- Các thay đổi này chỉ thêm trang bị cho thú đồng hành, không thêm cơ chế xây dựng căn cứ.
