@@ -10,6 +10,9 @@ var _camera_pivot: Node3D
 var _camera: Camera3D
 var _dragging := false
 var _last_touch := Vector2.ZERO
+var inventory: Dictionary = {}
+var _gather_cooldown := 0.0
+var _nearby_resource: Node3D = null
 
 func _ready() -> void:
 	add_to_group("player_3d")
@@ -109,7 +112,16 @@ func _unhandled_input(event: InputEvent) -> void:
 		_camera_pitch = clampf(_camera_pitch - delta.y * mouse_sensitivity * 1.5, -0.85, 0.25)
 		_update_camera_rotation()
 
+func collect_resource(resource_type: String, amount: int) -> void:
+	inventory[resource_type] = int(inventory.get(resource_type, 0)) + amount
+	var hud := get_tree().get_first_node_in_group("hud_3d")
+	if hud != null and hud.has_method("show_inventory"):
+		hud.show_inventory(inventory)
+
 func _physics_process(_delta: float) -> void:
+	_gather_cooldown = maxf(0.0, _gather_cooldown - _delta)
+	if Input.is_action_just_pressed("interact") and _gather_cooldown <= 0.0:
+		_gather_nearest_resource()
 	var input_vector := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
 	var direction := Vector3(input_vector.x, 0.0, input_vector.y)
 	if direction.length_squared() > 0.01:
@@ -127,3 +139,17 @@ func _update_camera_rotation() -> void:
 	if is_instance_valid(_camera_pivot):
 		_camera_pivot.rotation.y = _camera_yaw
 		_camera_pivot.rotation.x = _camera_pitch
+
+func _gather_nearest_resource() -> void:
+	var nearest: Node3D = null
+	var nearest_distance := 3.4
+	for node in get_tree().get_nodes_in_group("resources_3d"):
+		if not is_instance_valid(node):
+			continue
+		var distance := global_position.distance_to(node.global_position)
+		if distance < nearest_distance:
+			nearest_distance = distance
+			nearest = node
+	if nearest != null and nearest.has_method("gather"):
+		if nearest.gather(self):
+			_gather_cooldown = 0.35
