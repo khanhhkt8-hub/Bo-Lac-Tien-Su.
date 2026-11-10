@@ -110,10 +110,22 @@ func attack_nearby() -> bool:
 	if nearest == null:
 		return false
 	var damage := 10.0
-	if inventory.get_amount("stone_axe") > 0:
-		damage = 22.0
+	if inventory.get_amount("relic_cavern_hammer") > 0:
+		damage = 68.0
+	elif inventory.get_amount("relic_mammoth_axe") > 0:
+		damage = 58.0
+	elif inventory.get_amount("relic_saber_blade") > 0:
+		damage = 54.0
+	elif inventory.get_amount("relic_thunder_spear") > 0:
+		damage = 52.0
+	elif inventory.get_amount("relic_swamp_claw") > 0:
+		damage = 49.0
+	elif inventory.get_amount("relic_frost_bow") > 0:
+		damage = 46.0
 	elif inventory.get_amount("stone_spear") > 0:
 		damage = 28.0
+	elif inventory.get_amount("stone_axe") > 0:
+		damage = 22.0
 	if nearest.has_method("take_damage"):
 		nearest.take_damage(damage)
 		attack_cooldown_left = attack_cooldown
