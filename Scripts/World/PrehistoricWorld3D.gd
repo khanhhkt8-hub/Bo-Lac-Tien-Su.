@@ -73,7 +73,22 @@ func _build_terrain() -> void:
 	plane.subdivide_depth = 100
 	ground.mesh = plane
 	ground.position.y = -0.25
-	ground.material_override = _mat(Color("#65884a"))
+	var ground_material := _mat(Color("#829b58"), 0.96)
+	var ground_noise := FastNoiseLite.new()
+	ground_noise.seed = 20261110
+	ground_noise.frequency = 0.018
+	ground_noise.noise_type = FastNoiseLite.TYPE_SIMPLEX
+	ground_noise.fractal_octaves = 4
+	ground_noise.fractal_gain = 0.52
+	var ground_texture := NoiseTexture2D.new()
+	ground_texture.width = 512
+	ground_texture.height = 512
+	ground_texture.seamless = true
+	ground_texture.noise = ground_noise
+	ground_material.albedo_texture = ground_texture
+	ground_material.uv1_scale = Vector3(18.0, 18.0, 1.0)
+	ground_material.roughness = 1.0
+	ground.material_override = ground_material
 	add_child(ground)
 	var body := StaticBody3D.new()
 	body.name = "TerrainCollision"
