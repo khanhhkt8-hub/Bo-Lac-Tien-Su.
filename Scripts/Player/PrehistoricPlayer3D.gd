@@ -166,3 +166,16 @@ func attack_nearest_wildlife() -> void:
 			target = animal
 	if target != null and target.has_method("receive_damage"):
 		target.receive_damage(25.0)
+
+func tame_nearest_wildlife() -> void:
+	var target: Node3D = null
+	var nearest_distance := 3.5
+	for animal in get_tree().get_nodes_in_group("wildlife_3d"):
+		if not is_instance_valid(animal) or not animal.has_method("tame"):
+			continue
+		var distance := global_position.distance_to(animal.global_position)
+		if distance < nearest_distance:
+			nearest_distance = distance
+			target = animal
+	if target != null and target.tame():
+		collect_resource("trust", 1)
