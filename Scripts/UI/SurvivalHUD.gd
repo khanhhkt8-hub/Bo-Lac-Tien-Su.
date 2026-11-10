@@ -15,6 +15,7 @@ var _leader_label: Label
 var _day_night_label: Label
 var _day_night_cycle: Node
 var _day_night_refresh: float = 0.0
+var _raid_director: Node
 var _tribe_control: Node
 var _rts_camera: Camera2D
 var _camera_drag_active := false
@@ -57,6 +58,12 @@ func _ready() -> void:
 	_leader_label.text = "Tộc trưởng: đang cập nhật..."
 	column.add_child(_leader_label)
 	_day_night_cycle = get_node_or_null("../DayNightCycle")
+	_raid_director = get_node_or_null("../BarbarianRaidDirector")
+	if _raid_director != null:
+		if _raid_director.has_signal("raid_warning") and not _raid_director.raid_warning.is_connected(_on_raid_warning):
+			_raid_director.raid_warning.connect(_on_raid_warning)
+		if _raid_director.has_signal("raid_started") and not _raid_director.raid_started.is_connected(_on_raid_started):
+			_raid_director.raid_started.connect(_on_raid_started)
 	_day_night_label = Label.new()
 	_day_night_label.text = "NGÀY 1 • ĐANG CẬP NHẬT"
 	column.add_child(_day_night_label)
@@ -303,6 +310,14 @@ func _process(delta: float) -> void:
 	if _day_night_refresh >= 1.0:
 		_day_night_refresh = 0.0
 		_refresh_day_night_label()
+
+func _on_raid_warning(seconds_left: int) -> void:
+	if _craft_status != null:
+		_craft_status.text = "BÁO ĐỘNG! Man rợ đang áp sát. Còn %d giây để tập hợp chiến binh và bảo vệ kho!" % seconds_left
+
+func _on_raid_started(raider_count: int) -> void:
+	if _craft_status != null:
+		_craft_status.text = "ĐỘT KÍCH BAN ĐÊM! Có %d kẻ địch xuất hiện. Hãy bảo vệ bộ lạc!" % raider_count
 
 func _refresh_day_night_label() -> void:
 	if _day_night_label == null:
