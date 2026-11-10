@@ -9,6 +9,9 @@ var _status_label: Label3D
 
 func _ready() -> void:
 	add_to_group("barbarian_camps_3d")
+	var progress := ConfigFile.new()
+	if progress.load("user://bo_lac_camps.cfg") == OK:
+		is_captured = bool(progress.get_value("camps", str(camp_index), false))
 	_build_camp()
 
 func _mat(color: Color) -> StandardMaterial3D:
@@ -49,6 +52,10 @@ func _build_camp() -> void:
 	_status_label.font_size = 48
 	_status_label.text = "TRẠI MAN RỢ %d" % (camp_index + 1)
 	add_child(_status_label)
+	if is_captured:
+		_status_label.text = "ĐÃ CHIẾM - TRẠI %d" % (camp_index + 1)
+		_banner.material_override = _mat(Color("#d6ad55"))
+		return
 	for index in range(required_guards):
 		var guard := PrehistoricBarbarian3D.new()
 		guard.is_chief = camp_index % 3 == 0 and index == 0
@@ -71,4 +78,8 @@ func capture() -> bool:
 	is_captured = true
 	_status_label.text = "ĐÃ CHIẾM"
 	_banner.material_override = _mat(Color("#d6ad55"))
+	var progress := ConfigFile.new()
+	progress.load("user://bo_lac_camps.cfg")
+	progress.set_value("camps", str(camp_index), true)
+	progress.save("user://bo_lac_camps.cfg")
 	return true
