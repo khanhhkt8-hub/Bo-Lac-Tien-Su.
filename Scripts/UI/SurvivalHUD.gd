@@ -231,6 +231,8 @@ func _ready() -> void:
 	_add_craft_button(survival_gear_row, "Đuốc", "torch")
 	_create_mobile_movement_pad()
 	_create_tribe_management_button()
+	if ScoutSystem != null and not ScoutSystem.status_changed.is_connected(_on_scout_status_changed):
+		ScoutSystem.status_changed.connect(_on_scout_status_changed)
 
 	if RegionSystem != null:
 		RegionSystem.region_changed.connect(_on_region_changed)
@@ -347,16 +349,24 @@ func _on_tribe_attack_pressed() -> void:
 
 func _on_scout_mode_pressed(button: Button) -> void:
 	if _tribe_control == null:
-	\treturn
+		return
 	var enabled := not bool(_tribe_control.get("scout_mode"))
 	if enabled and int(_tribe_control.call("get_selected_count")) == 0:
-	\t_craft_status.text = "Hãy chọn tiểu đội TRINH SÁT trước."
-	\treturn
+		_craft_status.text = "Hãy chọn tiểu đội TRINH SÁT trước."
+		return
 	_tribe_control.call("set_scout_mode", enabled)
 	button.text = "CHỌN ĐIỂM ĐẾN" if enabled else "GIAO NHIỆM VỤ TRINH SÁT"
-	_craft_status.text = "Chạm vào vùng chưa khám phá để cử trinh sát đến đó." if enabled else "Đã hủy nhiệm vụ trinh sát."\n\nfunc _on_scout_report_pressed() -> void:
+	_craft_status.text = "Chạm vào vùng chưa khám phá để cử trinh sát đến đó." if enabled else "Đã hủy nhiệm vụ trinh sát."
+
+func _on_scout_report_pressed() -> void:
 	if ScoutSystem != null:
-	\t_craft_status.text = ScoutSystem.get_latest_report_text()\n\nfunc _on_patrol_pressed(button: Button) -> void:
+		_craft_status.text = ScoutSystem.get_latest_report_text()
+
+func _on_scout_status_changed(message: String) -> void:
+	if _craft_status != null:
+		_craft_status.text = message
+
+func _on_patrol_pressed(button: Button) -> void:
 	if _tribe_control == null:
 		return
 	var enabled := not bool(_tribe_control.get("patrol_mode"))
