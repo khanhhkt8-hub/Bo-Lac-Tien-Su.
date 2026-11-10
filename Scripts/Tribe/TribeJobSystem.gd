@@ -18,6 +18,7 @@ const JOBS := {
 	"farmer": {"name": "Nông dân", "output": "food", "amount": 3},
 	"crafter": {"name": "Thợ chế tác", "output": "tools", "amount": 1},
 	"warrior": {"name": "Chiến binh", "output": "warrior_power", "amount": 2},
+	"night_guard": {"name": "Lính canh đêm", "output": "warrior_power", "amount": 1},
 	"scout": {"name": "Trinh sát", "output": "maps", "amount": 1}
 }
 
