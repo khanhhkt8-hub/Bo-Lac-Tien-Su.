@@ -126,9 +126,18 @@ func _auto_assign_emergency_jobs() -> void:
 	var food_limit := maxi(10, living_adults * 2)
 	var water_limit := maxi(10, living_adults * 2)
 	var sick_count := 0
+	var wounded_count := 0
 	for person in TribePopulation.residents:
-		if bool(person.get("alive", true)) and bool(person.get("illness", false)):
+		if not bool(person.get("alive", true)):
+			continue
+		if bool(person.get("illness", false)):
 			sick_count += 1
+		if float(person.get("health", 100.0)) < 85.0:
+			wounded_count += 1
+	var medic_count := 0
+	for assigned_key in assignments:
+		if str(assignments[assigned_key]) == "medic":
+			medic_count += 1
 	var food_jobs := ["farmer", "gatherer", "fisher", "hunter", "orchardist", "poultry"]
 	var assigned_any := false
 	var emergency_slots := 2
@@ -145,7 +154,10 @@ func _auto_assign_emergency_jobs() -> void:
 		var selected_job := ""
 		var food_ratio := float(food_total) / float(food_limit)
 		var water_ratio := float(water_total) / float(water_limit)
-		if sick_count > 0 and int(stockpile.get("herbs", 0)) < sick_count * 2:
+		if wounded_count > 0 and int(stockpile.get("herbs", 0)) > 0 and medic_count == 0:
+			selected_job = "medic"
+			medic_count += 1
+		elif sick_count > 0 and int(stockpile.get("herbs", 0)) < sick_count * 2:
 			selected_job = "herbalist"
 			sick_count -= 1
 		elif water_total < water_limit and (food_total >= food_limit or water_ratio <= food_ratio):
