@@ -267,34 +267,38 @@ func _build_wildlife() -> void:
 func _build_barbarian_camps() -> void:
 	var camp_positions := [Vector3(105, 0, 80), Vector3(-145, 0, 120), Vector3(220, 0, -90), Vector3(-260, 0, -140), Vector3(370, 0, 190), Vector3(-390, 0, 250)]
 	for camp_index in range(camp_positions.size()):
-		var camp := Node3D.new()
-		camp.name = "BarbarianCamp_%02d" % camp_index
+		var camp := PrehistoricCamp3D.new()
+		camp.camp_index = camp_index
+		camp.required_guards = 3 if camp_index % 2 == 0 else 2
 		camp.position = camp_positions[camp_index]
 		add_child(camp)
-		var ground := MeshInstance3D.new()
-		var ground_mesh := CylinderMesh.new()
-		ground_mesh.top_radius = 9.0
-		ground_mesh.bottom_radius = 9.5
-		ground_mesh.height = 0.18
-		ground.mesh = ground_mesh
-		ground.position.y = 0.05
-		ground.material_override = _mat(Color("#756044"))
-		camp.add_child(ground)
-		for barricade_index in range(7):
-			var barricade := MeshInstance3D.new()
-			var log_mesh := BoxMesh.new()
-			log_mesh.size = Vector3(2.8, 1.0, 0.35)
-			barricade.mesh = log_mesh
-			var angle := TAU * float(barricade_index) / 7.0
-			barricade.position = Vector3(cos(angle) * 7.0, 0.55, sin(angle) * 7.0)
-			barricade.rotation.y = -angle
-			barricade.material_override = _mat(Color("#593a27"))
-			camp.add_child(barricade)
-		for raider_index in range(3 if camp_index % 2 == 0 else 2):
-			var raider := PrehistoricBarbarian3D.new()
-			raider.is_chief = camp_index % 3 == 0 and raider_index == 0
-			raider.position = Vector3(cos(float(raider_index) * TAU / 3.0) * 3.0, 0.0, sin(float(raider_index) * TAU / 3.0) * 3.0)
-			camp.add_child(raider)
+
+func capture_nearest_camp() -> String:
+	var player := get_tree().get_first_node_in_group("player_3d") as Node3D
+	if not is_instance_valid(player):
+		return "KHÔNG TÌM THẤY NGƯỜI CHƠI"
+	var nearest: PrehistoricCamp3D = null
+	var nearest_distance := 16.0
+	for camp in get_tree().get_nodes_in_group("barbarian_camps_3d"):
+		if not is_instance_valid(camp) or camp.is_captured:
+			continue
+		var distance := player.global_position.distance_to(camp.global_position)
+		if distance < nearest_distance:
+			nearest_distance = distance
+			nearest = camp
+	if nearest == null:
+		return "KHÔNG CÓ TRẠI TRONG TẦM CHIẾM"
+	if not nearest.can_capture():
+		return "CẦN ĐÁNH BẠI %d LÍNH MAN RỢ CÒN LẠI" % nearest.get_remaining_guards()
+	if nearest.capture():
+		player.collect_resource("barbarian_trophy", 5)
+		player.collect_resource("stone", 12)
+		var captured := 0
+		for camp in get_tree().get_nodes_in_group("barbarian_camps_3d"):
+			if is_instance_valid(camp) and camp.is_captured:
+				captured += 1
+		return "ĐÃ CHIẾM TRẠI %d/6" % captured
+	return "CHƯA THỂ CHIẾM TRẠI"
 
 func _build_rally_flag() -> void:
 	var pole := MeshInstance3D.new()
