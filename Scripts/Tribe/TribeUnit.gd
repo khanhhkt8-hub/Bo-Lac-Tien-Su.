@@ -11,6 +11,8 @@ var has_move_order := false
 var selected := false
 var move_speed := 105.0
 var attack_timer := 0.0
+var gather_timer := 0.0
+var gathering_target: ResourceNode
 
 func setup(data: Dictionary) -> void:
 	resident_id = int(data.get("id", -1))
@@ -29,6 +31,7 @@ func set_selected(value: bool) -> void:
 
 func _process(delta: float) -> void:
 	attack_timer = maxf(0.0, attack_timer - delta)
+	gather_timer = maxf(0.0, gather_timer - delta)
 	if has_move_order:
 		var offset := move_target - global_position
 		if offset.length() <= 7.0:
@@ -36,6 +39,8 @@ func _process(delta: float) -> void:
 			global_position = move_target
 		else:
 			global_position += offset.normalized() * move_speed * delta
+	if role == "gatherer" and resident_age >= 18 and not has_move_order and gather_timer <= 0.0:
+		_auto_gather()
 	if combat_order_active and resident_age >= 18 and attack_timer <= 0.0:
 		var target: Node2D
 		var best_distance := 90.0
@@ -63,3 +68,24 @@ func _draw() -> void:
 	draw_circle(Vector2.ZERO, 10.0, tint)
 	draw_arc(Vector2.ZERO, 13.0 if selected else 11.0, 0.0, TAU, 24, Color("#fff2a6") if selected else Color("#342b20"), 2.5 if selected else 1.2)
 	draw_string(ThemeDB.fallback_font, Vector2(-24.0, -17.0), resident_name, HORIZONTAL_ALIGNMENT_CENTER, 48.0, 10, Color.WHITE)
+
+func _auto_gather() -> void:
+	if not is_instance_valid(gathering_target) or gathering_target.amount_available <= 0:
+		gathering_target = null
+		var nearest_distance := 260.0
+		for candidate in get_tree().get_nodes_in_group("resource_nodes"):
+			if not is_instance_valid(candidate) or not candidate is ResourceNode:
+				continue
+			var distance := global_position.distance_to(candidate.global_position)
+			if distance < nearest_distance and candidate.amount_available > 0:
+				nearest_distance = distance
+				gathering_target = candidate
+		if is_instance_valid(gathering_target):
+			issue_move_order(gathering_target.global_position)
+			return
+	if is_instance_valid(gathering_target):
+		if global_position.distance_to(gathering_target.global_position) <= 28.0:
+			if gathering_target.gather_for_tribe():
+				gather_timer = 2.5
+			gathering_target = null
+			has_move_order = false
