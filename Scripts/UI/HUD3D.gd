@@ -96,6 +96,23 @@ func _build_inventory_label() -> void:
 			player.gather_nearest_resource()
 	)
 	add_child(gather_button)
+	var hunt_button := Button.new()
+	hunt_button.text = "SĂN BẮN"
+	hunt_button.anchor_left = 1.0
+	hunt_button.anchor_top = 1.0
+	hunt_button.anchor_right = 1.0
+	hunt_button.anchor_bottom = 1.0
+	hunt_button.offset_left = -174.0
+	hunt_button.offset_top = -202.0
+	hunt_button.offset_right = -18.0
+	hunt_button.offset_bottom = -120.0
+	hunt_button.add_theme_font_size_override("font_size", 18)
+	hunt_button.pressed.connect(func():
+		var player := get_tree().get_first_node_in_group("player_3d")
+		if player != null and player.has_method("attack_nearest_wildlife"):
+			player.attack_nearest_wildlife()
+	)
+	add_child(hunt_button)
 
 func show_inventory(items: Dictionary) -> void:
 	if not is_instance_valid(_inventory_label):
